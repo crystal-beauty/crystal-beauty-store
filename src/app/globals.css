@@ -115,6 +115,60 @@
   body {
     @apply bg-background text-foreground;
   }
+  ::selection {
+    background: color-mix(in srgb, var(--gold) 30%, transparent);
+    color: var(--primary);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- Motion (respects reduced-motion) ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  [class*="animate-"] {
+    animation: none !important;
+    transition: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Luxury details ---------- */
+/* Fine gold hairline used under section titles */
+.gold-hairline {
+  position: relative;
+}
+.gold-hairline::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* Elegant dotted texture for navy surfaces without imagery */
+.dot-texture {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.14) 1px, transparent 0);
+  background-size: 26px 26px;
 }
 
 .font-display {

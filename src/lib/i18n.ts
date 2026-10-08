@@ -30,6 +30,37 @@ export const DICT = {
   ctaSubtitle: { fr: "Choisissez votre cadeau, payez à la livraison.", ar: "اختر هديتك وادفع عند الاستلام." },
   trackYourOrder: { fr: "Suivre ma commande", ar: "تتبع طلبي" },
 
+  // How it works (all verifiable claims only)
+  howEyebrow: { fr: "Simple et sécurisé", ar: "بسيط وآمن" },
+  howTitle: { fr: "Comment commander", ar: "كيف تطلب" },
+  howStep1Title: { fr: "Choisissez votre cadeau", ar: "اختر هديتك" },
+  howStep1Text: {
+    fr: "Parcourez la collection et ajoutez vos articles préférés au panier.",
+    ar: "تصفح المجموعة وأضف منتجاتك المفضلة إلى السلة.",
+  },
+  howStep2Title: { fr: "Remplissez votre adresse", ar: "أدخل عنوانك" },
+  howStep2Text: {
+    fr: "Wilaya, commune et adresse — les frais de livraison officiels s'affichent en direct.",
+    ar: "الولاية والبلدية والعنوان — تظهر رسوم التوصيل الرسمية مباشرة.",
+  },
+  howStep3Title: { fr: "Payez à la livraison", ar: "ادفع عند الاستلام" },
+  howStep3Text: {
+    fr: "Nous vous appelons pour confirmer, puis vous payez en espèces à la réception du colis.",
+    ar: "نتصل بك للتأكيد، ثم تدفع نقدًا عند استلام الطرد.",
+  },
+
+  // Empty store (honest — no fabricated products)
+  emptyStoreHint: {
+    fr: "Notre collection est en préparation. Contactez-nous pour être informé des nouveautés.",
+    ar: "مجموعتنا قيد الإعداد. تواصل معنا لمعرفة الجديد.",
+  },
+  footerDeliveryNote: {
+    fr: "Livraison dans les 58 wilayas — paiement à la livraison",
+    ar: "التوصيل إلى 58 ولاية — الدفع عند الاستلام",
+  },
+  notFoundTitle: { fr: "Page introuvable", ar: "الصفحة غير موجودة" },
+  notFoundText: { fr: "La page que vous cherchez n'existe pas ou a été déplacée.", ar: "الصفحة التي تبحث عنها غير موجودة أو تم نقلها." },
+
   // Product card / detail
   soldOut: { fr: "Rupture de stock", ar: "نفدت الكمية" },
   lowStock: { fr: "Plus que", ar: "بقي فقط" },
@@ -140,7 +171,6 @@ export const DICT = {
   policyDelivery: { fr: "Livraison", ar: "التوصيل" },
   policyReturns: { fr: "Retours", ar: "الإرجاع" },
   policyPrivacy: { fr: "Confidentialité", ar: "الخصوصية" },
-  poweredBy: { fr: "Livraison par", ar: "التوصيل عبر" },
 
   // Reviews
   reviewTitle: { fr: "Votre avis compte", ar: "رأيك يهمنا" },

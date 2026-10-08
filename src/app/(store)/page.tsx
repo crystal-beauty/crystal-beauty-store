@@ -4,8 +4,10 @@ import { getSettings } from "@/lib/settings";
 import { getLang } from "@/lib/locale-server";
 import { t, pick } from "@/lib/i18n";
 import { parseMedia } from "@/lib/format";
-import { Banknote, Truck, Gift, PackageSearch, Package, ArrowRight, Sparkles } from "lucide-react";
+import { Banknote, Truck, Gift, PackageSearch, Package, ArrowRight, Sparkles, ClipboardCheck } from "lucide-react";
 import ProductCard, { type ProductCardData } from "@/components/store/product-card";
+import Reveal from "@/components/store/reveal";
+import { toInternationalDz } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -53,25 +55,62 @@ export default async function HomePage() {
     <div>
       {/* ================= HERO ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        <div className="relative overflow-hidden rounded-[2rem] shadow-luxe-lg min-h-[440px] lg:min-h-[540px] flex items-center bg-[var(--primary)]">
-          {settings.heroImage && (
-            <img
-              src={settings.heroImage}
-              alt={settings.storeName}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+        <div className="relative overflow-hidden rounded-[2rem] shadow-luxe-lg min-h-[460px] lg:min-h-[560px] flex items-center bg-[var(--primary)] animate-rise">
+          {settings.heroImage ? (
+            <>
+              <img
+                src={settings.heroImage}
+                alt={settings.storeName}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" />
+            </>
+          ) : (
+            /* Premium composed fallback — no fake imagery, pure design */
+            <>
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
+              <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-[var(--gold)]/15 blur-3xl" />
+              <div className="absolute -bottom-44 -start-28 h-[26rem] w-[26rem] rounded-full bg-[#46639f]/25 blur-3xl" />
+              <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
+              <span
+                aria-hidden
+                className="hidden lg:block absolute end-8 top-1/2 -translate-y-1/2 font-display text-[17rem] leading-none text-white/[0.05] select-none pointer-events-none"
+              >
+                {settings.storeName.charAt(0)}
+              </span>
+              <span
+                aria-hidden
+                className="lg:hidden absolute -end-6 -top-10 font-display text-[11rem] leading-none text-white/[0.05] select-none pointer-events-none"
+              >
+                {settings.storeName.charAt(0)}
+              </span>
+            </>
           )}
-          <div className={`absolute inset-0 ${settings.heroImage ? "bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" : ""}`} />
           <div className="relative z-10 px-8 sm:px-12 lg:px-16 py-16 max-w-2xl">
             {settings.tagline && (
-              <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6">
+              <span
+                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6 animate-rise"
+                style={{ animationDelay: "100ms" }}
+              >
                 <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
                 {settings.tagline}
               </span>
             )}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1]">{heroTitle}</h1>
-            {heroSubtitle && <p className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-lg">{heroSubtitle}</p>}
-            <div className="mt-8 flex flex-wrap gap-3">
+            <h1
+              className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] text-balance animate-rise"
+              style={{ animationDelay: "180ms" }}
+            >
+              {heroTitle}
+            </h1>
+            {heroSubtitle && (
+              <p
+                className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-lg animate-rise"
+                style={{ animationDelay: "280ms" }}
+              >
+                {heroSubtitle}
+              </p>
+            )}
+            <div className="mt-8 flex flex-wrap gap-3 animate-rise" style={{ animationDelay: "380ms" }}>
               <Link
                 href={settings.heroCtaLink || "/products"}
                 className="inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-medium px-7 py-3.5 rounded-full transition-all hover:scale-[1.02] shadow-lg"
@@ -86,28 +125,75 @@ export default async function HomePage() {
                 {t("trackYourOrder", lang)}
               </Link>
             </div>
+            {/* Reassurance row — verifiable facts only */}
+            <div
+              className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/60 animate-rise"
+              style={{ animationDelay: "480ms" }}
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <Banknote className="h-3.5 w-3.5 text-[var(--gold)]" />
+                {t("codBadge", lang)}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Truck className="h-3.5 w-3.5 text-[var(--gold)]" />
+                {t("wilayasBadge", lang)}
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ================= TRUST BAR (verifiable claims only) ================= */}
       <section className="border-y border-border bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 grid grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { icon: Banknote, title: t("codBadge", lang), text: t("codBadgeText", lang) },
             { icon: Truck, title: t("wilayasBadge", lang), text: t("wilayasBadgeText", lang) },
             { icon: Gift, title: t("giftBadge", lang), text: t("giftBadgeText", lang) },
             { icon: PackageSearch, title: t("trackBadge", lang), text: t("trackBadgeText", lang) },
-          ].map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex items-start gap-3">
-              <div className="h-11 w-11 rounded-full bg-[var(--primary)]/5 flex items-center justify-center shrink-0">
+          ].map(({ icon: Icon, title, text }, i) => (
+            <Reveal key={title} delay={i * 80} className="flex items-start gap-3">
+              <div className="h-11 w-11 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
                 <Icon className="h-5 w-5 text-[var(--gold)]" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--primary)]">{title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{text}</p>
               </div>
-            </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= HOW IT WORKS (honest, COD-specific) ================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <Reveal className="text-center mb-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] mb-2">{t("howEyebrow", lang)}</p>
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{t("howTitle", lang)}</h2>
+        </Reveal>
+        <div className="grid sm:grid-cols-3 gap-4 lg:gap-8">
+          {[
+            { icon: Gift, title: t("howStep1Title", lang), text: t("howStep1Text", lang) },
+            { icon: ClipboardCheck, title: t("howStep2Title", lang), text: t("howStep2Text", lang) },
+            { icon: Banknote, title: t("howStep3Title", lang), text: t("howStep3Text", lang) },
+          ].map(({ icon: Icon, title, text }, i) => (
+            <Reveal
+              key={title}
+              delay={i * 120}
+              className="relative bg-white rounded-2xl border border-border p-7 lg:p-8 shadow-luxe hover:shadow-luxe-lg transition-shadow"
+            >
+              <span
+                aria-hidden
+                className="absolute top-5 end-6 font-display text-5xl font-semibold text-[var(--primary)]/[0.07] select-none"
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="h-12 w-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center mb-5 shadow-luxe">
+                <Icon className="h-5.5 w-5.5 text-[var(--gold)]" />
+              </div>
+              <h3 className="font-display text-lg font-semibold text-[var(--primary)]">{title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -156,41 +242,63 @@ export default async function HomePage() {
           </div>
           {featuredCards.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
-              {featuredCards.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {featuredCards.slice(0, 8).map((product, i) => (
+                <Reveal key={product.id} delay={(i % 4) * 80}>
+                  <ProductCard product={product} />
+                </Reveal>
               ))}
             </div>
           ) : (
-            // Clean empty state — no fake products
-            <div className="text-center py-14">
-              <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">{t("comingSoon", lang)}</p>
-              <Link
-                href="/products"
-                className="mt-6 inline-flex items-center gap-2 border border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white font-medium px-8 py-3 rounded-full transition-colors"
-              >
-                {t("shopAll", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-            </div>
+            // Clean honest empty state — no fabricated products
+            <Reveal className="rounded-3xl border-2 border-dashed border-border bg-background/60 py-16 px-8 text-center max-w-2xl mx-auto">
+              <div className="h-16 w-16 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center mx-auto mb-5">
+                <Package className="h-7 w-7 text-[var(--gold)]" />
+              </div>
+              <p className="font-display text-xl font-semibold text-[var(--primary)]">{t("comingSoon", lang)}</p>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">{t("emptyStoreHint", lang)}</p>
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                {settings.whatsappNumber && (
+                  <a
+                    href={`https://wa.me/${toInternationalDz(settings.whatsappNumber).replace("+", "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90 font-medium px-7 py-3 rounded-full transition-colors text-sm"
+                  >
+                    {t("thankYouWhatsapp", lang)}
+                  </a>
+                )}
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 border border-[var(--primary)]/25 text-[var(--primary)] hover:border-[var(--primary)] hover:bg-[var(--primary)] hover:text-white font-medium px-7 py-3 rounded-full transition-colors text-sm"
+                >
+                  {t("shopAll", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                </Link>
+              </div>
+            </Reveal>
           )}
         </div>
       </section>
 
       {/* ================= CTA ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="relative overflow-hidden rounded-[2rem] bg-[var(--primary)] shadow-luxe-lg px-8 py-14 text-center">
-          <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
-          <Sparkles className="h-10 w-10 text-[var(--gold)] mx-auto mb-5" />
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white max-w-2xl mx-auto leading-tight">{t("codBadge", lang)}</h2>
-          <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
-          <Link
-            href="/products"
-            className="mt-8 inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-medium px-9 py-4 rounded-full transition-all hover:scale-[1.02] shadow-lg"
-          >
-            {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-          </Link>
-        </div>
+        <Reveal>
+          <div className="relative overflow-hidden rounded-[2rem] bg-[var(--primary)] shadow-luxe-lg px-8 py-14 text-center">
+            <div className="absolute inset-0 dot-texture opacity-30" aria-hidden />
+            <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+            <div className="relative">
+              <Sparkles className="h-10 w-10 text-[var(--gold)] mx-auto mb-5" />
+              <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white max-w-2xl mx-auto leading-tight text-balance">{t("codBadge", lang)}</h2>
+              <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
+              <Link
+                href="/products"
+                className="mt-8 inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-medium px-9 py-4 rounded-full transition-all hover:scale-[1.02] shadow-lg"
+              >
+                {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
       </section>
     </div>
   );

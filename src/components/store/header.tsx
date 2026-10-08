@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Menu, X, PackageSearch, Sparkles } from "lucide-react";
 import { useCart, cartCount } from "@/lib/cart";
@@ -14,10 +14,19 @@ export default function StoreHeader() {
   const items = useCart((s) => s.items);
   const count = cartCount(items);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const t = useT();
   const lang = useLang();
   const setLang = useSetLang();
+
+  // Soft shadow appears once the page is scrolled — keeps the sticky header crisp
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const NAV_LINKS = [
     { href: "/products", label: t("shopAll") },
@@ -33,7 +42,12 @@ export default function StoreHeader() {
           </Link>
         </div>
       )}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-border">
+      <header
+        className={cn(
+          "sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b transition-shadow duration-300",
+          scrolled ? "border-border shadow-[0_10px_30px_-18px_rgba(10,31,68,0.35)]" : "border-transparent"
+        )}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Mobile menu button */}
@@ -42,11 +56,11 @@ export default function StoreHeader() {
             </button>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2">
+            <Link href="/" className="flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2 group">
               {settings.logoUrl ? (
                 <img src={settings.logoUrl} alt={settings.storeName} className="h-8 w-auto" />
               ) : (
-                <Sparkles className="h-6 w-6 text-[var(--gold)]" />
+                <Sparkles className="h-6 w-6 text-[var(--gold)] transition-transform duration-500 group-hover:rotate-12" />
               )}
               <span className="font-display text-xl lg:text-2xl font-semibold tracking-wide text-[var(--primary)]">{settings.storeName}</span>
             </Link>
@@ -54,8 +68,14 @@ export default function StoreHeader() {
             {/* Desktop nav */}
             <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[var(--primary)]">
               {NAV_LINKS.map((link) => (
-                <Link key={link.href} href={link.href} className={cn("hover:text-[var(--gold)] transition-colors", pathname === link.href && "text-[var(--gold)]")}>
+                <Link key={link.href} href={link.href} className={cn("relative py-1 group/nav", pathname === link.href ? "text-[var(--gold)]" : "hover:text-[var(--gold)] transition-colors")}>
                   {link.label}
+                  <span
+                    className={cn(
+                      "absolute inset-x-0 -bottom-0.5 h-px bg-[var(--gold)] origin-center transition-transform duration-300",
+                      pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100"
+                    )}
+                  />
                 </Link>
               ))}
             </nav>

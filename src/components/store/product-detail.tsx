@@ -388,7 +388,7 @@ export default function ProductDetail({
               { icon: Truck, label: t("wilayasBadge") },
               { icon: PackageSearch, label: t("trackBadge") },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="rounded-xl bg-muted py-3 px-2">
+              <div key={label} className="rounded-xl bg-muted/70 border border-border/70 py-3 px-2">
                 <Icon className="h-5 w-5 text-[var(--gold)] mx-auto mb-1.5" />
                 <p className="text-xs font-medium text-[var(--primary)] leading-tight">{label}</p>
               </div>

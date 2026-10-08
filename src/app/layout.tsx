@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Playfair_Display, Cairo } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -22,6 +22,10 @@ const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
 });
+
+export const viewport: Viewport = {
+  themeColor: "#0a1f44",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();

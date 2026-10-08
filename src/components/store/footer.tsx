@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin, Clock, Banknote } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 import { getLang } from "@/lib/locale-server";
 import { t } from "@/lib/i18n";
@@ -116,7 +116,12 @@ export default async function StoreFooter() {
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <p>{settings.footerText.replace("{year}", String(year)).replace("{store}", settings.storeName)}</p>
-          {settings.carrierEnabled && <p>{t("poweredBy", lang)} World Express</p>}
+          {settings.carrierEnabled && (
+            <p className="flex items-center gap-1.5">
+              <Banknote className="h-3.5 w-3.5" />
+              {t("footerDeliveryNote", lang)}
+            </p>
+          )}
         </div>
       </div>
     </footer>

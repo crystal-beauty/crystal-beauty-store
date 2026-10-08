@@ -102,7 +102,7 @@ async function main() {
     console.log("— 6. Delete the parcel at the carrier (documented DELETE endpoint)");
     const tokenDirect = await fetch(`${process.env.WX_BASE || "https://world-express.ecotrack.dz"}/api/v1/delete/order?tracking=${tracking}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${process.env.WX_TOKEN || "o5M77XLpbA8OPdvuCERcmFcDgd9hjrdpJXXdTK1TV9DhfyZfzkzS9fFaQ9LD"}` },
+      headers: { Authorization: `Bearer ${process.env.WX_TOKEN || process.env.WORLDEXPRESS_API_TOKEN || ""}` },
     });
     const del = await tokenDirect.text();
     console.log("   delete:", tokenDirect.status, del.slice(0, 120));

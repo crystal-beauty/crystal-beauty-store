@@ -60,13 +60,13 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
-      <div className="relative overflow-hidden rounded-2xl bg-muted aspect-square shadow-luxe">
+      <div className="relative overflow-hidden rounded-2xl bg-muted aspect-square shadow-luxe ring-1 ring-transparent group-hover:ring-[var(--primary)]/10 transition-[box-shadow,ring] duration-300">
         {product.image ? (
           <img
             src={product.image}
             alt={product.shortDescription ? `${product.name} — ${product.shortDescription}` : product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-[var(--primary)]/25">
