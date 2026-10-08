@@ -114,6 +114,14 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Prices, order numbers, totals align perfectly in lists and tables */
+    font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
   }
   ::selection {
     background: color-mix(in srgb, var(--gold) 30%, transparent);
@@ -121,6 +129,12 @@
   }
   html {
     scroll-behavior: smooth;
+  }
+  /* Visible, brand-tinted keyboard focus — accessibility = professionalism */
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--gold) 75%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
   }
 }
 
@@ -137,6 +151,33 @@
 }
 .animate-rise {
   animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.animate-pop {
+  animation: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-menu-in {
+  animation: menu-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
@@ -212,4 +253,32 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Shimmer skeleton — calm, branded loading placeholder */
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #efece5 25%, #f7f5f0 40%, #efece5 55%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Tactile press feedback for primary actions */
+.press {
+  transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.press:active:not(:disabled) {
+  transform: scale(0.98);
 }

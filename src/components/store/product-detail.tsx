@@ -268,7 +268,7 @@ export default function ProductDetail({
           <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)] leading-tight">{product.name}</h1>
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-[var(--primary)]">{formatMoney(unitPrice)}</span>
+            <span className="text-3xl font-semibold tracking-tight text-[var(--primary)]">{formatMoney(unitPrice)}</span>
             {product.comparePrice && product.comparePrice > product.price && (
               <span className="text-lg text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
             )}
@@ -366,7 +366,7 @@ export default function ProductDetail({
             <button
               onClick={handleAddToCart}
               disabled={soldOut}
-              className="inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-medium py-3.5 rounded-full hover:bg-[var(--primary)]/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-medium py-3.5 rounded-full hover:bg-[var(--primary)]/90 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShoppingBag className="h-4.5 w-4.5" />
               {t("addToCart")}
@@ -374,7 +374,7 @@ export default function ProductDetail({
             <button
               onClick={handleBuyNow}
               disabled={soldOut}
-              className="inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-medium py-3.5 rounded-full hover:bg-[#b8903a] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="press inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-medium py-3.5 rounded-full hover:bg-[#b8903a] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Banknote className="h-4.5 w-4.5" />
               {t("orderNow")}

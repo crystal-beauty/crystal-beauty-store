@@ -105,7 +105,10 @@ export default function StoreHeader() {
               <Link href="/cart" className="relative p-2 text-[var(--primary)] hover:text-[var(--gold)] transition-colors" aria-label={`${t("cart")}: ${count}`}>
                 <ShoppingBag className="h-6 w-6" />
                 {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[var(--gold)] text-white text-[10px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center">
+                  <span
+                    key={count}
+                    className="animate-pop absolute -top-0.5 -right-0.5 bg-[var(--gold)] text-white text-[10px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center shadow-sm"
+                  >
                     {count}
                   </span>
                 )}
@@ -116,13 +119,16 @@ export default function StoreHeader() {
 
         {/* Mobile nav */}
         {mobileOpen && (
-          <nav className="lg:hidden border-t border-border bg-white px-4 py-3 space-y-1">
+          <nav className="animate-menu-in lg:hidden border-t border-border bg-white px-4 py-3 space-y-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--primary)] hover:bg-muted"
+                className={cn(
+                  "block px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  pathname === link.href ? "bg-[var(--primary)]/5 text-[var(--gold)]" : "text-[var(--primary)] hover:bg-muted"
+                )}
               >
                 {link.label}
               </Link>

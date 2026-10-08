@@ -49,3 +49,17 @@ Stage Summary:
 - Admin: admin@luminagifts.com / Admin@123 (OWNER); sara@luminagifts.com / Staff@123 (STAFF)
 - Carrier: connected live to world-express.ecotrack.dz via .env token; no hardcoded prices anywhere
 - Pending for owner: real contact info/photos/policies/hero via dashboard settings; full status list confirmation from carrier; optionally set STORE_PUBLIC_URL env for absolute review links
+
+---
+Task ID: 3
+Agent: Super Z (main agent)
+Task: Answer owner's questions (live carrier pricing? backend/variants/dashboard power?) with code evidence + professional polish pass on the storefront.
+
+Work Log:
+- Full codebase audit: verified lib/carrier.ts (live get/fees + communes, 6h CarrierCache, fallback host, zero hardcoded prices), api/orders (server-side recompute, live fee quoting, stop-desk validation, rate limits 5/h/phone + 30/h/IP, blocked phones), ship + bulk-ship routes (3-layer idempotency: tracking short-circuit, pending crash marker, reference=orderNumber), stats route (refusal rate, wilaya breakdown, low stock), product-editor variant builder (groups + options with priceModifier/stock/hexColor/required)
+- Professional polish (no new deps, no fake data): globals.css (antialiasing, body-wide tabular-nums for aligned prices, text-wrap balance on headings, gold focus-visible rings, shimmer skeleton, .press tactile feedback, animate-pop badge pop, animate-menu-in — all reduced-motion safe); header (cart badge pops on change, animated mobile menu with active-link highlight); product-card (honest "Plus que X" low-stock badge from real stock, refined price hierarchy 17px/13px); checkout (numbered section headers 1/2/3, press-feedback CTA); product-detail (press CTAs, tracking-tight price); loading.tsx (sr-only label, aria-busy)
+- Verified: ESLint 0 errors, production build OK, browser screenshots (home FR / home AR RTL / products / cart) all render correctly on dev :3000
+
+Stage Summary:
+- Catalog remains empty (real store, no demo data) — product card & checkout polish becomes visible once owner adds real products
+- Reconfirmed: delivery prices 100% live from World Express API, never hardcoded, never estimated

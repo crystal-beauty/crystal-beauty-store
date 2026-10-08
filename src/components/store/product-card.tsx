@@ -80,6 +80,13 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </span>
         )}
 
+        {/* Honest low-stock hint — real dashboard stock only */}
+        {!soldOut && product.trackStock && product.stock > 0 && product.stock <= 5 && (
+          <span className="absolute top-3 end-3 bg-white/95 backdrop-blur text-[var(--primary)] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[var(--primary)]/10 shadow-sm">
+            {t("lowStock")} {product.stock}
+          </span>
+        )}
+
         {/* Quick add */}
         {!soldOut && (
           <button
@@ -93,13 +100,13 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         )}
       </div>
 
-      <div className="pt-3 px-1">
+      <div className="pt-3.5 px-1">
         <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[var(--gold)] transition-colors">{product.name}</h3>
-        <div className="mt-1 flex items-center gap-1.5">
+        <div className="mt-1.5 flex items-baseline gap-2">
           {/* Old price shown ONLY if the admin set one on this product */}
-          <span className="text-[var(--primary)] font-semibold">{formatMoney(product.price)}</span>
+          <span className="text-[var(--primary)] font-semibold text-[17px] tracking-tight">{formatMoney(product.price)}</span>
           {product.comparePrice && product.comparePrice > product.price && (
-            <span className="text-sm text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
+            <span className="text-[13px] text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
           )}
         </div>
       </div>

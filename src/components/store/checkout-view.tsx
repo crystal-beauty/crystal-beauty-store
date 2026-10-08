@@ -147,7 +147,10 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
         <div className="lg:col-span-3 space-y-6">
           {/* Contact */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">{t("contactInfo")}</h2>
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5 flex items-center gap-3">
+              <span className="h-7 w-7 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-bold flex items-center justify-center shrink-0" aria-hidden>1</span>
+              {t("contactInfo")}
+            </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls} htmlFor="co-name">{t("yourName")} *</label>
@@ -178,7 +181,10 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
 
           {/* Delivery */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">{t("deliveryAddress")}</h2>
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5 flex items-center gap-3">
+              <span className="h-7 w-7 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-bold flex items-center justify-center shrink-0" aria-hidden>2</span>
+              {t("deliveryAddress")}
+            </h2>
             <DeliverySelector
               value={delivery}
               onChange={setDelivery}
@@ -208,8 +214,9 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
 
           {/* Gift options */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4 flex items-center gap-2">
-              <Gift className="h-4.5 w-4.5 text-[var(--gold)]" /> {t("giftDetails")}
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5 flex items-center gap-3">
+              <span className="h-7 w-7 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-bold flex items-center justify-center shrink-0" aria-hidden>3</span>
+              {t("giftDetails")}
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
@@ -350,7 +357,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             <button
               type="submit"
               disabled={submitting || fee === null || feeState !== "idle"}
-              className="mt-5 w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="press mt-5 w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {submitting ? (
                 <>
