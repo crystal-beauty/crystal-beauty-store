@@ -1,0 +1,90 @@
+import Link from "next/link";
+import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin } from "lucide-react";
+import { getSettings } from "@/lib/settings";
+
+export default async function StoreFooter() {
+  const settings = await getSettings();
+  const year = new Date().getFullYear();
+
+  const socials = [
+    { url: settings.facebookUrl, icon: Facebook, label: "Facebook" },
+    { url: settings.instagramUrl, icon: Instagram, label: "Instagram" },
+    { url: settings.tiktokUrl, icon: Music2, label: "TikTok" },
+    { url: settings.twitterUrl, icon: Twitter, label: "Twitter" },
+  ].filter((s) => s.url);
+
+  return (
+    <footer className="mt-auto bg-[var(--primary)] text-[var(--primary-foreground)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-6 w-6 text-[var(--gold)]" />
+              <span className="font-display text-2xl font-semibold">{settings.storeName}</span>
+            </div>
+            <p className="text-sm leading-relaxed text-white/70 max-w-md">{settings.footerAbout}</p>
+            {socials.length > 0 && (
+              <div className="flex items-center gap-3 mt-6">
+                {socials.map(({ url, icon: Icon, label }) => (
+                  <a
+                    key={label}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="h-10 w-10 rounded-full bg-white/10 hover:bg-[var(--gold)] transition-colors flex items-center justify-center"
+                  >
+                    <Icon className="h-4.5 w-4.5" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">Shop</h3>
+            <ul className="space-y-2.5 text-sm text-white/70">
+              <li><Link href="/products" className="hover:text-white transition-colors">All Gifts</Link></li>
+              <li><Link href="/products?sort=featured" className="hover:text-white transition-colors">Bestsellers</Link></li>
+              <li><Link href="/cart" className="hover:text-white transition-colors">Your Cart</Link></li>
+              <li><Link href="/track" className="hover:text-white transition-colors">Track Your Order</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">Get in Touch</h3>
+            <ul className="space-y-3 text-sm text-white/70">
+              {settings.contactPhone && (
+                <li className="flex items-start gap-2.5">
+                  <Phone className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{settings.contactPhone}</span>
+                </li>
+              )}
+              {settings.contactEmail && (
+                <li className="flex items-start gap-2.5">
+                  <Mail className="h-4 w-4 mt-0.5 shrink-0" />
+                  <a href={`mailto:${settings.contactEmail}`} className="hover:text-white transition-colors break-all">
+                    {settings.contactEmail}
+                  </a>
+                </li>
+              )}
+              {settings.contactAddress && (
+                <li className="flex items-start gap-2.5">
+                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{settings.contactAddress}</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
+          <p>{settings.footerText.replace("{year}", String(year)).replace("{store}", settings.storeName)}</p>
+          <p>
+            Worldwide delivery powered by <span className="text-[var(--gold)] font-medium">World Express</span>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

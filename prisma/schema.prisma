@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============ TEAM / AUTH ============
+
+model TeamMember {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         String    @default("STAFF") // OWNER | ADMIN | STAFF
+  avatarUrl    String?
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ============ CATALOG ============
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  active      Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  sku              String?
+  shortDescription String?
+  description      String?
+  price            Float
+  comparePrice     Float?
+  costPrice        Float?
+  stock            Int         @default(0)
+  trackStock       Boolean     @default(true)
+  active           Boolean     @default(true)
+  featured         Boolean     @default(false)
+  media            String      @default("[]") // JSON [{type:'image'|'video', url, alt}]
+  categoryId       String?
+  category         Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants         Variant[]
+  orderItems       OrderItem[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+// Variant = option group (e.g. "Size"), VariantOption = choice (e.g. "Large" +$5)
+model Variant {
+  id        String          @id @default(cuid())
+  productId String
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  required  Boolean         @default(true)
+  sortOrder Int             @default(0)
+  options   VariantOption[]
+}
+
+model VariantOption {
+  id            String  @id @default(cuid())
+  variantId     String
+  variant       Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  label         String
+  priceModifier Float   @default(0)
+  hexColor      String?
+  stock         Int?
+  sortOrder     Int     @default(0)
+}
+
+// ============ PROMOTIONS ============
+
+model PromoCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  type      String    @default("PERCENT") // PERCENT | FIXED
+  value     Float
+  minOrder  Float     @default(0)
+  maxUses   Int?
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  active    Boolean   @default(true)
+  orders    Order[]
+  createdAt DateTime  @default(now())
+}
+
+// ============ ORDERS ============
+
+model Order {
+  id               String      @id @default(cuid())
+  orderNumber      String      @unique
+  status           String      @default("PENDING") // PENDING|CONFIRMED|PROCESSING|SHIPPED|DELIVERED|CANCELLED
+  customerName     String
+  email            String
+  phone            String
+  country          String
+  city             String
+  address          String
+  postalCode       String?
+  notes            String?
+  giftMessage      String?
+  subtotal         Float
+  discount         Float       @default(0)
+  shippingFee      Float       @default(0)
+  giftBoxFee       Float       @default(0)
+  total            Float
+  currency         String      @default("USD")
+  promoCodeId      String?
+  promoCode        PromoCode?  @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  promoCodeStr     String?
+  shippingMethodName String?
+  paymentMethod    String      @default("COD") // COD | BANK_TRANSFER
+  items            OrderItem[]
+  // World Express shipment
+  carrier          String?
+  trackingNumber   String?
+  shipmentStatus   String?
+  shipmentResponse String?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  pixelEventId     String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model OrderItem {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId         String?
+  product           Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName       String
+  productImage      String?
+  variantSelections String   @default("{}") // JSON {"Size":"Large"}
+  unitPrice         Float
+  quantity          Int
+  lineTotal         Float
+  giftBox           Boolean  @default(false)
+}
+
+// ============ SHIPPING (World Express) ============
+
+model ShippingRate {
+  id            String  @id @default(cuid())
+  carrier       String  @default("World Express")
+  name          String // e.g. "Express Air"
+  country       String  @default("*") // "*" = worldwide fallback
+  city          String?
+  price         Float
+  estimatedDays String  @default("3-7")
+  freeOver      Float?
+  active        Boolean @default(true)
+  sortOrder     Int     @default(0)
+}
+
+// ============ SETTINGS (everything changeable) ============
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ============ META PIXEL EVENT LOG ============
+
+model PixelEvent {
+  id        String   @id @default(cuid())
+  eventName String
+  eventId   String?
+  payload   String?
+  source    String   @default("browser") // browser | server
+  forwarded Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

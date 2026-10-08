@@ -1,0 +1,152 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-playfair);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #fbfaf7;
+  --foreground: #16233f;
+  --card: #ffffff;
+  --card-foreground: #16233f;
+  --popover: #ffffff;
+  --popover-foreground: #16233f;
+  --primary: #0a1f44;
+  --primary-foreground: #fdfcf8;
+  --secondary: #eef1f6;
+  --secondary-foreground: #0a1f44;
+  --muted: #f3f1ec;
+  --muted-foreground: #6b7280;
+  --accent: #eef1f6;
+  --accent-foreground: #0a1f44;
+  --destructive: #b3392e;
+  --border: #e8e5dd;
+  --input: #ddd9cf;
+  --ring: #0a1f44;
+  --chart-1: #0a1f44;
+  --chart-2: #c8a24b;
+  --chart-3: #143061;
+  --chart-4: #8fa3c4;
+  --chart-5: #e5d5a4;
+  --sidebar: #0a1f44;
+  --sidebar-foreground: #e8ecf5;
+  --sidebar-primary: #c8a24b;
+  --sidebar-primary-foreground: #0a1f44;
+  --sidebar-accent: #143061;
+  --sidebar-accent-foreground: #e8ecf5;
+  --sidebar-border: #1d3a68;
+  --sidebar-ring: #c8a24b;
+  --gold: #c8a24b;
+  --gold-foreground: #ffffff;
+  --navy: #0a1f44;
+  --navy-foreground: #fdfcf8;
+}
+
+.dark {
+  --background: #0c1220;
+  --foreground: #f3f4f6;
+  --card: #131b2e;
+  --card-foreground: #f3f4f6;
+  --popover: #131b2e;
+  --popover-foreground: #f3f4f6;
+  --primary: #c8a24b;
+  --primary-foreground: #0a1f44;
+  --secondary: #1a2439;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1a2439;
+  --muted-foreground: #9ca3af;
+  --accent: #1a2439;
+  --accent-foreground: #f3f4f6;
+  --destructive: #ef4444;
+  --border: #24304a;
+  --input: #24304a;
+  --ring: #c8a24b;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.font-display {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+}
+
+/* Elegant thin scrollbar for long lists */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #c9c4b8;
+  border-radius: 999px;
+}
+
+/* Soft luxury shadows used across the storefront */
+.shadow-luxe {
+  box-shadow: 0 8px 30px -12px rgba(10, 31, 68, 0.18);
+}
+.shadow-luxe-lg {
+  box-shadow: 0 24px 60px -20px rgba(10, 31, 68, 0.28);
+}
+
+/* Hide scrollbars for media thumbnail strip */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
