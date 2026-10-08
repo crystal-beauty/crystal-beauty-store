@@ -27,6 +27,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     price: String(product.price),
     comparePrice: product.comparePrice ? String(product.comparePrice) : "",
     costPrice: product.costPrice ? String(product.costPrice) : "",
+    weightGrams: String(product.weightGrams),
     stock: String(product.stock),
     trackStock: product.trackStock,
     active: product.active,

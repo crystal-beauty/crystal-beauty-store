@@ -22,6 +22,7 @@ function buildProductData(body: Record<string, unknown>) {
     price,
     comparePrice: body.comparePrice ? parseFloat(String(body.comparePrice)) || null : null,
     costPrice: body.costPrice ? parseFloat(String(body.costPrice)) || null : null,
+    weightGrams: parseInt(String(body.weightGrams ?? 500)) || 500,
     stock: body.trackStock === false ? 0 : parseInt(String(body.stock ?? 0)) || 0,
     trackStock: body.trackStock !== false,
     active: body.active !== false,

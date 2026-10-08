@@ -25,3 +25,27 @@ Stage Summary:
 - Dashboard: /admin (login: admin@luminagifts.com / Admin@123 — OWNER; sara@luminagifts.com / Staff@123 — STAFF)
 - Test orders: LG-VN94YQ ($92.48), LG-NDRKBD ($81.48, SHIPPED w/ tracking)
 - Key decisions: single-piece gifts by default + order-time gift box add-on (matches client's no-box-unless-asked policy); server-side price recomputation so client totals can't be tampered; Meta Pixel with eventID dedup + optional CAPI token; product deletion falls back to archive when order history exists
+
+---
+Task ID: 2
+Agent: Super Z (main agent)
+Task: Upgrade Lumina Gifts to the Algerian COD market — remove all false information, integrate World Express (EcoTrack) live API, COD-optimized storefront (FR/AR RTL), full dashboard rework, reviews system, blocked phones, DZD pricing.
+
+Work Log:
+- Verified live carrier API first: fees (57 wilayas, id 50 unserved), communes (has_stop_desk as 0/1, exact carrier spelling), official 1–58 wilaya numbering confirmed (37=Tindouf, 55=Touggourt)
+- Schema v2: Order gains wilayaId/wilayaName/commune/address(≤30)/deliveryType/stopDeskName/deliveryFee/carrierStatus/globalStatus/statusHistory/recipient name+phone; 8 COD statuses (NEW…CANCELLED); email optional; country/postal/shipping-table fields removed; Product.weightGrams; new models Review (unique per order, one-time token, approve/hide), BlockedPhone, CarrierCache
+- DB force-reset + clean seed (team accounts only — zero demo data); deleted all AI demo images
+- lib/carrier.ts: exactly the 5 documented endpoints (Bearer auth, query-param create, DELETE cancel), fallback host, CarrierCache TTL 6h, dup-safe create (existing-tracking short-circuit + pre-call pending marker), defensive status mapping (documented values + keywords, flagged for carrier confirmation)
+- Token stored ONLY server-side (.env WORLDEXPRESS_API_TOKEN + optional dashboard setting); admin settings API masks secret keys both directions
+- Storefront: FR/AR i18n (cookie + Cairo font + RTL logical properties), DZD money format ("7 490 DA"), COD checkout (05/06/07 validation, numeric keypad, wilaya→commune→home/stopdesk with live fee, address 30-char counter, email optional, gift box/message/recipient), quick-order form + sticky mobile bar on product page, thank-you page with WhatsApp (hidden until number set), track by phone+order-number with live carrier status, policies pages (hidden unless admin filled them), real approved reviews only on product pages, blocked phones + rate limiting (5/h/phone, 30/h/IP)
+- Order API recomputes everything server-side: prices from DB, delivery fee live from carrier (no fallback — explicit error + WhatsApp hint), COD montant = products − promo + fee + gift box, stop-desk availability validated server-side
+- Dashboard (French): orders list (search phone/name/number/tracking, filters status/wilaya/date, refused-warning badge, bulk send-to-carrier), order detail (call/WhatsApp buttons, status select, ship/cancel-with-carrier-delete/print label/review request, raw API response viewer), print label sheet, carrier page (connection status + test + clear cache + sync statuses + live sample fees), reviews moderation, blocked phones CRUD, product editor weight field + FR labels, settings (9 tabs: identity/colors/announcement FR+AR/hero FR+AR/gift box FR+AR/contact/socials/policies FR+AR/delivery prefs/footer/SEO), stats (new orders, to confirm, in delivery, delivered revenue, refusal rate, orders by wilaya)
+- E2E against LIVE World Express: order LG-YWNYVY 4900+700(Alger home)=5600 DA COD → parcel EC6ACY2610086734405 created → re-ship returned existing tracking (dup-safe) → DELETE {"delete":"success"} → cleanup; stop-desk 400 DA verified; non-desk commune correctly rejected; track-by-phone verified; all test data deleted (store back to empty catalog)
+- Browser-verified: home FR/AR RTL, product page (DZD, old price only when set, real stock, gift box option, quick order), live fee 700 DA in selector, order button "Confirmer — payer 7 190 DA à la livraison", thank-you page, admin overview/order detail/label/carrier page
+- ESLint 0 errors, production build OK
+
+Stage Summary:
+- Deliverable: Algerian COD gift store at /home/z/my-project (dev :3000), empty catalog, everything editable from dashboard
+- Admin: admin@luminagifts.com / Admin@123 (OWNER); sara@luminagifts.com / Staff@123 (STAFF)
+- Carrier: connected live to world-express.ecotrack.dz via .env token; no hardcoded prices anywhere
+- Pending for owner: real contact info/photos/policies/hero via dashboard settings; full status list confirmation from carrier; optionally set STORE_PUBLIC_URL env for absolute review links

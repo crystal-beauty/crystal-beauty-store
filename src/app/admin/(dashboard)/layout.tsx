@@ -9,7 +9,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   if (!session) redirect("/admin/login");
 
   // Compute allowed sections server-side (functions can't cross the server/client boundary)
-  const allSections = ["overview", "products", "categories", "orders", "promo", "team", "shipping", "pixel", "settings"];
+  const allSections = ["overview", "orders", "products", "categories", "reviews", "blocked", "promo", "team", "shipping", "pixel", "settings"];
   const perms = ROLE_PERMISSIONS[session.role] || [];
   const allowedSections =
     perms.includes("*") ? allSections : perms.includes("team") ? allSections : perms;

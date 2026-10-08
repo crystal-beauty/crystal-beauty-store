@@ -18,20 +18,24 @@ import {
   X,
   Sparkles,
   ExternalLink,
+  Star,
+  PhoneOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SessionPayload } from "@/lib/auth";
 
 const NAV = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, section: "overview" },
-  { href: "/admin/products", label: "Products", icon: Package, section: "products" },
-  { href: "/admin/categories", label: "Categories", icon: FolderTree, section: "categories" },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingCart, section: "orders" },
-  { href: "/admin/promo-codes", label: "Promo Codes", icon: TicketPercent, section: "promo" },
-  { href: "/admin/team", label: "Team", icon: Users, section: "team" },
-  { href: "/admin/shipping", label: "Shipping & World Express", icon: Truck, section: "shipping" },
+  { href: "/admin", label: "Vue d'ensemble", icon: LayoutDashboard, section: "overview" },
+  { href: "/admin/orders", label: "Commandes", icon: ShoppingCart, section: "orders" },
+  { href: "/admin/products", label: "Produits", icon: Package, section: "products" },
+  { href: "/admin/categories", label: "Catégories", icon: FolderTree, section: "categories" },
+  { href: "/admin/reviews", label: "Avis clients", icon: Star, section: "reviews" },
+  { href: "/admin/blocked-phones", label: "Numéros bloqués", icon: PhoneOff, section: "blocked" },
+  { href: "/admin/promo-codes", label: "Codes promo", icon: TicketPercent, section: "promo" },
+  { href: "/admin/team", label: "Équipe", icon: Users, section: "team" },
+  { href: "/admin/shipping", label: "Livraison (transporteur)", icon: Truck, section: "shipping" },
   { href: "/admin/pixel", label: "Meta Pixel", icon: Activity, section: "pixel" },
-  { href: "/admin/settings", label: "Store Settings", icon: Settings, section: "settings" },
+  { href: "/admin/settings", label: "Paramètres", icon: Settings, section: "settings" },
 ];
 
 export default function AdminShell({

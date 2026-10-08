@@ -1,58 +1,41 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Truck, Loader2, X, Save } from "lucide-react";
-import { useSettings } from "@/components/store/settings-provider";
+import { useCallback, useEffect, useState } from "react";
+import { Truck, Loader2, RefreshCw, Trash2, CheckCircle2, XCircle, TestTube2, Wifi, WifiOff } from "lucide-react";
 import { formatMoney } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
-interface RateRow {
-  id: string;
-  carrier: string;
-  name: string;
-  country: string;
-  city: string | null;
-  price: number;
-  estimatedDays: string;
-  freeOver: number | null;
-  active: boolean;
-  sortOrder: number;
+interface CarrierStatus {
+  connected: boolean;
+  enabled: boolean;
+  baseUrl: string;
+  fallbackUrl: string;
+  tokenSource: string;
+  primaryHost: string;
+  wilayaCount?: number;
+  samples?: { wilaya_id: number; tarif: number; tarif_stopdesk: number }[];
+  error?: string;
+  lastSync: string | null;
 }
 
-const emptyRate = { name: "", carrier: "World Express", country: "*", city: "", price: "", estimatedDays: "3-7", freeOver: "", active: true, sortOrder: 0 };
-
-export default function ShippingManager({ canDelete }: { canDelete: boolean }) {
-  const settings = useSettings();
-  const [rates, setRates] = useState<RateRow[]>([]);
+/**
+ * Carrier connection page. Delivery prices are NOT editable here — they come
+ * live from the carrier API. This page shows the connection state and lets
+ * the admin test it / clear the cache / sync order statuses.
+ */
+export default function ShippingManager() {
+  const [status, setStatus] = useState<CarrierStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<RateRow | null>(null);
-  const [form, setForm] = useState(emptyRate);
-  const [saving, setSaving] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<RateRow | null>(null);
-
-  // World Express API config
-  const [wx, setWx] = useState({
-    worldExpressEnabled: settings.worldExpressEnabled,
-    worldExpressApiUrl: settings.worldExpressApiUrl,
-    worldExpressApiKey: settings.worldExpressApiKey,
-    worldExpressCustomerId: settings.worldExpressCustomerId,
-    originCountry: settings.originCountry,
-    freeShippingThreshold: String(settings.freeShippingThreshold),
-  });
-  const [wxSaving, setWxSaving] = useState(false);
+  const [busy, setBusy] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/shipping-rates");
+      const res = await fetch("/api/admin/carrier");
       const data = await res.json();
-      setRates(data.rates || []);
+      setStatus(data);
+    } catch {
+      toast.error("Impossible de vérifier la connexion.");
     } finally {
       setLoading(false);
     }
@@ -62,323 +45,117 @@ export default function ShippingManager({ canDelete }: { canDelete: boolean }) {
     load();
   }, [load]);
 
-  async function saveWxConfig() {
-    setWxSaving(true);
+  async function act(action: string) {
+    setBusy(action);
     try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PUT",
+      const res = await fetch("/api/admin/carrier", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(wx),
-      });
-      if (!res.ok) return toast.error("Could not save the World Express settings");
-      toast.success("World Express settings saved");
-    } finally {
-      setWxSaving(false);
-    }
-  }
-
-  async function saveRate() {
-    if (!form.name.trim() || form.price === "") return toast.error("Method name and price are required");
-    setSaving(true);
-    try {
-      const res = await fetch(editing ? `/api/admin/shipping-rates/${editing.id}` : "/api/admin/shipping-rates", {
-        method: editing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          price: parseFloat(form.price),
-          freeOver: form.freeOver ? parseFloat(form.freeOver) : null,
-          country: form.country || "*",
-          city: form.city || null,
-        }),
+        body: JSON.stringify({ action }),
       });
       const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Could not save");
-      toast.success(editing ? "Shipping rate updated" : "Shipping rate created");
-      setDialogOpen(false);
-      load();
+      if (action === "test") {
+        if (data.ok) toast.success(data.message, { duration: 8000 });
+        else toast.error(data.message || "Test échoué.", { duration: 8000 });
+      } else if (action === "clear-cache") {
+        toast.success(data.message);
+      } else if (action === "sync") {
+        toast.success(`${data.checked} colis vérifiés — ${data.updated.length} mise(s) à jour.`, { duration: 6000 });
+        data.errors?.forEach((e: string) => toast.error(e, { duration: 6000 }));
+      }
+      await load();
+    } catch {
+      toast.error("Action impossible.");
     } finally {
-      setSaving(false);
+      setBusy("");
     }
   }
-
-  async function confirmDelete() {
-    if (!deleteTarget) return;
-    const res = await fetch(`/api/admin/shipping-rates/${deleteTarget.id}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.success("Shipping rate deleted");
-      load();
-    } else {
-      const d = await res.json();
-      toast.error(d.error || "Could not delete");
-    }
-    setDeleteTarget(null);
-  }
-
-  const inputCls =
-    "w-full bg-white border border-input rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25";
-  const labelCls = "block text-sm font-medium text-[var(--primary)] mb-1.5";
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div>
-        <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Shipping & World Express</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Configure your delivery partner and the rates customers see at checkout.
-        </p>
-      </div>
+    <div>
+      <h1 className="font-display text-2xl font-semibold text-[var(--primary)]">Livraison — World Express</h1>
+      <p className="text-sm text-muted-foreground mt-1 mb-6">
+        Les tarifs, wilayas, communes et arrêts bureau viennent en direct de l&apos;API du transporteur. Aucun prix n&apos;est saisi manuellement.
+      </p>
 
-      {/* ===== World Express API config ===== */}
-      <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="h-10 w-10 rounded-xl bg-[var(--primary)]/5 flex items-center justify-center">
-            <Truck className="h-5 w-5 text-[var(--gold)]" />
-          </div>
-          <div>
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)]">World Express API</h2>
-            <p className="text-xs text-muted-foreground">Used to book shipments directly from orders.</p>
-          </div>
+      {loading ? (
+        <div className="bg-white rounded-2xl border border-border p-12 text-center shadow-luxe">
+          <Loader2 className="h-5 w-5 animate-spin mx-auto" />
         </div>
+      ) : status ? (
+        <div className="space-y-5">
+          {/* Connection card */}
+          <div className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                {status.connected ? <CheckCircle2 className="h-8 w-8 text-emerald-500" /> : <XCircle className="h-8 w-8 text-rose-500" />}
+                <div>
+                  <p className="font-semibold text-[var(--primary)] flex items-center gap-2">
+                    {status.connected ? "Connecté" : "Déconnecté"}
+                    {status.connected ? <Wifi className="h-4 w-4 text-emerald-500" /> : <WifiOff className="h-4 w-4 text-rose-500" />}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5" dir="ltr">
+                    {status.baseUrl}
+                    <span className="mx-1">→ fallback:</span>
+                    {status.fallbackUrl}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => act("test")} disabled={Boolean(busy)} className="inline-flex items-center gap-2 border border-border text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-muted disabled:opacity-50">
+                  {busy === "test" ? <Loader2 className="h-4 w-4 animate-spin" /> : <TestTube2 className="h-4 w-4" />} Tester la connexion
+                </button>
+                <button onClick={() => act("clear-cache")} disabled={Boolean(busy)} className="inline-flex items-center gap-2 border border-border text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-muted disabled:opacity-50">
+                  {busy === "clear-cache" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} Vider le cache
+                </button>
+                <button onClick={() => act("sync")} disabled={Boolean(busy)} className="inline-flex items-center gap-2 bg-[var(--primary)] text-white text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 disabled:opacity-50">
+                  {busy === "sync" ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Synchroniser les statuts
+                </button>
+              </div>
+            </div>
 
-        <div className="grid sm:grid-cols-2 gap-4 mt-5">
-          <div className="sm:col-span-2">
-            <label className="flex items-center gap-2.5 text-sm text-[var(--primary)]">
-              <input
-                type="checkbox"
-                checked={wx.worldExpressEnabled}
-                onChange={(e) => setWx({ ...wx, worldExpressEnabled: e.target.checked })}
-                className="h-4 w-4 accent-[var(--primary)]"
-              />
-              World Express integration enabled
-            </label>
-          </div>
-          <div className="sm:col-span-2">
-            <label className={labelCls}>API Endpoint URL</label>
-            <input
-              value={wx.worldExpressApiUrl}
-              onChange={(e) => setWx({ ...wx, worldExpressApiUrl: e.target.value })}
-              className={inputCls}
-              placeholder="https://api.worldexpress.com/v1/shipments"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>API Key / Token</label>
-            <input
-              type="password"
-              value={wx.worldExpressApiKey}
-              onChange={(e) => setWx({ ...wx, worldExpressApiKey: e.target.value })}
-              className={inputCls}
-              placeholder="Sent as Bearer token"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Customer / Account ID</label>
-            <input
-              value={wx.worldExpressCustomerId}
-              onChange={(e) => setWx({ ...wx, worldExpressCustomerId: e.target.value })}
-              className={inputCls}
-              placeholder="Your World Express account number"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Origin Country</label>
-            <input
-              value={wx.originCountry}
-              onChange={(e) => setWx({ ...wx, originCountry: e.target.value })}
-              className={inputCls}
-              placeholder="United Arab Emirates"
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Free Shipping Threshold ({settings.currencyCode})</label>
-            <input
-              type="number"
-              value={wx.freeShippingThreshold}
-              onChange={(e) => setWx({ ...wx, freeShippingThreshold: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-        </div>
-        <button
-          onClick={saveWxConfig}
-          disabled={wxSaving}
-          className="mt-5 inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60"
-        >
-          {wxSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save World Express Settings
-        </button>
-      </section>
+            <div className="grid sm:grid-cols-3 gap-4 mt-5 text-sm">
+              <div className="rounded-xl bg-muted px-4 py-3">
+                <p className="text-muted-foreground text-xs">Jeton API</p>
+                <p className="font-medium mt-0.5">{status.tokenSource === "env" ? "Depuis .env (recommandé)" : status.tokenSource === "dashboard" ? "Depuis les paramètres" : "MANQUANT"}</p>
+              </div>
+              <div className="rounded-xl bg-muted px-4 py-3">
+                <p className="text-muted-foreground text-xs">Wilayas desservies</p>
+                <p className="font-medium mt-0.5">{status.wilayaCount ?? "—"} / 58</p>
+              </div>
+              <div className="rounded-xl bg-muted px-4 py-3">
+                <p className="text-muted-foreground text-xs">Cache frais (expire)</p>
+                <p className="font-medium mt-0.5">{status.lastSync ? new Date(status.lastSync).toLocaleString("fr-FR") : "—"}</p>
+              </div>
+            </div>
 
-      {/* ===== Rates ===== */}
-      <section className="bg-white rounded-2xl border border-border shadow-luxe overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div>
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Shipping Rates</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-            City-specific rates win over country rates, which win over the worldwide (*) fallback.
+            {status.error && <p className="mt-4 text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3">{status.error}</p>}
+            <p className="mt-4 text-xs text-muted-foreground">
+              Pour changer le jeton API : modifiez <code className="font-mono bg-muted px-1.5 py-0.5 rounded">WORLDEXPRESS_API_TOKEN</code> dans le fichier{" "}
+              <code className="font-mono bg-muted px-1.5 py-0.5 rounded">.env</code> côté serveur (il n&apos;est jamais affiché ici).
             </p>
           </div>
-          <button
-            onClick={() => { setEditing(null); setForm(emptyRate); setDialogOpen(true); }}
-            className="inline-flex items-center gap-2 bg-[var(--primary)] text-white text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" /> Add Rate
-          </button>
-        </div>
 
-        {loading ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">Loading rates…</div>
-        ) : rates.length === 0 ? (
-          <div className="py-16 text-center">
-            <Truck className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm font-medium text-[var(--primary)]">No shipping rates yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Customers can&apos;t check out without at least one rate.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[720px]">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-left">
-                  <th className="px-5 py-3 font-semibold text-[var(--primary)]">Method</th>
-                  <th className="px-4 py-3 font-semibold text-[var(--primary)]">Destination</th>
-                  <th className="px-4 py-3 font-semibold text-[var(--primary)]">Price</th>
-                  <th className="px-4 py-3 font-semibold text-[var(--primary)]">ETA</th>
-                  <th className="px-4 py-3 font-semibold text-[var(--primary)]">Status</th>
-                  <th className="px-4 py-3 font-semibold text-[var(--primary)] text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {rates.map((r) => (
-                  <tr key={r.id} className="hover:bg-muted/30">
-                    <td className="px-5 py-3">
-                      <p className="font-medium text-[var(--primary)]">{r.name}</p>
-                      <p className="text-xs text-muted-foreground">{r.carrier}</p>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {r.city ? `${r.city}, ` : ""}{r.country === "*" ? "Worldwide" : r.country}
-                    </td>
-                    <td className="px-4 py-3 font-semibold text-[var(--primary)]">
-                      {formatMoney(r.price, settings)}
-                      {r.freeOver && <span className="block text-[11px] font-normal text-muted-foreground">free over {formatMoney(r.freeOver, settings)}</span>}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{r.estimatedDays} days</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "text-[11px] font-semibold px-2.5 py-1 rounded-full border",
-                          r.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-500 border-gray-200"
-                        )}
-                      >
-                        {r.active ? "Active" : "Off"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => {
-                            setEditing(r);
-                            setForm({
-                              name: r.name, carrier: r.carrier, country: r.country, city: r.city || "",
-                              price: String(r.price), estimatedDays: r.estimatedDays,
-                              freeOver: r.freeOver ? String(r.freeOver) : "", active: r.active, sortOrder: r.sortOrder,
-                            });
-                            setDialogOpen(true);
-                          }}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-[var(--primary)] hover:bg-muted"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        {canDelete && (
-                          <button onClick={() => setDeleteTarget(r)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+          {/* Sample live fees */}
+          {status.samples && status.samples.length > 0 && (
+            <div className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
+              <h2 className="font-semibold text-[var(--primary)] flex items-center gap-2 mb-4">
+                <Truck className="h-4.5 w-4.5 text-[var(--gold)]" /> Tarifs en direct (échantillon)
+              </h2>
+              <div className="grid sm:grid-cols-3 gap-4 text-sm">
+                {status.samples.map((s) => (
+                  <div key={s.wilaya_id} className="rounded-xl border border-border px-4 py-3">
+                    <p className="font-medium text-[var(--primary)]">Wilaya {s.wilaya_id}</p>
+                    <p className="text-muted-foreground mt-1">Domicile : <span className="font-semibold text-foreground">{formatMoney(s.tarif)}</span></p>
+                    <p className="text-muted-foreground">Stop desk : <span className="font-semibold text-foreground">{formatMoney(s.tarif_stopdesk)}</span></p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      {/* Rate dialog */}
-      {dialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setDialogOpen(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-luxe-lg p-6 max-h-[90vh] overflow-y-auto scrollbar-thin" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-semibold text-[var(--primary)]">{editing ? "Edit Rate" : "New Shipping Rate"}</h2>
-              <button onClick={() => setDialogOpen(false)} className="p-2 text-muted-foreground hover:text-[var(--primary)]">
-                <X className="h-4 w-4" />
-              </button>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">Extrait réel de GET /api/v1/get/fees — vérifiable sur le portail du transporteur.</p>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className={labelCls}>Method Name *</label>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} placeholder="Express Air" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Country (* = worldwide)</label>
-                  <input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className={inputCls} placeholder="United States" />
-                </div>
-                <div>
-                  <label className={labelCls}>City (optional)</label>
-                  <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} placeholder="New York" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Price ({settings.currencyCode}) *</label>
-                  <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className={inputCls} placeholder="15" />
-                </div>
-                <div>
-                  <label className={labelCls}>Free Over (optional)</label>
-                  <input type="number" step="0.01" value={form.freeOver} onChange={(e) => setForm({ ...form, freeOver: e.target.value })} className={inputCls} placeholder="120" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Estimated Days</label>
-                  <input value={form.estimatedDays} onChange={(e) => setForm({ ...form, estimatedDays: e.target.value })} className={inputCls} placeholder="3-7" />
-                </div>
-                <div>
-                  <label className={labelCls}>Sort Order</label>
-                  <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className={inputCls} />
-                </div>
-              </div>
-              <label className="flex items-center gap-2.5 text-sm text-[var(--primary)]">
-                <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4 accent-[var(--primary)]" />
-                Active at checkout
-              </label>
-              <button
-                onClick={saveRate}
-                disabled={saving}
-                className="w-full bg-[var(--gold)] text-white font-semibold py-3 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
-              >
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editing ? "Save Changes" : "Create Rate"}
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-      )}
-
-      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deleteTarget?.name}”?</AlertDialogTitle>
-            <AlertDialogDescription>Customers will no longer see this shipping option at checkout.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      ) : null}
     </div>
   );
 }

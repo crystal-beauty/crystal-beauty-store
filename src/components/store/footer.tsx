@@ -1,9 +1,13 @@
 import Link from "next/link";
-import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin } from "lucide-react";
+import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { getSettings } from "@/lib/settings";
+import { getLang } from "@/lib/locale-server";
+import { t } from "@/lib/i18n";
+import { pick } from "@/lib/i18n";
 
 export default async function StoreFooter() {
   const settings = await getSettings();
+  const lang = await getLang();
   const year = new Date().getFullYear();
 
   const socials = [
@@ -12,6 +16,12 @@ export default async function StoreFooter() {
     { url: settings.tiktokUrl, icon: Music2, label: "TikTok" },
     { url: settings.twitterUrl, icon: Twitter, label: "Twitter" },
   ].filter((s) => s.url);
+
+  const policies = [
+    { href: "/policies/delivery", label: t("policyDelivery", lang), body: pick(settings.policyDelivery, settings.policyDeliveryAr, lang) },
+    { href: "/policies/returns", label: t("policyReturns", lang), body: pick(settings.policyReturns, settings.policyReturnsAr, lang) },
+    { href: "/policies/privacy", label: t("policyPrivacy", lang), body: pick(settings.policyPrivacy, settings.policyPrivacyAr, lang) },
+  ].filter((p) => p.body.trim());
 
   return (
     <footer className="mt-auto bg-[var(--primary)] text-[var(--primary-foreground)]">
@@ -22,7 +32,7 @@ export default async function StoreFooter() {
               <Sparkles className="h-6 w-6 text-[var(--gold)]" />
               <span className="font-display text-2xl font-semibold">{settings.storeName}</span>
             </div>
-            <p className="text-sm leading-relaxed text-white/70 max-w-md">{settings.footerAbout}</p>
+            {settings.footerAbout && <p className="text-sm leading-relaxed text-white/70 max-w-md">{settings.footerAbout}</p>}
             {socials.length > 0 && (
               <div className="flex items-center gap-3 mt-6">
                 {socials.map(({ url, icon: Icon, label }) => (
@@ -42,22 +52,42 @@ export default async function StoreFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">Shop</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">{t("quickLinks", lang)}</h3>
             <ul className="space-y-2.5 text-sm text-white/70">
-              <li><Link href="/products" className="hover:text-white transition-colors">All Gifts</Link></li>
-              <li><Link href="/products?sort=featured" className="hover:text-white transition-colors">Bestsellers</Link></li>
-              <li><Link href="/cart" className="hover:text-white transition-colors">Your Cart</Link></li>
-              <li><Link href="/track" className="hover:text-white transition-colors">Track Your Order</Link></li>
+              <li>
+                <Link href="/products" className="hover:text-white transition-colors">
+                  {t("shopAll", lang)}
+                </Link>
+              </li>
+              <li>
+                <Link href="/cart" className="hover:text-white transition-colors">
+                  {t("cart", lang)}
+                </Link>
+              </li>
+              <li>
+                <Link href="/track" className="hover:text-white transition-colors">
+                  {t("trackOrder", lang)}
+                </Link>
+              </li>
+              {policies.map((p) => (
+                <li key={p.href}>
+                  <Link href={p.href} className="hover:text-white transition-colors">
+                    {p.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">Get in Touch</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">{t("getInTouch", lang)}</h3>
             <ul className="space-y-3 text-sm text-white/70">
               {settings.contactPhone && (
                 <li className="flex items-start gap-2.5">
                   <Phone className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>{settings.contactPhone}</span>
+                  <a href={`tel:${settings.contactPhone}`} className="hover:text-white transition-colors" dir="ltr">
+                    {settings.contactPhone}
+                  </a>
                 </li>
               )}
               {settings.contactEmail && (
@@ -74,15 +104,19 @@ export default async function StoreFooter() {
                   <span>{settings.contactAddress}</span>
                 </li>
               )}
+              {settings.contactHours && (
+                <li className="flex items-start gap-2.5">
+                  <Clock className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{settings.contactHours}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <p>{settings.footerText.replace("{year}", String(year)).replace("{store}", settings.storeName)}</p>
-          <p>
-            Worldwide delivery powered by <span className="text-[var(--gold)] font-medium">World Express</span>
-          </p>
+          {settings.carrierEnabled && <p>{t("poweredBy", lang)} World Express</p>}
         </div>
       </div>
     </footer>

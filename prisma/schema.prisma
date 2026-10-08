@@ -44,9 +44,10 @@ model Product {
   sku              String?
   shortDescription String?
   description      String?
-  price            Float
-  comparePrice     Float?
+  price            Float // DZD whole numbers
+  comparePrice     Float? // optional old price — only shown when admin sets it
   costPrice        Float?
+  weightGrams      Int         @default(500) // for carrier / future use
   stock            Int         @default(0)
   trackStock       Boolean     @default(true)
   active           Boolean     @default(true)
@@ -56,11 +57,12 @@ model Product {
   category         Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   variants         Variant[]
   orderItems       OrderItem[]
+  reviews          Review[]
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 }
 
-// Variant = option group (e.g. "Size"), VariantOption = choice (e.g. "Large" +$5)
+// Variant = option group (e.g. "Size"), VariantOption = choice (e.g. "Large" +500 DA)
 model Variant {
   id        String          @id @default(cuid())
   productId String
@@ -98,43 +100,52 @@ model PromoCode {
   createdAt DateTime  @default(now())
 }
 
-// ============ ORDERS ============
+// ============ ORDERS (COD / Algeria) ============
 
 model Order {
-  id               String      @id @default(cuid())
-  orderNumber      String      @unique
-  status           String      @default("PENDING") // PENDING|CONFIRMED|PROCESSING|SHIPPED|DELIVERED|CANCELLED
-  customerName     String
-  email            String
-  phone            String
-  country          String
-  city             String
-  address          String
-  postalCode       String?
-  notes            String?
-  giftMessage      String?
-  subtotal         Float
-  discount         Float       @default(0)
-  shippingFee      Float       @default(0)
-  giftBoxFee       Float       @default(0)
-  total            Float
-  currency         String      @default("USD")
-  promoCodeId      String?
-  promoCode        PromoCode?  @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
-  promoCodeStr     String?
-  shippingMethodName String?
-  paymentMethod    String      @default("COD") // COD | BANK_TRANSFER
-  items            OrderItem[]
-  // World Express shipment
-  carrier          String?
-  trackingNumber   String?
-  shipmentStatus   String?
-  shipmentResponse String?
-  shippedAt        DateTime?
-  deliveredAt      DateTime?
-  pixelEventId     String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique
+  status            String      @default("NEW") // NEW|CONFIRMED|SENT_TO_CARRIER|IN_DELIVERY|DELIVERED|REFUSED|RETURNED|CANCELLED
+  customerName      String
+  email             String? // optional
+  phone             String // 05/06/07…
+  // Algerian delivery address
+  wilayaId          Int?
+  wilayaName        String
+  commune           String
+  address           String // ≤ 30 chars (waybill printer constraint)
+  deliveryType      String      @default("HOME") // HOME | STOP_DESK
+  stopDeskName      String?
+  notes             String?
+  // Gift options
+  giftMessage       String?
+  recipientName     String?
+  recipientPhone    String?
+  // Money — DZD whole numbers
+  subtotal          Float
+  discount          Float       @default(0)
+  deliveryFee       Float       @default(0) // quoted from carrier API, saved at order time
+  giftBoxFee        Float       @default(0)
+  total             Float // COD amount = products + delivery (carrier rounding: whole DA)
+  currency          String      @default("DZD")
+  promoCodeId       String?
+  promoCode         PromoCode?  @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  promoCodeStr      String?
+  // Carrier (World Express / EcoTrack)
+  carrier           String?
+  trackingNumber    String?
+  carrierStatus     String? // raw carrier status
+  globalStatus      String? // raw global_status
+  shipmentResponse  String?
+  sentToCarrierAt   DateTime?
+  deliveredAt       DateTime?
+  reviewRequestedAt DateTime?
+  statusHistory     String      @default("[]") // JSON [{status, at, by}]
+  pixelEventId      String?
+  items             OrderItem[]
+  review            Review?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 }
 
 model OrderItem {
@@ -152,19 +163,41 @@ model OrderItem {
   giftBox           Boolean  @default(false)
 }
 
-// ============ SHIPPING (World Express) ============
+// ============ REVIEWS (real only — one per delivered order, admin-approved) ============
 
-model ShippingRate {
-  id            String  @id @default(cuid())
-  carrier       String  @default("World Express")
-  name          String // e.g. "Express Air"
-  country       String  @default("*") // "*" = worldwide fallback
-  city          String?
-  price         Float
-  estimatedDays String  @default("3-7")
-  freeOver      Float?
-  active        Boolean @default(true)
-  sortOrder     Int     @default(0)
+model Review {
+  id           String    @id @default(cuid())
+  orderId      String    @unique
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  token        String    @unique // one-time review link
+  customerName String
+  wilayaName   String
+  rating       Int       @default(0) // 1..5, filled on submit
+  text         String    @default("")
+  approved     Boolean   @default(false) // admin approves → visible on store
+  submitted    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// ============ BLOCKED PHONES ============
+
+model BlockedPhone {
+  id        String   @id @default(cuid())
+  phone     String   @unique // normalized (digits, last 9 match)
+  reason    String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ============ CARRIER CACHE (wilaya/commune/fees lists) ============
+
+model CarrierCache {
+  key       String   @id
+  payload   String
+  expiresAt DateTime
 }
 
 // ============ SETTINGS (everything changeable) ============

@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireApiSession } from "@/lib/auth";
-import { getSettings } from "@/lib/settings";
+import { createParcel } from "@/lib/carrier";
 
 /**
- * POST /api/admin/orders/[id]/ship — book a World Express shipment.
- * Calls the World Express REST API configured in Dashboard → Shipping.
- * If the API is unreachable / not configured, returns a clear message so the
- * store owner can fall back to manual tracking numbers.
+ * POST /api/admin/orders/[id]/ship — create the COD parcel at World Express (EcoTrack).
+ *
+ * Duplicate-safety:
+ *  1. If the order already has a trackingNumber → return it, never book twice.
+ *  2. A "pending" marker is saved BEFORE the API call, so if the process dies
+ *     mid-call the admin sees the marker instead of silently re-booking.
+ *  3. `reference` sent to the carrier is the unique order number.
  */
 export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const guard = await requireApiSession("orders");
@@ -17,98 +20,84 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
   const order = await db.order.findUnique({ where: { id }, include: { items: true } });
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-  const settings = await getSettings();
-  if (!settings.worldExpressEnabled) {
-    return NextResponse.json({ error: "World Express integration is disabled in Shipping settings." }, { status: 400 });
-  }
-  if (!settings.worldExpressApiUrl) {
-    return NextResponse.json(
-      { error: "No World Express API URL configured. Add it in Dashboard → Shipping, or set the tracking number manually." },
-      { status: 400 }
-    );
+  // ---- idempotency guard ----
+  if (order.trackingNumber) {
+    return NextResponse.json({
+      ok: true,
+      alreadyBooked: true,
+      trackingNumber: order.trackingNumber,
+      order,
+      message: "Parcel already created for this order — returning the existing tracking number.",
+    });
   }
 
-  const payload = {
-    customer_id: settings.worldExpressCustomerId || undefined,
-    reference: order.orderNumber,
-    service: "EXPRESS",
-    sender: { name: settings.storeName, phone: settings.contactPhone, country: settings.originCountry },
-    recipient: {
-      name: order.customerName,
-      phone: order.phone,
-      email: order.email,
-      country: order.country,
-      city: order.city,
-      address: order.address,
-      postal_code: order.postalCode || undefined,
+  if (order.status === "CANCELLED") {
+    return NextResponse.json({ error: "Cannot send a cancelled order to the carrier." }, { status: 400 });
+  }
+  if (!order.wilayaId || !order.commune) {
+    return NextResponse.json({ error: "Order is missing wilaya/commune data." }, { status: 400 });
+  }
+  if (order.address.length > 30) {
+    return NextResponse.json({ error: `Address is ${order.address.length} chars — the waybill printer accepts 30 max. Edit the order address first.` }, { status: 400 });
+  }
+
+  // ---- crash-safety marker ----
+  await db.order.update({
+    where: { id },
+    data: {
+      carrier: "World Express",
+      shipmentResponse: JSON.stringify({ pending: true, at: new Date().toISOString(), by: guard.session.email }).slice(0, 5000),
     },
-    parcels: [
-      {
-        weight_kg: 1,
-        contents: order.items.map((i) => ({ description: i.productName, quantity: i.quantity, value: i.unitPrice })),
-        declared_value: order.total,
-        currency: order.currency,
-      },
-    ],
-    cod_amount: order.paymentMethod === "COD" ? order.total : 0,
-  };
+  });
 
   try {
-    const res = await fetch(settings.worldExpressApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(settings.worldExpressApiKey ? { Authorization: `Bearer ${settings.worldExpressApiKey}` } : {}),
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
+    const productsLabel = order.items
+      .map((i) => `${i.productName}${i.giftBox ? " +gift box" : ""} x${i.quantity}`)
+      .join(", ")
+      .slice(0, 200);
+
+    const result = await createParcel({
+      reference: order.orderNumber,
+      customerName: order.recipientName?.trim() || order.customerName,
+      phone: order.recipientPhone || order.phone,
+      address: order.address,
+      wilayaCode: order.wilayaId,
+      commune: order.commune,
+      codAmount: Math.round(order.total),
+      deliveryType: order.deliveryType === "STOP_DESK" ? "STOP_DESK" : "HOME",
+      productsLabel,
+      note: order.notes || undefined,
     });
 
-    const text = await res.text();
-    let data: Record<string, unknown> = {};
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
-    }
+    const history = JSON.parse(order.statusHistory || "[]");
+    history.push({ status: "SENT_TO_CARRIER", at: new Date().toISOString(), by: `carrier:${result.tracking}` });
 
-    const trackingNumber =
-      (data.tracking_number as string) ||
-      (data.trackingNumber as string) ||
-      ((data.shipment as Record<string, unknown> | undefined)?.tracking_number as string) ||
-      ((data.data as Record<string, unknown> | undefined)?.tracking_number as string) ||
-      "";
-
-    const order2 = await db.order.update({
+    const updated = await db.order.update({
       where: { id },
       data: {
         carrier: "World Express",
-        trackingNumber: trackingNumber || null,
-        shipmentStatus: res.ok ? "BOOKED" : "BOOKING_FAILED",
-        shipmentResponse: JSON.stringify({ status: res.status, response: data }).slice(0, 5000),
-        status: res.ok && trackingNumber ? "SHIPPED" : order.status,
-        shippedAt: res.ok && trackingNumber ? new Date() : order.shippedAt,
+        trackingNumber: result.tracking,
+        carrierStatus: null,
+        globalStatus: null,
+        shipmentResponse: JSON.stringify({ request: { reference: order.orderNumber, montant: Math.round(order.total), commune: order.commune, code_wilaya: order.wilayaId, type: order.deliveryType }, response: result.raw }).slice(0, 5000),
+        status: order.status === "NEW" ? "CONFIRMED" : order.status,
+        statusHistory: JSON.stringify(history),
       },
+      include: { items: true },
     });
 
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `World Express API responded with status ${res.status}. You can set the tracking number manually.`, order: order2 },
-        { status: 502 }
-      );
-    }
-    return NextResponse.json({ ok: true, order: order2, trackingNumber });
-  } catch {
-    const order2 = await db.order.update({
+    return NextResponse.json({ ok: true, trackingNumber: result.tracking, order: updated });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    const updated = await db.order.update({
       where: { id },
       data: {
-        carrier: "World Express",
-        shipmentStatus: "BOOKING_FAILED",
-        shipmentResponse: JSON.stringify({ error: "API request failed or timed out" }).slice(0, 5000),
+        shipmentResponse: JSON.stringify({ pending: false, error: msg, at: new Date().toISOString() }).slice(0, 5000),
       },
+      include: { items: true },
     });
     return NextResponse.json(
-      { error: "Could not reach the World Express API. Check the API URL / key in Shipping settings, or set the tracking number manually.", order: order2 },
+      { error: `Carrier refused the parcel or is unreachable: ${msg}`, order: updated },
       { status: 502 }
     );
   }

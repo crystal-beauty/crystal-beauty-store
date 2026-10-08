@@ -91,8 +91,8 @@ export async function authenticate(email: string, password: string): Promise<Ses
 // ---------- Role permissions ----------
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
   OWNER: ["*"],
-  ADMIN: ["overview", "products", "categories", "orders", "promo", "shipping", "pixel", "settings"],
-  STAFF: ["overview", "products", "orders"],
+  ADMIN: ["overview", "products", "categories", "orders", "reviews", "blocked", "promo", "shipping", "pixel", "settings"],
+  STAFF: ["overview", "orders", "reviews", "blocked"],
 };
 
 export function canAccess(role: string, section: string): boolean {

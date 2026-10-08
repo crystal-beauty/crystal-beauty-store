@@ -1,93 +1,78 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import {
-  DollarSign,
   ShoppingCart,
   Package,
-  TicketPercent,
+  PhoneCall,
+  Truck,
+  Ban,
+  Banknote,
   TrendingUp,
   AlertTriangle,
   ArrowRight,
+  MapPin,
 } from "lucide-react";
 import { getSettings } from "@/lib/settings";
-import { formatMoney, STATUS_STYLES } from "@/lib/format";
+import { formatMoney, STATUS_LABELS, STATUS_STYLES } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Overview" };
+export const metadata = { title: "Vue d'ensemble" };
 
 export default async function AdminOverviewPage() {
-  const settings = await getSettings();
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  const [revenue, totalOrders, pendingOrders, productCount, activePromos, monthAgg, recentOrders, topProducts, lowStock] =
+  const [newOrders, toConfirm, inDelivery, deliveredAgg, deliveredCount, refusedCount, totalOrders, lowStock, recentOrders, byWilaya] =
     await Promise.all([
-      db.order.aggregate({ where: { status: { not: "CANCELLED" } }, _sum: { total: true } }),
+      db.order.count({ where: { status: "NEW" } }),
+      db.order.count({ where: { status: "CONFIRMED" } }),
+      db.order.count({ where: { status: { in: ["SENT_TO_CARRIER", "IN_DELIVERY"] } } }),
+      db.order.aggregate({ where: { status: "DELIVERED" }, _sum: { total: true } }),
+      db.order.count({ where: { status: "DELIVERED" } }),
+      db.order.count({ where: { status: "REFUSED" } }),
       db.order.count(),
-      db.order.count({ where: { status: { in: ["PENDING", "CONFIRMED"] } } }),
-      db.product.count(),
-      db.promoCode.count({ where: { active: true } }),
-      db.order.aggregate({
-        where: { status: { not: "CANCELLED" }, createdAt: { gte: monthStart } },
-        _sum: { total: true },
-        _count: { _all: true },
-      }),
-      db.order.findMany({ orderBy: { createdAt: "desc" }, take: 6 }),
-      db.orderItem.groupBy({
-        by: ["productId", "productName"],
-        _sum: { quantity: true, lineTotal: true },
-        orderBy: { _sum: { quantity: "desc" } },
-        take: 5,
-      }),
       db.product.findMany({ where: { trackStock: true, stock: { lte: 3 } }, select: { id: true, name: true, stock: true } }),
+      db.order.findMany({ orderBy: { createdAt: "desc" }, take: 6 }),
+      db.order.groupBy({
+        by: ["wilayaName"],
+        _count: { _all: true },
+        orderBy: { _count: { wilayaName: "desc" } },
+        take: 6,
+      }),
     ]);
 
+  const deliveredRevenue = deliveredAgg._sum.total || 0;
+  const finalized = deliveredCount + refusedCount;
+  const refusalRate = finalized > 0 ? Math.round((refusedCount / finalized) * 100) : 0;
+  const productCount = await db.product.count();
+
   const cards = [
-    {
-      label: "Total Revenue",
-      value: formatMoney(revenue._sum.total || 0, settings),
-      sub: `${formatMoney(monthAgg._sum.total || 0, settings)} this month`,
-      icon: DollarSign,
-    },
-    {
-      label: "Total Orders",
-      value: String(totalOrders),
-      sub: `${monthAgg._count._all} this month`,
-      icon: ShoppingCart,
-    },
-    {
-      label: "Awaiting Action",
-      value: String(pendingOrders),
-      sub: "Pending or confirmed orders",
-      icon: AlertTriangle,
-    },
-    {
-      label: "Products & Promos",
-      value: `${productCount} / ${activePromos}`,
-      sub: "Active products / promo codes",
-      icon: Package,
-    },
+    { label: "Nouvelles commandes", value: String(newOrders), sub: "À appeler pour confirmer", icon: ShoppingCart, href: "/admin/orders?status=NEW" },
+    { label: "À confirmer", value: String(toConfirm), sub: "Confirmées, à préparer", icon: PhoneCall, href: "/admin/orders?status=CONFIRMED" },
+    { label: "En livraison", value: String(inDelivery), sub: "Chez le transporteur", icon: Truck, href: "/admin/orders?status=IN_DELIVERY" },
+    { label: "CA encaissé (livré)", value: formatMoney(deliveredRevenue), sub: `${deliveredCount} commande(s) livrée(s)`, icon: Banknote, href: "/admin/orders?status=DELIVERED" },
+    { label: "Taux de refus", value: `${refusalRate}%`, sub: `${refusedCount} refus(s) sur ${finalized} finalisée(s)`, icon: Ban, href: "/admin/orders?status=REFUSED" },
+    { label: "Commandes totales", value: String(totalOrders), sub: "Depuis le début", icon: TrendingUp, href: "/admin/orders" },
+    { label: "Produits", value: String(productCount), sub: productCount === 0 ? "Catalogue vide — ajoutez vos produits" : "Au catalogue", icon: Package, href: "/admin/products" },
   ];
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Welcome back 👋</h1>
-          <p className="text-sm text-muted-foreground mt-1">Here&apos;s how your gift store is doing today.</p>
+          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Vue d&apos;ensemble</h1>
+          <p className="text-sm text-muted-foreground mt-1">Paiement à la livraison — partout en Algérie.</p>
         </div>
         <Link
           href="/admin/products/new"
           className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 transition-colors"
         >
-          <Package className="h-4 w-4" /> Add Product
+          <Package className="h-4 w-4" /> Ajouter un produit
         </Link>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {cards.map((card) => (
-          <div key={card.label} className="bg-white rounded-2xl border border-border p-5 shadow-luxe">
+          <Link key={card.label} href={card.href} className="bg-white rounded-2xl border border-border p-5 shadow-luxe hover:border-[var(--gold)]/50 transition-colors">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{card.label}</p>
               <div className="h-9 w-9 rounded-xl bg-[var(--primary)]/5 flex items-center justify-center">
@@ -96,7 +81,7 @@ export default async function AdminOverviewPage() {
             </div>
             <p className="mt-3 text-2xl font-bold text-[var(--primary)]">{card.value}</p>
             <p className="text-xs text-muted-foreground mt-1">{card.sub}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -104,36 +89,32 @@ export default async function AdminOverviewPage() {
         {/* Recent orders */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-luxe">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Recent Orders</h2>
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Dernières commandes</h2>
             <Link href="/admin/orders" className="text-sm text-[var(--gold)] hover:underline inline-flex items-center gap-1">
-              View all <ArrowRight className="h-3.5 w-3.5" />
+              Tout voir <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
             </Link>
           </div>
           {recentOrders.length === 0 ? (
             <p className="text-sm text-muted-foreground px-5 py-10 text-center">
-              No orders yet. Share your store link to get the first one!
+              Aucune commande pour le moment. Partagez le lien de la boutique pour recevoir la première !
             </p>
           ) : (
             <div className="divide-y divide-border">
               {recentOrders.map((order) => (
-                <Link
-                  key={order.id}
-                  href={`/admin/orders/${order.id}`}
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/50 transition-colors gap-3"
-                >
+                <Link key={order.id} href={`/admin/orders/${order.id}`} className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/50 transition-colors gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--primary)]">{order.orderNumber}</p>
+                    <p className="text-sm font-semibold text-[var(--primary)]" dir="ltr">
+                      {order.orderNumber}
+                    </p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {order.customerName} · {order.city}, {order.country} · {new Date(order.createdAt).toLocaleDateString()}
+                      {order.customerName} · {order.commune}, {order.wilayaName} · {new Date(order.createdAt).toLocaleDateString("fr-FR")}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${STATUS_STYLES[order.status] || ""}`}>
-                      {order.status}
+                    <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full border", STATUS_STYLES[order.status] || "")}>
+                      {STATUS_LABELS[order.status] || order.status}
                     </span>
-                    <span className="text-sm font-semibold text-[var(--primary)] hidden sm:block">
-                      {formatMoney(order.total, settings)}
-                    </span>
+                    <span className="text-sm font-semibold text-[var(--primary)] hidden sm:block">{formatMoney(order.total)}</span>
                   </div>
                 </Link>
               ))}
@@ -141,25 +122,22 @@ export default async function AdminOverviewPage() {
           )}
         </div>
 
-        {/* Top products + low stock */}
+        {/* By wilaya + low stock */}
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-border shadow-luxe">
             <div className="px-5 py-4 border-b border-border">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)] flex items-center gap-2">
-                <TrendingUp className="h-4.5 w-4.5 text-[var(--gold)]" /> Top Sellers
+                <MapPin className="h-4.5 w-4.5 text-[var(--gold)]" /> Commandes par wilaya
               </h2>
             </div>
-            {topProducts.length === 0 ? (
-              <p className="text-sm text-muted-foreground px-5 py-8 text-center">No sales data yet.</p>
+            {byWilaya.length === 0 ? (
+              <p className="text-sm text-muted-foreground px-5 py-8 text-center">Pas encore de données.</p>
             ) : (
               <div className="px-5 py-3 divide-y divide-border">
-                {topProducts.map((t) => (
-                  <div key={t.productId} className="py-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-medium text-[var(--primary)] truncate">{t.productName}</p>
-                      <span className="text-sm font-bold text-[var(--gold)] shrink-0">×{t._sum.quantity}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{formatMoney(t._sum.lineTotal || 0, settings)} earned</p>
+                {byWilaya.map((w) => (
+                  <div key={w.wilayaName} className="py-2.5 flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-[var(--primary)] truncate">{w.wilayaName}</p>
+                    <span className="text-sm font-bold text-[var(--gold)] shrink-0">{w._count._all}</span>
                   </div>
                 ))}
               </div>
@@ -169,34 +147,21 @@ export default async function AdminOverviewPage() {
           {lowStock.length > 0 && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
               <h2 className="text-sm font-semibold text-amber-800 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" /> Low Stock Alert
+                <AlertTriangle className="h-4 w-4" /> Stock faible
               </h2>
               <ul className="mt-3 space-y-1.5">
                 {lowStock.map((p) => (
                   <li key={p.id} className="text-sm text-amber-800 flex justify-between gap-3">
                     <span className="truncate">{p.name}</span>
-                    <span className="font-semibold shrink-0">{p.stock} left</span>
+                    <span className="font-semibold shrink-0">{p.stock} restant</span>
                   </li>
                 ))}
               </ul>
               <Link href="/admin/products" className="mt-3 inline-block text-xs font-medium text-amber-800 underline">
-                Manage inventory
+                Gérer le stock
               </Link>
             </div>
           )}
-
-          <div className="rounded-2xl bg-[var(--primary)] text-white p-5">
-            <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-              <TicketPercent className="h-4.5 w-4.5 text-[var(--gold)]" /> {activePromos} Active Promos
-            </h2>
-            <p className="text-sm text-white/70 mt-1.5">Run a seasonal campaign to boost gifting.</p>
-            <Link
-              href="/admin/promo-codes"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold)] hover:underline"
-            >
-              Create promo code <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
         </div>
       </div>
     </div>

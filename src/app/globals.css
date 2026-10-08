@@ -121,6 +121,15 @@
   font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
 
+/* Arabic (RTL) typography — Cairo covers Latin too so mixed text stays consistent */
+.lang-ar,
+.lang-ar .font-display {
+  font-family: var(--font-cairo), var(--font-geist-sans), system-ui, sans-serif;
+}
+.lang-ar .font-display {
+  letter-spacing: 0;
+}
+
 /* Elegant thin scrollbar for long lists */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;

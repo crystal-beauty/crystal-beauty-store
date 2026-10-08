@@ -6,48 +6,58 @@ export interface StoreSettings {
   tagline: string;
   logoUrl: string;
   // Appearance
-  primaryColor: string; // deep navy
+  primaryColor: string; // dark blue
   accentColor: string; // gold
   // Announcement
   announcementEnabled: boolean;
-  announcementText: string;
+  announcementText: string; // FR
+  announcementTextAr: string; // AR
   announcementLink: string;
   // Hero
   heroTitle: string;
   heroSubtitle: string;
+  heroTitleAr: string;
+  heroSubtitleAr: string;
   heroImage: string;
   heroCtaText: string;
   heroCtaLink: string;
-  // Currency
+  // Currency (DZD — whole numbers)
   currencyCode: string;
   currencySymbol: string;
-  // Gift box
+  // Gift box (optional add-on — gifts are single-piece by default)
   giftBoxEnabled: boolean;
   giftBoxFee: number;
   giftBoxLabel: string;
+  giftBoxLabelAr: string;
   giftBoxDescription: string;
-  // Shipping
-  freeShippingThreshold: number;
-  originCountry: string;
-  // World Express
-  worldExpressEnabled: boolean;
-  worldExpressApiUrl: string;
-  worldExpressApiKey: string;
-  worldExpressCustomerId: string;
-  // Payment
-  codEnabled: boolean;
-  bankTransferEnabled: boolean;
-  bankInstructions: string;
-  // Contact / footer
+  giftBoxDescriptionAr: string;
+  // Contact (all optional — hidden when empty)
   contactPhone: string;
+  whatsappNumber: string; // used for WhatsApp buttons (05/06/07 or +213…)
   contactEmail: string;
   contactAddress: string;
+  contactHours: string;
+  // Social (hidden when empty)
   facebookUrl: string;
   instagramUrl: string;
   tiktokUrl: string;
   twitterUrl: string;
+  // Footer
   footerAbout: string;
   footerText: string;
+  // Policy pages (FR + AR)
+  policyDelivery: string;
+  policyDeliveryAr: string;
+  policyReturns: string;
+  policyReturnsAr: string;
+  policyPrivacy: string;
+  policyPrivacyAr: string;
+  // Carrier (World Express via EcoTrack) — token is server-side only,
+  // never sent to the browser
+  carrierEnabled: boolean;
+  carrierApiUrl: string; // base URL, e.g. https://world-express.ecotrack.dz
+  carrierApiToken: string; // empty → uses WORLDEXPRESS_API_TOKEN from .env
+  canOpenParcel: boolean; // allow customer to open parcel before payment
   // Meta Pixel
   metaPixelEnabled: boolean;
   metaPixelId: string;
@@ -61,50 +71,63 @@ export interface StoreSettings {
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   storeName: "Lumina Gifts",
-  tagline: "Gifts that feel like magic",
+  tagline: "",
   logoUrl: "",
   primaryColor: "#0A1F44",
   accentColor: "#C8A24B",
-  announcementEnabled: true,
-  announcementText: "Free World Express delivery on orders over $120 ✨ Hand-picked gifts, wrapped with love",
+  announcementEnabled: false,
+  announcementText: "",
+  announcementTextAr: "",
   announcementLink: "/products",
-  heroTitle: "Gifts That Feel Like Magic",
-  heroSubtitle: "Hand-picked crystal decor and timeless treasures, delivered worldwide with World Express. Every gift tells a story — make theirs unforgettable.",
-  heroImage: "/uploads/hero.jpg",
-  heroCtaText: "Shop the Collection",
+  heroTitle: "",
+  heroSubtitle: "",
+  heroTitleAr: "",
+  heroSubtitleAr: "",
+  heroImage: "",
+  heroCtaText: "Voir la boutique",
   heroCtaLink: "/products",
-  currencyCode: "USD",
-  currencySymbol: "$",
+  currencyCode: "DZD",
+  currencySymbol: "DA",
   giftBoxEnabled: true,
-  giftBoxFee: 6,
-  giftBoxLabel: "Add an elegant gift box",
-  giftBoxDescription: "A premium navy gift box with satin ribbon and a handwritten note card. Our gifts are sold as single pieces by default — add a box if you'd like the full wrapping experience.",
-  freeShippingThreshold: 120,
-  originCountry: "United Arab Emirates",
-  worldExpressEnabled: true,
-  worldExpressApiUrl: "",
-  worldExpressApiKey: "",
-  worldExpressCustomerId: "",
-  codEnabled: true,
-  bankTransferEnabled: true,
-  bankInstructions: "Transfer to: Lumina Gifts Trading LLC — IBAN AE00 0000 0000 0000 0000 000 — Send the receipt to WhatsApp +971 50 000 0000 to confirm.",
-  contactPhone: "+971 50 000 0000",
-  contactEmail: "hello@luminagifts.com",
-  contactAddress: "Business Bay, Dubai, United Arab Emirates",
+  giftBoxFee: 500,
+  giftBoxLabel: "Ajouter une boîte cadeau élégante",
+  giftBoxLabelAr: "أضف علبة هدايا أنيقة",
+  giftBoxDescription:
+    "Les cadeaux sont livrés à la pièce, sans emballage. Ajoutez une boîte cadeau uniquement si vous le souhaitez.",
+  giftBoxDescriptionAr:
+    "تُسلَّم الهدية كقطعة واحدة افتراضيًا. أضف علبة هدايا فقط إذا رغبت في ذلك.",
+  contactPhone: "",
+  whatsappNumber: "",
+  contactEmail: "",
+  contactAddress: "",
+  contactHours: "",
   facebookUrl: "",
   instagramUrl: "",
   tiktokUrl: "",
   twitterUrl: "",
-  footerAbout: "Curated crystal decor and gifts that turn ordinary moments into memories. Loved by thousands of gifters around the world.",
-  footerText: "© {year} {store}. All rights reserved.",
+  footerAbout: "",
+  footerText: "© {year} {store}. Tous droits réservés.",
+  policyDelivery: "",
+  policyDeliveryAr: "",
+  policyReturns: "",
+  policyReturnsAr: "",
+  policyPrivacy: "",
+  policyPrivacyAr: "",
+  carrierEnabled: true,
+  carrierApiUrl: "",
+  carrierApiToken: "",
+  canOpenParcel: false,
   metaPixelEnabled: false,
   metaPixelId: "",
   metaCapiToken: "",
   metaTestEventCode: "",
   metaAdvancedMatching: true,
-  seoTitle: "Lumina Gifts — Crystal Decor & Thoughtful Gifts",
-  seoDescription: "Shop hand-picked crystal balls, decor and gifts. Fast worldwide shipping with World Express. Gift boxes available on request.",
+  seoTitle: "",
+  seoDescription: "",
 };
+
+// Keys that must NEVER leave the server (admin API strips them from responses)
+export const SECRET_SETTING_KEYS = ["carrierApiToken", "metaCapiToken"];
 
 type SettingsMap = Partial<Record<keyof StoreSettings, string | number | boolean>>;
 

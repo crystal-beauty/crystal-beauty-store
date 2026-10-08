@@ -1,10 +1,13 @@
-import { getSession, canDelete } from "@/lib/auth";
+import { Suspense } from "react";
 import OrdersManager from "@/components/admin/orders-manager";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Orders" };
+export const metadata = { title: "Commandes" };
 
-export default async function AdminOrdersPage() {
-  const session = await getSession();
-  return <OrdersManager canDelete={session ? canDelete(session.role, "orders") : false} />;
+export default function AdminOrdersPage() {
+  return (
+    <Suspense fallback={null}>
+      <OrdersManager />
+    </Suspense>
+  );
 }

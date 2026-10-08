@@ -1,347 +1,393 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
-  ArrowLeft, Truck, Save, Loader2, MapPin, Mail, Phone, CreditCard, Gift,
-  StickyNote, PackageCheck, Trash2, ExternalLink,
+  Phone, MessageCircle, Truck, Printer, XCircle, CheckCircle2, Loader2, AlertTriangle,
+  Gift, Banknote, MapPin, Building, ChevronDown, Star,
 } from "lucide-react";
-import { useSettings } from "@/components/store/settings-provider";
-import { formatMoney, STATUS_STYLES, ORDER_STATUSES } from "@/lib/format";
+import { formatMoney, ORDER_STATUSES, STATUS_LABELS, STATUS_STYLES, toInternationalDz } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 interface OrderData {
   id: string;
   orderNumber: string;
   status: string;
   customerName: string;
-  email: string;
+  email: string | null;
   phone: string;
-  country: string;
-  city: string;
+  wilayaId: number | null;
+  wilayaName: string;
+  commune: string;
   address: string;
-  postalCode: string | null;
+  deliveryType: string;
+  stopDeskName: string | null;
   notes: string | null;
   giftMessage: string | null;
+  recipientName: string | null;
+  recipientPhone: string | null;
   subtotal: number;
   discount: number;
-  shippingFee: number;
+  deliveryFee: number;
   giftBoxFee: number;
   total: number;
   promoCodeStr: string | null;
-  shippingMethodName: string | null;
-  paymentMethod: string;
   carrier: string | null;
   trackingNumber: string | null;
-  shipmentStatus: string | null;
+  carrierStatus: string | null;
+  globalStatus: string | null;
   shipmentResponse: string | null;
+  reviewRequestedAt: string | null;
   createdAt: string;
-  items: {
-    productName: string;
-    productImage: string;
-    variantSelections: string;
-    quantity: number;
-    unitPrice: number;
-    lineTotal: number;
-    giftBox: boolean;
-  }[];
+  items: { productName: string; productImage: string; variantSelections: string; quantity: number; unitPrice: number; lineTotal: number; giftBox: boolean }[];
 }
 
-export default function OrderDetail({ order: initial, canDelete }: { order: OrderData; canDelete: boolean }) {
+export default function OrderDetail({ order, canDelete, refusedWarning }: { order: OrderData; canDelete: boolean; refusedWarning: boolean }) {
   const router = useRouter();
-  const settings = useSettings();
-  const [order, setOrder] = useState(initial);
-  const [status, setStatus] = useState(initial.status);
-  const [tracking, setTracking] = useState(initial.trackingNumber || "");
-  const [saving, setSaving] = useState(false);
-  const [booking, setBooking] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [busy, setBusy] = useState<string>("");
+  const [showRaw, setShowRaw] = useState(false);
+  const [reviewLink, setReviewLink] = useState<string>("");
 
-  async function saveOrder() {
-    setSaving(true);
+  const waNumber = order.recipientPhone || order.phone;
+  const waText = encodeURIComponent(`Bonjour ${order.customerName}, nous vous contactons au sujet de votre commande ${order.orderNumber}. / مرحبًا ${order.customerName}، نتصل بك بخصوص طلبك ${order.orderNumber}.`);
+
+  async function updateStatus(status: string) {
+    setBusy(`status-${status}`);
     try {
       const res = await fetch(`/api/admin/orders/${order.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, trackingNumber: tracking, carrier: order.carrier || "World Express" }),
+        body: JSON.stringify({ status }),
       });
       const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Could not update");
-      setOrder(data.order);
-      toast.success("Order updated");
+      if (!res.ok) throw new Error(data.error);
+      toast.success(`Statut → ${STATUS_LABELS[status]}`);
       router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec de la mise à jour.");
     } finally {
-      setSaving(false);
+      setBusy("");
     }
   }
 
-  async function bookShipment() {
-    setBooking(true);
+  async function sendToCarrier() {
+    setBusy("ship");
     try {
       const res = await fetch(`/api/admin/orders/${order.id}/ship`, { method: "POST" });
       const data = await res.json();
-      if (data.order) setOrder(data.order);
-      if (data.order?.trackingNumber) setTracking(data.order.trackingNumber);
-      if (res.ok) {
-        toast.success(`World Express shipment booked — tracking ${data.trackingNumber}`);
-      } else {
-        toast.error(data.error || "Booking failed");
-      }
+      if (!res.ok && !data.order) throw new Error(data.error || "Échec.");
+      if (res.ok) toast.success(`Colis créé — suivi: ${data.trackingNumber}`, { duration: 8000 });
+      else toast.error(data.error, { duration: 10000 });
       router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec de l'envoi au transporteur.");
     } finally {
-      setBooking(false);
+      setBusy("");
+    }
+  }
+
+  async function cancelOrder() {
+    if (!confirm("Annuler cette commande ? Le colis sera également supprimé chez le transporteur s'il existe.")) return;
+    setBusy("cancel");
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/cancel-parcel`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok && res.status !== 207) throw new Error(data.error || "Échec.");
+      if (res.status === 207) toast.warning(data.error, { duration: 10000 });
+      else toast.success("Commande annulée.");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec de l'annulation.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function requestReview() {
+    setBusy("review");
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/request-review`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec.");
+      setReviewLink(data.waLink);
+      window.open(data.waLink, "_blank");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec de la demande d'avis.");
+    } finally {
+      setBusy("");
     }
   }
 
   async function deleteOrder() {
-    const res = await fetch(`/api/admin/orders/${order.id}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.success("Order deleted");
+    if (!confirm("Supprimer définitivement cette commande ?")) return;
+    setBusy("delete");
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Échec.");
+      }
+      toast.success("Commande supprimée.");
       router.push("/admin/orders");
-    } else {
-      const d = await res.json();
-      toast.error(d.error || "Could not delete");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec de la suppression.");
+    } finally {
+      setBusy("");
     }
   }
 
-  const inputCls =
-    "w-full bg-white border border-input rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 focus:border-[var(--primary)]";
-  const labelCls = "block text-sm font-medium text-[var(--primary)] mb-1.5";
+  const cardCls = "bg-white rounded-2xl border border-border p-5 shadow-luxe";
+  const btnBase = "inline-flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50";
+
+  let parsedResponse: Record<string, unknown> | null = null;
+  try {
+    parsedResponse = order.shipmentResponse ? JSON.parse(order.shipmentResponse) : null;
+  } catch {
+    parsedResponse = { raw: order.shipmentResponse };
+  }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <Link href="/admin/orders" className="p-2.5 rounded-xl border border-border bg-white text-[var(--primary)] hover:bg-muted">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="font-display text-2xl font-semibold text-[var(--primary)]">{order.orderNumber}</h1>
-              <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${STATUS_STYLES[order.status] || ""}`}>
-                {order.status}
+      <div className="flex items-start justify-between flex-wrap gap-3">
+        <div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="font-display text-2xl font-semibold text-[var(--primary)]" dir="ltr">
+              {order.orderNumber}
+            </h1>
+            <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full border", STATUS_STYLES[order.status])}>{STATUS_LABELS[order.status]}</span>
+            {refusedWarning && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
+                <AlertTriangle className="h-3 w-3" /> Refus/retour précédent sur ce numéro
               </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">Placed {new Date(order.createdAt).toLocaleString()}</p>
+            )}
+            {parsedResponse?.pending === true && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                <Loader2 className="h-3 w-3 animate-spin" /> Réservation en cours…
+              </span>
+            )}
           </div>
+          <p className="text-sm text-muted-foreground mt-1">{new Date(order.createdAt).toLocaleString("fr-FR")}</p>
         </div>
-        {canDelete && (
-          <button
-            onClick={() => setDeleteOpen(true)}
-            className="inline-flex items-center gap-2 border border-destructive/30 text-destructive text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-destructive/5 transition-colors"
+        <div className="flex items-center gap-2">
+          <select
+            value={order.status}
+            onChange={(e) => updateStatus(e.target.value)}
+            disabled={Boolean(busy)}
+            className="bg-white border border-input rounded-xl px-3.5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25"
+            aria-label="Changer le statut"
           >
-            <Trash2 className="h-4 w-4" /> Delete Order
+            {ORDER_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className={cardCls + " flex flex-wrap gap-2.5"}>
+        <a href={`tel:${order.phone}`} className={cn(btnBase, "bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90")}>
+          <Phone className="h-4 w-4" /> Appeler le client
+        </a>
+        <a
+          href={`https://wa.me/${toInternationalDz(waNumber).replace("+", "")}?text=${waText}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(btnBase, "bg-[#25D366] text-white hover:bg-[#1fb857]")}
+        >
+          <MessageCircle className="h-4 w-4" /> WhatsApp
+        </a>
+        {["NEW", "CONFIRMED"].includes(order.status) && (
+          <button onClick={sendToCarrier} disabled={Boolean(busy)} className={cn(btnBase, "bg-[var(--gold)] text-white hover:bg-[#b8903a]")}>
+            {busy === "ship" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
+            Envoyer au transporteur
+          </button>
+        )}
+        <a href={`/admin/orders/${order.id}/label`} target="_blank" className={cn(btnBase, "border border-border hover:bg-muted")}>
+          <Printer className="h-4 w-4" /> Imprimer l'étiquette
+        </a>
+        {order.status === "DELIVERED" && (
+          <button onClick={requestReview} disabled={Boolean(busy)} className={cn(btnBase, "bg-emerald-600 text-white hover:bg-emerald-700")}>
+            {busy === "review" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
+            {order.reviewRequestedAt ? "Renvoyer la demande d'avis" : "Demander un avis (WhatsApp)"}
+          </button>
+        )}
+        <button onClick={cancelOrder} disabled={Boolean(busy) || order.status === "CANCELLED"} className={cn(btnBase, "border border-rose-200 text-rose-600 hover:bg-rose-50 disabled:opacity-40")}>
+          {busy === "cancel" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+          Annuler
+        </button>
+        {canDelete && (
+          <button onClick={deleteOrder} disabled={Boolean(busy)} className={cn(btnBase, "text-rose-600 hover:bg-rose-50 ms-auto")}>
+            Supprimer
           </button>
         )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* ===== Main ===== */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Items */}
-          <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Items</h2>
-            <div className="space-y-4">
+      {reviewLink && (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800 break-all">
+          Lien de demande d'avis ouvert dans WhatsApp. Lien direct :{" "}
+          <a href={reviewLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+            ouvrir à nouveau
+          </a>
+        </div>
+      )}
+
+      <div className="grid lg:grid-cols-2 gap-5">
+        {/* Customer + delivery */}
+        <div className="space-y-5">
+          <div className={cardCls}>
+            <h2 className="font-semibold text-[var(--primary)] mb-3">Client</h2>
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="text-muted-foreground">Nom :</span> <span className="font-medium">{order.customerName}</span>
+              </p>
+              <p>
+                <span className="text-muted-foreground">Téléphone :</span>{" "}
+                <a href={`tel:${order.phone}`} className="font-medium hover:underline" dir="ltr">
+                  {order.phone}
+                </a>
+              </p>
+              {order.email && (
+                <p>
+                  <span className="text-muted-foreground">Email :</span> <span className="font-medium">{order.email}</span>
+                </p>
+              )}
+              {order.recipientName && (
+                <p className="flex items-center gap-1.5">
+                  <Gift className="h-3.5 w-3.5 text-[var(--gold)]" />
+                  <span className="text-muted-foreground">Destinataire :</span>
+                  <span className="font-medium">
+                    {order.recipientName} {order.recipientPhone ? `(${order.recipientPhone})` : ""}
+                  </span>
+                </p>
+              )}
+              {order.giftMessage && (
+                <p className="rounded-lg bg-[var(--gold)]/10 border border-[var(--gold)]/25 px-3 py-2">
+                  <span className="text-muted-foreground">Message cadeau :</span> <em>{order.giftMessage}</em>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className={cardCls}>
+            <h2 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
+              {order.deliveryType === "STOP_DESK" ? <Building className="h-4 w-4 text-[var(--gold)]" /> : <MapPin className="h-4 w-4 text-[var(--gold)]" />}
+              Livraison — {order.deliveryType === "STOP_DESK" ? "Stop desk" : "Domicile"}
+            </h2>
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="text-muted-foreground">Wilaya :</span> <span className="font-medium">{order.wilayaName}</span>
+                {order.wilayaId ? <span className="text-muted-foreground"> (code {order.wilayaId})</span> : null}
+              </p>
+              <p>
+                <span className="text-muted-foreground">Commune :</span> <span className="font-medium">{order.commune}</span>
+              </p>
+              <p>
+                <span className="text-muted-foreground">Adresse :</span> <span className="font-medium">{order.address}</span>
+                <span className="text-xs text-muted-foreground"> ({order.address.length}/30)</span>
+              </p>
+              {order.notes && (
+                <p>
+                  <span className="text-muted-foreground">Note client :</span> <em>{order.notes}</em>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Items + totals */}
+        <div className="space-y-5">
+          <div className={cardCls}>
+            <h2 className="font-semibold text-[var(--primary)] mb-3">Articles</h2>
+            <div className="space-y-3">
               {order.items.map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="h-16 w-16 rounded-xl overflow-hidden bg-muted shrink-0">
-                    {item.productImage && (
-                       
-                      <img src={item.productImage} alt="" className="h-full w-full object-cover" />
-                    )}
+                <div key={i} className="flex gap-3">
+                  <div className="h-12 w-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                    {item.productImage && <img src={item.productImage} alt={item.productName} className="h-full w-full object-cover" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[var(--primary)]">{item.productName}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {item.variantSelections !== "{}" &&
-                        Object.entries(JSON.parse(item.variantSelections || "{}"))
-                          .map(([k, v]) => `${k}: ${v}`)
-                          .join(" · ")}
+                    <p className="text-sm font-medium text-[var(--primary)] truncate">{item.productName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.variantSelections !== "{}" && Object.values(JSON.parse(item.variantSelections || "{}")).join(" · ")}
+                      {item.giftBox && " · Boîte cadeau"}
                     </p>
-                    {item.giftBox && (
-                      <p className="text-xs text-[var(--gold)] font-medium mt-0.5 flex items-center gap-1">
-                        <Gift className="h-3 w-3" /> Customer requested a gift box
-                      </p>
-                    )}
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-[var(--primary)]">{formatMoney(item.lineTotal, settings)}</p>
-                    <p className="text-xs text-muted-foreground">×{item.quantity} @ {formatMoney(item.unitPrice, settings)}</p>
+                  <div className="text-end text-sm whitespace-nowrap">
+                    <p className="font-semibold text-[var(--primary)]">{formatMoney(item.lineTotal)}</p>
+                    <p className="text-xs text-muted-foreground">×{item.quantity}</p>
                   </div>
                 </div>
               ))}
             </div>
-
-            <div className="border-t border-border mt-5 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>{formatMoney(order.subtotal, settings)}</span></div>
+            <div className="border-t border-border mt-4 pt-3 space-y-2 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Sous-total</span>
+                <span>{formatMoney(order.subtotal)}</span>
+              </div>
               {order.discount > 0 && (
                 <div className="flex justify-between text-emerald-600">
-                  <span>Discount {order.promoCodeStr && `(${order.promoCodeStr})`}</span>
-                  <span>-{formatMoney(order.discount, settings)}</span>
+                  <span>Remise {order.promoCodeStr && `(${order.promoCodeStr})`}</span>
+                  <span>-{formatMoney(order.discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-muted-foreground"><span>Shipping</span><span>{order.shippingFee === 0 ? "FREE" : formatMoney(order.shippingFee, settings)}</span></div>
               {order.giftBoxFee > 0 && (
-                <div className="flex justify-between text-muted-foreground"><span>Gift boxes</span><span>{formatMoney(order.giftBoxFee, settings)}</span></div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Boîtes cadeau</span>
+                  <span>{formatMoney(order.giftBoxFee)}</span>
+                </div>
               )}
-              <div className="flex justify-between border-t border-border pt-2.5 font-bold text-[var(--primary)]">
-                <span>Total</span><span>{formatMoney(order.total, settings)}</span>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Frais de livraison (tarif transporteur)</span>
+                <span>{formatMoney(order.deliveryFee)}</span>
               </div>
-            </div>
-          </section>
-
-          {/* Shipping / World Express */}
-          <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-1 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-[var(--gold)]" /> Shipment — World Express
-            </h2>
-            <p className="text-xs text-muted-foreground mb-5">
-              Book the shipment through the World Express API or enter the tracking number manually.
-            </p>
-
-            {order.shipmentStatus && (
-              <div className={cn(
-                "mb-4 rounded-xl px-4 py-3 text-sm border",
-                order.shipmentStatus === "BOOKED" || order.shipmentStatus === "SHIPPED"
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                  : "bg-amber-50 border-amber-200 text-amber-700"
-              )}>
-                Shipment status: <strong>{order.shipmentStatus}</strong>
-                {order.carrier && <> · Carrier: <strong>{order.carrier}</strong></>}
-              </div>
-            )}
-
-            <div className="flex flex-wrap gap-3 mb-5">
-              <button
-                onClick={bookShipment}
-                disabled={booking}
-                className="inline-flex items-center gap-2 bg-[var(--primary)] text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 disabled:opacity-60 transition-colors"
-              >
-                {booking ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />}
-                Book World Express Shipment
-              </button>
-              {order.trackingNumber && (
-                <span className="inline-flex items-center gap-2 bg-muted text-[var(--primary)] text-sm font-medium px-4 py-2.5 rounded-xl">
-                  <Truck className="h-4 w-4 text-[var(--gold)]" /> Tracking: <span className="font-mono">{order.trackingNumber}</span>
+              <div className="flex justify-between border-t border-border pt-2.5 font-semibold text-[var(--primary)]">
+                <span className="flex items-center gap-1.5">
+                  <Banknote className="h-4 w-4 text-[var(--gold)]" /> À encaisser (COD)
                 </span>
-              )}
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Tracking Number</label>
-                <input value={tracking} onChange={(e) => setTracking(e.target.value)} className={inputCls} placeholder="WE-123456789" />
-              </div>
-              <div>
-                <label className={labelCls}>Order Status</label>
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
-                  {ORDER_STATUSES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                <span>{formatMoney(order.total)}</span>
               </div>
             </div>
+          </div>
 
-            {order.shipmentResponse && (
-              <details className="mt-4">
-                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-[var(--primary)]">View raw API response</summary>
-                <pre className="mt-2 text-[11px] bg-muted rounded-xl p-3 overflow-x-auto scrollbar-thin max-h-48">{(() => {
-                  try { return JSON.stringify(JSON.parse(order.shipmentResponse), null, 2); } catch { return order.shipmentResponse; }
-                })()}</pre>
-              </details>
-            )}
-          </section>
-
-          {/* Customer notes */}
-          {(order.notes || order.giftMessage) && (
-            <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-              <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4 flex items-center gap-2">
-                <StickyNote className="h-5 w-5 text-[var(--gold)]" /> Notes from the Customer
-              </h2>
-              {order.giftMessage && (
-                <div className="mb-3">
-                  <p className="text-xs font-semibold text-[var(--gold)] uppercase tracking-wide mb-1">Gift Message</p>
-                  <p className="text-sm text-[var(--primary)] bg-[var(--gold)]/5 border border-[var(--gold)]/20 rounded-xl px-4 py-3">
-                    &ldquo;{order.giftMessage}&rdquo;
-                  </p>
-                </div>
-              )}
-              {order.notes && (
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Order Notes</p>
-                  <p className="text-sm text-muted-foreground">{order.notes}</p>
-                </div>
-              )}
-            </section>
-          )}
-        </div>
-
-        {/* ===== Side ===== */}
-        <div className="space-y-6">
-          {/* Customer */}
-          <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Customer</h2>
-            <div className="space-y-3 text-sm">
-              <p className="font-semibold text-[var(--primary)]">{order.customerName}</p>
-              <p className="flex items-center gap-2 text-muted-foreground"><Mail className="h-3.5 w-3.5" /> {order.email}</p>
-              <p className="flex items-center gap-2 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {order.phone}</p>
-              <p className="flex items-start gap-2 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                <span>{order.address}, {order.city}{order.postalCode && `, ${order.postalCode}`}, {order.country}</span>
-              </p>
-              <p className="flex items-center gap-2 text-muted-foreground">
-                <CreditCard className="h-3.5 w-3.5" />
-                {order.paymentMethod === "COD" ? "Cash on Delivery" : "Bank Transfer"}
-              </p>
-              {order.shippingMethodName && (
-                <p className="text-xs bg-muted rounded-lg px-3 py-2 text-[var(--primary)]">
-                  🚚 {order.shippingMethodName}
+          {/* Carrier */}
+          <div className={cardCls}>
+            <h2 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
+              <Truck className="h-4 w-4 text-[var(--gold)]" /> Transporteur — {order.carrier || "non envoyé"}
+            </h2>
+            {order.trackingNumber ? (
+              <div className="space-y-2 text-sm" dir="ltr">
+                <p>
+                  <span className="text-muted-foreground">Suivi :</span> <span className="font-mono font-medium">{order.trackingNumber}</span>
                 </p>
-              )}
-            </div>
-          </section>
-
-          {/* Save */}
-          <button
-            onClick={saveOrder}
-            disabled={saving}
-            className="w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-3.5 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save Changes
-          </button>
-
-          <Link
-            href={`/track?order=${order.orderNumber}`}
-            target="_blank"
-            className="w-full inline-flex items-center justify-center gap-2 border border-border text-[var(--primary)] text-sm font-medium py-3 rounded-xl hover:bg-muted transition-colors"
-          >
-            <ExternalLink className="h-4 w-4" /> Customer Tracking View
-          </Link>
+                {order.carrierStatus && (
+                  <p>
+                    <span className="text-muted-foreground">Statut brut :</span> <span className="font-mono">{order.carrierStatus}</span>
+                    {order.globalStatus ? ` · ${order.globalStatus}` : ""}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Pas encore envoyé au transporteur.</p>
+            )}
+            {parsedResponse && (
+              <div className="mt-3">
+                <button onClick={() => setShowRaw(!showRaw)} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-[var(--primary)]">
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showRaw && "rotate-180")} /> Réponse API transporteur
+                </button>
+                {showRaw && (
+                  <pre className="mt-2 rounded-xl bg-muted p-3 text-[11px] overflow-x-auto scrollbar-thin" dir="ltr">
+                    {JSON.stringify(parsedResponse, null, 2)}
+                  </pre>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete order {order.orderNumber}?</AlertDialogTitle>
-            <AlertDialogDescription>This permanently removes the order and its items. This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={(e) => { e.preventDefault(); deleteOrder(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

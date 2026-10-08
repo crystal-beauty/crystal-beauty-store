@@ -1,31 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Loader2, Store, Palette, Image as ImageIcon, Gift, CreditCard, Phone, FileText } from "lucide-react";
-import type { StoreSettings } from "@/lib/settings";
-import { cn } from "@/lib/utils";
+import { Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+interface SettingsShape {
+  [key: string]: string | number | boolean;
+}
 
 const TABS = [
-  { key: "general", label: "General", icon: Store },
-  { key: "appearance", label: "Appearance", icon: Palette },
-  { key: "hero", label: "Homepage", icon: ImageIcon },
-  { key: "giftbox", label: "Gift Box", icon: Gift },
-  { key: "payments", label: "Payments", icon: CreditCard },
-  { key: "contact", label: "Contact & Social", icon: Phone },
-  { key: "seo", label: "SEO & Footer", icon: FileText },
+  { id: "general", label: "Général" },
+  { id: "appearance", label: "Apparence" },
+  { id: "announcement", label: "Annonce" },
+  { id: "hero", label: "Hero" },
+  { id: "giftbox", label: "Boîte cadeau" },
+  { id: "contact", label: "Contact & réseaux" },
+  { id: "policies", label: "Pages politiques" },
+  { id: "delivery", label: "Livraison" },
+  { id: "footer", label: "Pied de page" },
+  { id: "seo", label: "SEO" },
 ] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabId = (typeof TABS)[number]["id"];
 
-export default function SettingsManager({ initial }: { initial: StoreSettings }) {
-  const [tab, setTab] = useState<TabKey>("general");
-  const [form, setForm] = useState<StoreSettings>(initial);
+export default function SettingsManager({ initial }: { initial: Record<string, string | number | boolean> }) {
+  const [tab, setTab] = useState<TabId>("general");
+  const [form, setForm] = useState<SettingsShape>(initial);
   const [saving, setSaving] = useState(false);
 
-  function set<K extends keyof StoreSettings>(key: K, value: StoreSettings[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
+  const set = (key: string, value: string | number | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
   async function save() {
     setSaving(true);
@@ -35,216 +39,248 @@ export default function SettingsManager({ initial }: { initial: StoreSettings })
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (!res.ok) return toast.error("Could not save settings");
-      toast.success("Settings saved — refresh the storefront to see changes");
+      if (!res.ok) throw new Error();
+      toast.success("Paramètres enregistrés.");
+    } catch {
+      toast.error("Échec de l'enregistrement.");
     } finally {
       setSaving(false);
     }
   }
 
   const inputCls =
-    "w-full bg-white border border-input rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25";
+    "w-full bg-white border border-input rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 focus:border-[var(--primary)]";
   const labelCls = "block text-sm font-medium text-[var(--primary)] mb-1.5";
-  const sectionCls = "bg-white rounded-2xl border border-border p-6 shadow-luxe";
+  const hintCls = "mt-1 text-xs text-muted-foreground";
 
-  const text = (key: keyof StoreSettings, label: string, placeholder?: string) => (
+  const TextField = ({ k, label, hint, placeholder, type = "text" }: { k: string; label: string; hint?: string; placeholder?: string; type?: string }) => (
     <div>
-      <label className={labelCls}>{label}</label>
-      <input value={String(form[key])} onChange={(e) => set(key, e.target.value as never)} className={inputCls} placeholder={placeholder} />
-    </div>
-  );
-
-  const textarea = (key: keyof StoreSettings, label: string, rows = 3, placeholder?: string) => (
-    <div>
-      <label className={labelCls}>{label}</label>
-      <textarea value={String(form[key])} onChange={(e) => set(key, e.target.value as never)} rows={rows} className={inputCls} placeholder={placeholder} />
-    </div>
-  );
-
-  const toggle = (key: keyof StoreSettings, label: string, desc?: string) => (
-    <label className="flex items-start gap-2.5 text-sm text-[var(--primary)] cursor-pointer">
-      <input
-        type="checkbox"
-        checked={Boolean(form[key])}
-        onChange={(e) => set(key, e.target.checked as never)}
-        className="h-4 w-4 accent-[var(--primary)] mt-0.5"
-      />
-      <span>
+      <label className={labelCls} htmlFor={`f-${k}`}>
         {label}
-        {desc && <span className="block text-xs text-muted-foreground mt-0.5">{desc}</span>}
-      </span>
+      </label>
+      <input id={`f-${k}`} type={type} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} className={inputCls} />
+      {hint && <p className={hintCls}>{hint}</p>}
+    </div>
+  );
+
+  const TextArea = ({ k, label, hint, rows = 4 }: { k: string; label: string; hint?: string; rows?: number }) => (
+    <div>
+      <label className={labelCls} htmlFor={`f-${k}`}>
+        {label}
+      </label>
+      <textarea id={`f-${k}`} rows={rows} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} className={inputCls} />
+      {hint && <p className={hintCls}>{hint}</p>}
+    </div>
+  );
+
+  const Toggle = ({ k, label, hint }: { k: string; label: string; hint?: string }) => (
+    <label className="flex items-start gap-3 cursor-pointer">
+      <input type="checkbox" checked={Boolean(form[k])} onChange={(e) => set(k, e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--primary)]" />
+      <div>
+        <p className="text-sm font-medium text-[var(--primary)]">{label}</p>
+        {hint && <p className={hintCls}>{hint}</p>}
+      </div>
     </label>
   );
 
+  const NumField = ({ k, label, hint }: { k: string; label: string; hint?: string }) => (
+    <div>
+      <label className={labelCls} htmlFor={`f-${k}`}>
+        {label}
+      </label>
+      <input
+        id={`f-${k}`}
+        type="number"
+        min={0}
+        value={String(form[k] ?? "")}
+        onChange={(e) => set(k, e.target.value === "" ? "" : Number(e.target.value))}
+        className={inputCls}
+        dir="ltr"
+      />
+      {hint && <p className={hintCls}>{hint}</p>}
+    </div>
+  );
+
+  const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe space-y-4">
+      <h2 className="font-display text-lg font-semibold text-[var(--primary)]">{title}</h2>
+      {children}
+    </section>
+  );
+
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+    <div>
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Store Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">Everything on the storefront is editable from here.</p>
+          <h1 className="font-display text-2xl font-semibold text-[var(--primary)]">Paramètres</h1>
+          <p className="text-sm text-muted-foreground mt-1">Tout ce qui est vide n&apos;apparaît pas sur la boutique — aucune fausse information.</p>
         </div>
-        <button
-          onClick={save}
-          disabled={saving}
-          className="inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60"
-        >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save All Settings
+        <button onClick={save} disabled={saving} className="inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#b8903a] disabled:opacity-50">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Enregistrer
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex gap-2 mb-5 overflow-x-auto no-scrollbar pb-1">
         {TABS.map((t) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={t.id}
+            onClick={() => setTab(t.id)}
             className={cn(
-              "shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors",
-              tab === t.key
-                ? "bg-[var(--primary)] text-white border-[var(--primary)]"
-                : "bg-white text-[var(--primary)] border-border hover:border-[var(--primary)]"
+              "shrink-0 text-sm font-medium px-4 py-2 rounded-full border transition-colors",
+              tab === t.id ? "bg-[var(--primary)] text-white border-[var(--primary)]" : "bg-white text-[var(--primary)] border-border hover:bg-muted"
             )}
           >
-            <t.icon className="h-4 w-4" />
             {t.label}
           </button>
         ))}
       </div>
 
-      {/* ===== General ===== */}
-      {tab === "general" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5">General</h2>
-          <div className="space-y-4">
-            {text("storeName", "Store Name")}
-            {text("tagline", "Tagline")}
-            {text("logoUrl", "Logo URL (optional)", "/uploads/logo.png")}
-            <div className="grid sm:grid-cols-3 gap-4">
-              {text("currencyCode", "Currency Code", "USD")}
-              {text("currencySymbol", "Currency Symbol", "$")}
-              {text("freeShippingThreshold", "Free Shipping Over", "120")}
-            </div>
-          </div>
-        </section>
-      )}
+      <div className="grid gap-5 max-w-3xl">
+        {tab === "general" && (
+          <>
+            <Card title="Identité">
+              <TextField k="storeName" label="Nom de la boutique" />
+              <TextField k="tagline" label="Slogan (optionnel)" hint="Affiché au-dessus du titre du hero." />
+              <TextField k="logoUrl" label="URL du logo" hint="Laisser vide pour l'icône par défaut." placeholder="/logo.svg" />
+            </Card>
+          </>
+        )}
 
-      {/* ===== Appearance ===== */}
-      {tab === "appearance" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-1">Appearance</h2>
-          <p className="text-xs text-muted-foreground mb-5">
-            Colors apply instantly across the storefront (buttons, links, footer, accents).
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Primary Color (deep navy)</label>
-              <div className="flex gap-3">
-                <input type="color" value={form.primaryColor} onChange={(e) => set("primaryColor", e.target.value)} className="h-11 w-14 rounded-xl border border-input cursor-pointer p-1" />
-                <input value={form.primaryColor} onChange={(e) => set("primaryColor", e.target.value)} className={inputCls} />
+        {tab === "appearance" && (
+          <Card title="Couleurs de la marque">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls} htmlFor="f-primaryColor">
+                  Couleur principale (bleu foncé)
+                </label>
+                <div className="flex gap-2">
+                  <input type="color" value={String(form.primaryColor)} onChange={(e) => set("primaryColor", e.target.value)} className="h-11 w-14 rounded-xl border border-input" aria-label="Couleur principale" />
+                  <input value={String(form.primaryColor)} onChange={(e) => set("primaryColor", e.target.value)} className={inputCls} dir="ltr" />
+                </div>
+              </div>
+              <div>
+                <label className={labelCls} htmlFor="f-accentColor">
+                  Couleur d&apos;accent (doré)
+                </label>
+                <div className="flex gap-2">
+                  <input type="color" value={String(form.accentColor)} onChange={(e) => set("accentColor", e.target.value)} className="h-11 w-14 rounded-xl border border-input" aria-label="Accent" />
+                  <input value={String(form.accentColor)} onChange={(e) => set("accentColor", e.target.value)} className={inputCls} dir="ltr" />
+                </div>
               </div>
             </div>
-            <div>
-              <label className={labelCls}>Accent Color (gold)</label>
-              <div className="flex gap-3">
-                <input type="color" value={form.accentColor} onChange={(e) => set("accentColor", e.target.value)} className="h-11 w-14 rounded-xl border border-input cursor-pointer p-1" />
-                <input value={form.accentColor} onChange={(e) => set("accentColor", e.target.value)} className={inputCls} />
-              </div>
-            </div>
-          </div>
+          </Card>
+        )}
 
-          <div className="mt-6 space-y-4">
-            {toggle("announcementEnabled", "Show announcement bar", "A slim bar above the header for promos & shipping offers")}
-            {text("announcementText", "Announcement Text")}
-            {text("announcementLink", "Announcement Link", "/products")}
-          </div>
-        </section>
-      )}
+        {tab === "announcement" && (
+          <Card title="Bandeau d'annonce">
+            <Toggle k="announcementEnabled" label="Afficher le bandeau" />
+            <TextField k="announcementText" label="Texte (français)" placeholder="Ex : Livraison 58 wilayas — paiement à la livraison" />
+            <TextField k="announcementTextAr" label="النص (بالعربية)" placeholder="مثال: التوصيل إلى 58 ولاية — الدفع عند الاستلام" dir="rtl" />
+            <TextField k="announcementLink" label="Lien du bandeau" placeholder="/products" />
+          </Card>
+        )}
 
-      {/* ===== Homepage ===== */}
-      {tab === "hero" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5">Homepage Content</h2>
-          <div className="space-y-4">
-            {text("heroTitle", "Hero Title")}
-            {textarea("heroSubtitle", "Hero Subtitle", 3)}
-            {text("heroImage", "Hero Image URL", "/uploads/hero.jpg")}
+        {tab === "hero" && (
+          <Card title="Section hero (page d'accueil)">
+            <TextField k="heroTitle" label="Titre (français)" />
+            <TextField k="heroTitleAr" label="العنوان (بالعربية)" dir="rtl" />
+            <TextArea k="heroSubtitle" label="Sous-titre (français)" rows={3} />
+            <TextArea k="heroSubtitleAr" label="العنوان الفرعي (بالعربية)" rows={3} dir="rtl" />
+            <TextField k="heroImage" label="Image du hero (URL)" hint="Laisser vide pour un fond bleu nuit uni." />
             <div className="grid sm:grid-cols-2 gap-4">
-              {text("heroCtaText", "Button Text", "Shop the Collection")}
-              {text("heroCtaLink", "Button Link", "/products")}
+              <TextField k="heroCtaText" label="Texte du bouton" />
+              <TextField k="heroCtaLink" label="Lien du bouton" />
             </div>
-            {textarea("footerAbout", "Footer About Text", 3)}
-          </div>
-          {form.heroImage && (
-            <div className="mt-5 rounded-xl overflow-hidden border border-border max-w-sm">
-              { }
-              <img src={form.heroImage} alt="Hero preview" className="w-full aspect-video object-cover" />
-            </div>
-          )}
-        </section>
-      )}
+          </Card>
+        )}
 
-      {/* ===== Gift box ===== */}
-      {tab === "giftbox" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-1">Gift Box Add-On</h2>
-          <p className="text-xs text-muted-foreground mb-5">
-            Your store sells single-piece gifts by default — this optional add-on lets customers request a box.
-          </p>
-          <div className="space-y-4">
-            {toggle("giftBoxEnabled", "Offer gift boxes as an add-on")}
+        {tab === "giftbox" && (
+          <Card title="Boîte cadeau (optionnelle)">
+            <p className="text-sm text-muted-foreground -mt-2">
+              Rappel : les cadeaux sont vendus à la pièce sans emballage. La boîte n&apos;est qu&apos;une option que le client choisit.
+            </p>
+            <Toggle k="giftBoxEnabled" label="Proposer la boîte cadeau" />
+            <NumField k="giftBoxFee" label="Prix de la boîte (DA)" />
+            <TextField k="giftBoxLabel" label="Libellé (français)" />
+            <TextField k="giftBoxLabelAr" label="التسمية (بالعربية)" dir="rtl" />
+            <TextArea k="giftBoxDescription" label="Description (français)" rows={2} />
+            <TextArea k="giftBoxDescriptionAr" label="الوصف (بالعربية)" rows={2} dir="rtl" />
+          </Card>
+        )}
+
+        {tab === "contact" && (
+          <Card title="Coordonnées (affichées uniquement si remplies)">
             <div className="grid sm:grid-cols-2 gap-4">
-              {text("giftBoxFee", "Gift Box Fee", "6")}
-              {text("giftBoxLabel", "Checkbox Label", "Add an elegant gift box")}
+              <TextField k="contactPhone" label="Téléphone affiché" placeholder="0555 12 34 56" />
+              <TextField k="whatsappNumber" label="Numéro WhatsApp" hint="Format 05/06/07 ou +213 — utilisé par tous les boutons WhatsApp." />
             </div>
-            {textarea("giftBoxDescription", "Description Shown on Product Page", 3)}
-          </div>
-        </section>
-      )}
+            <TextField k="contactEmail" label="Email" type="email" />
+            <TextField k="contactAddress" label="Adresse" />
+            <TextField k="contactHours" label="Horaires" placeholder="Ex : Sam–Jeu, 9h–18h" />
+          </Card>
+        )}
 
-      {/* ===== Payments ===== */}
-      {tab === "payments" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5">Payment Methods</h2>
-          <div className="space-y-5">
-            {toggle("codEnabled", "Cash on Delivery", "Customers pay when the gift arrives")}
-            {toggle("bankTransferEnabled", "Bank Transfer", "Show transfer instructions after ordering")}
-            {textarea("bankInstructions", "Bank Transfer Instructions", 3, "IBAN, account name, WhatsApp number…")}
-          </div>
-        </section>
-      )}
-
-      {/* ===== Contact ===== */}
-      {tab === "contact" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5">Contact & Social</h2>
-          <div className="space-y-4">
+        {tab === "contact" && (
+          <Card title="Réseaux sociaux (affichés uniquement si remplis)">
             <div className="grid sm:grid-cols-2 gap-4">
-              {text("contactPhone", "Phone / WhatsApp")}
-              {text("contactEmail", "Email")}
+              <TextField k="facebookUrl" label="Facebook" placeholder="https://…" />
+              <TextField k="instagramUrl" label="Instagram" placeholder="https://…" />
+              <TextField k="tiktokUrl" label="TikTok" placeholder="https://…" />
+              <TextField k="twitterUrl" label="X / Twitter" placeholder="https://…" />
             </div>
-            {text("contactAddress", "Address")}
-            <div className="grid sm:grid-cols-2 gap-4">
-              {text("instagramUrl", "Instagram URL")}
-              {text("facebookUrl", "Facebook URL")}
-              {text("tiktokUrl", "TikTok URL")}
-              {text("twitterUrl", "X / Twitter URL")}
-            </div>
-          </div>
-        </section>
-      )}
+          </Card>
+        )}
 
-      {/* ===== SEO ===== */}
-      {tab === "seo" && (
-        <section className={sectionCls}>
-          <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-5">SEO & Footer</h2>
-          <div className="space-y-4">
-            {text("seoTitle", "SEO Title")}
-            {textarea("seoDescription", "SEO Description", 2)}
-            {textarea("footerText", "Footer Copyright Line", 2, "Use {year} and {store} as placeholders")}
-          </div>
-        </section>
-      )}
+        {tab === "policies" && (
+          <>
+            <Card title="Page Livraison">
+              <TextArea k="policyDelivery" label="Contenu (français)" rows={6} hint="Affichée sur /policies/delivery — la page n'existe pas tant que ce champ est vide." />
+              <TextArea k="policyDeliveryAr" label="المحتوى (بالعربية)" rows={6} dir="rtl" />
+            </Card>
+            <Card title="Page Retours">
+              <TextArea k="policyReturns" label="Contenu (français)" rows={6} />
+              <TextArea k="policyReturnsAr" label="المحتوى (بالعربية)" rows={6} dir="rtl" />
+            </Card>
+            <Card title="Page Confidentialité">
+              <TextArea k="policyPrivacy" label="Contenu (français)" rows={6} />
+              <TextArea k="policyPrivacyAr" label="المحتوى (بالعربية)" rows={6} dir="rtl" />
+            </Card>
+          </>
+        )}
+
+        {tab === "delivery" && (
+          <Card title="Préférences de livraison">
+            <p className="text-sm text-muted-foreground -mt-2">
+              Les tarifs de livraison ne se règlent pas ici : ils viennent en direct de l&apos;API du transporteur (voir Livraison → transporteur).
+            </p>
+            <Toggle
+              k="canOpenParcel"
+              label="Autoriser le client à ouvrir le colis avant de payer (can_open)"
+              hint="Envoyé au transporteur à la création du colis."
+            />
+          </Card>
+        )}
+
+        {tab === "footer" && (
+          <Card title="Pied de page">
+            <TextArea k="footerAbout" label="À propos (affiché si rempli)" rows={3} />
+            <TextField k="footerText" label="Texte de copyright" hint="Variables : {year} et {store}." />
+          </Card>
+        )}
+
+        {tab === "seo" && (
+          <Card title="SEO">
+            <TextField k="seoTitle" label="Titre du site" />
+            <TextArea k="seoDescription" label="Description" rows={3} />
+          </Card>
+        )}
+      </div>
+
+      <div className="mt-6 max-w-3xl">
+        <button onClick={save} disabled={saving} className="w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-3.5 rounded-xl hover:bg-[#b8903a] disabled:opacity-50">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Enregistrer les paramètres
+        </button>
+      </div>
     </div>
   );
 }

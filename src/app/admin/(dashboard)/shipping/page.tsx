@@ -1,10 +1,8 @@
-import { getSession, canDelete } from "@/lib/auth";
 import ShippingManager from "@/components/admin/shipping-manager";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Shipping" };
+export const metadata = { title: "Livraison (transporteur)" };
 
-export default async function AdminShippingPage() {
-  const session = await getSession();
-  return <ShippingManager canDelete={session ? canDelete(session.role, "shipping") : false} />;
+export default function AdminShippingPage() {
+  return <ShippingManager />;
 }

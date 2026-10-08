@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Star } from "lucide-react";
+import { ShoppingBag, Package } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/pixel";
 import { useSettings } from "@/components/store/settings-provider";
+import { useT } from "@/components/store/locale-provider";
 import { formatMoney } from "@/lib/format";
 import { toast } from "sonner";
 
@@ -24,12 +25,9 @@ export interface ProductCardData {
 export default function ProductCard({ product }: { product: ProductCardData }) {
   const settings = useSettings();
   const addItem = useCart((s) => s.addItem);
+  const t = useT();
 
   const soldOut = product.trackStock && product.stock <= 0;
-  const discount =
-    product.comparePrice && product.comparePrice > product.price
-      ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
-      : 0;
 
   function quickAdd(e: React.MouseEvent) {
     e.preventDefault();
@@ -54,37 +52,31 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         content_name: product.name,
         content_type: "product",
         value: product.price,
-        currency: settings.currencyCode,
+        currency: "DZD",
       },
     });
-    toast.success(`${product.name} added to your cart`);
+    toast.success(`${product.name} ✓`);
   }
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
       <div className="relative overflow-hidden rounded-2xl bg-muted aspect-square shadow-luxe">
         {product.image ? (
-           
           <img
             src={product.image}
-            alt={product.name}
+            alt={product.shortDescription ? `${product.name} — ${product.shortDescription}` : product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-[var(--primary)]/30">
-            <Star className="h-10 w-10" />
+          <div className="h-full w-full flex items-center justify-center text-[var(--primary)]/25">
+            <Package className="h-10 w-10" />
           </div>
         )}
 
-        {discount > 0 && (
-          <span className="absolute top-3 left-3 bg-[var(--gold)] text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            -{discount}%
-          </span>
-        )}
         {soldOut && (
-          <span className="absolute top-3 right-3 bg-[var(--primary)] text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-            Sold out
+          <span className="absolute top-3 end-3 bg-[var(--primary)] text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+            {t("soldOut")}
           </span>
         )}
 
@@ -92,23 +84,22 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         {!soldOut && (
           <button
             onClick={quickAdd}
-            aria-label={product.hasVariants ? `Choose options for ${product.name}` : `Add ${product.name} to cart`}
-            className="absolute bottom-3 left-3 right-3 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium py-2.5 rounded-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--gold)] md:hover:bg-[var(--gold)] md:max-lg:opacity-100 md:max-lg:translate-y-0 max-md:opacity-100 max-md:translate-y-0"
+            aria-label={product.hasVariants ? product.name : `${t("addToCart")} — ${product.name}`}
+            className="absolute bottom-3 inset-x-3 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium py-2.5 rounded-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--gold)] max-md:opacity-100 max-md:translate-y-0"
           >
             <ShoppingBag className="h-4 w-4" />
-            {product.hasVariants ? "Choose Options" : "Quick Add"}
+            {product.hasVariants ? t("choose") : t("addToCart")}
           </button>
         )}
       </div>
 
       <div className="pt-3 px-1">
-        <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[var(--gold)] transition-colors">
-          {product.name}
-        </h3>
+        <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[var(--gold)] transition-colors">{product.name}</h3>
         <div className="mt-1 flex items-center gap-1.5">
-          <span className="text-[var(--primary)] font-semibold">{formatMoney(product.price, settings)}</span>
+          {/* Old price shown ONLY if the admin set one on this product */}
+          <span className="text-[var(--primary)] font-semibold">{formatMoney(product.price)}</span>
           {product.comparePrice && product.comparePrice > product.price && (
-            <span className="text-sm text-muted-foreground line-through">{formatMoney(product.comparePrice, settings)}</span>
+            <span className="text-sm text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
           )}
         </div>
       </div>

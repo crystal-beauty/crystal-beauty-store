@@ -37,6 +37,7 @@ export interface ProductEditorData {
   price: string;
   comparePrice: string;
   costPrice: string;
+  weightGrams: string;
   stock: string;
   trackStock: boolean;
   active: boolean;
@@ -48,7 +49,7 @@ export interface ProductEditorData {
 
 const emptyProduct: ProductEditorData = {
   name: "", slug: "", sku: "", shortDescription: "", description: "",
-  price: "", comparePrice: "", costPrice: "", stock: "10",
+  price: "", comparePrice: "", costPrice: "", weightGrams: "500", stock: "10",
   trackStock: true, active: true, featured: false,
   media: [], categoryId: "", variants: [],
 };
@@ -94,6 +95,7 @@ export default function ProductEditor({
         price: parseFloat(data.price),
         comparePrice: data.comparePrice ? parseFloat(data.comparePrice) : null,
         costPrice: data.costPrice ? parseFloat(data.costPrice) : null,
+        weightGrams: parseInt(data.weightGrams) || 500,
         stock: parseInt(data.stock) || 0,
         trackStock: data.trackStock,
         active: data.active,
@@ -457,36 +459,44 @@ export default function ProductEditor({
             <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Pricing</h2>
             <div className="space-y-4">
               <div>
-                <label className={labelCls}>Price ({settings.currencyCode}) *</label>
-                <input type="number" step="0.01" value={data.price} onChange={(e) => set("price", e.target.value)} className={inputCls} placeholder="49.99" />
+                <label className={labelCls}>Prix (DA) *</label>
+                <input type="number" min={0} value={data.price} onChange={(e) => set("price", e.target.value)} className={inputCls} placeholder="4900" />
               </div>
               <div>
-                <label className={labelCls}>Compare-At Price</label>
-                <input type="number" step="0.01" value={data.comparePrice} onChange={(e) => set("comparePrice", e.target.value)} className={inputCls} placeholder="69.99 (shows a sale badge)" />
+                <label className={labelCls}>Ancien prix (optionnel)</label>
+                <input type="number" min={0} value={data.comparePrice} onChange={(e) => set("comparePrice", e.target.value)} className={inputCls} placeholder="Laisser vide si aucun" />
                 {data.comparePrice && parseFloat(data.price) < parseFloat(data.comparePrice) && (
-                  <p className="text-xs text-[var(--gold)] mt-1.5 font-medium">
-                    Sale badge: -{Math.round(((parseFloat(data.comparePrice) - parseFloat(data.price)) / parseFloat(data.comparePrice)) * 100)}% → {formatMoney(parseFloat(data.price) || 0, settings)}
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    L&apos;ancien prix barré s&apos;affichera : {formatMoney(parseFloat(data.comparePrice) || 0, settings)} → {formatMoney(parseFloat(data.price) || 0, settings)}
                   </p>
                 )}
               </div>
               <div>
-                <label className={labelCls}>Cost Price (internal)</label>
-                <input type="number" step="0.01" value={data.costPrice} onChange={(e) => set("costPrice", e.target.value)} className={inputCls} placeholder="For your margins" />
+                <label className={labelCls}>Prix d&apos;achat (interne)</label>
+                <input type="number" step="0.01" value={data.costPrice} onChange={(e) => set("costPrice", e.target.value)} className={inputCls} placeholder="Pour vos marges" />
               </div>
             </div>
           </section>
 
           {/* Inventory */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Inventory</h2>
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Inventaire</h2>
             <label className="flex items-center gap-2.5 text-sm text-[var(--primary)] mb-3">
               <input type="checkbox" checked={data.trackStock} onChange={(e) => set("trackStock", e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
-              Track stock (hide when sold out)
+              Suivre le stock (masquer quand épuisé)
             </label>
             {data.trackStock && (
-              <div>
-                <label className={labelCls}>Stock Quantity</label>
-                <input type="number" value={data.stock} onChange={(e) => set("stock", e.target.value)} className={inputCls} />
+              <div className="space-y-4">
+                <div>
+                  <label className={labelCls}>Quantité en stock</label>
+                  <input type="number" value={data.stock} onChange={(e) => set("stock", e.target.value)} className={inputCls} />
+                  <p className="text-xs text-muted-foreground mt-1.5">Affiché en clair sur la fiche produit (« En stock (n) »).</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Poids (grammes)</label>
+                  <input type="number" min={0} value={data.weightGrams} onChange={(e) => set("weightGrams", e.target.value)} className={inputCls} />
+                  <p className="text-xs text-muted-foreground mt-1.5">Pour vos préparations — l&apos;API actuelle du transporteur ne l&apos;utilise pas dans le calcul du tarif.</p>
+                </div>
               </div>
             )}
           </section>

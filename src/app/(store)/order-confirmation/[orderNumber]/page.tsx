@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import ConfirmationView from "@/components/store/confirmation-view";
+import { getSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Order Confirmed" };
+export const metadata = { title: "Commande confirmée" };
 
 export default async function OrderConfirmationPage({
   params,
@@ -21,20 +22,20 @@ export default async function OrderConfirmationPage({
   });
   if (!order) notFound();
 
+  const settings = await getSettings();
+
   return (
     <ConfirmationView
       order={{
         orderNumber: order.orderNumber,
-        status: order.status,
         customerName: order.customerName,
-        email: order.email,
-        city: order.city,
-        country: order.country,
-        shippingMethodName: order.shippingMethodName,
-        paymentMethod: order.paymentMethod,
+        phone: order.phone,
+        wilayaName: order.wilayaName,
+        commune: order.commune,
+        deliveryType: order.deliveryType,
         subtotal: order.subtotal,
         discount: order.discount,
-        shippingFee: order.shippingFee,
+        deliveryFee: order.deliveryFee,
         giftBoxFee: order.giftBoxFee,
         total: order.total,
         promoCodeStr: order.promoCodeStr,
@@ -48,6 +49,7 @@ export default async function OrderConfirmationPage({
           lineTotal: i.lineTotal,
         })),
       }}
+      whatsappNumber={settings.whatsappNumber}
       pixelEventId={event || order.pixelEventId || ""}
     />
   );
