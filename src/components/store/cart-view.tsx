@@ -38,7 +38,7 @@ export default function CartView() {
         <h1 className="font-display text-3xl font-semibold text-[var(--primary)]">{t("cartEmpty")}</h1>
         <Link
           href="/products"
-          className="mt-8 inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-medium px-8 py-3.5 rounded-full hover:bg-[var(--primary)]/90 transition-colors"
+          className="press mt-8 inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold px-8 py-4 rounded-full hover:bg-[var(--primary)]/90 transition-colors"
         >
           {t("cartEmptyCta")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
         </Link>
@@ -54,15 +54,22 @@ export default function CartView() {
         {/* Items */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <div key={item.key} className="bg-white rounded-2xl border border-border p-4 sm:p-5 flex gap-4 shadow-luxe">
+            <div key={item.key} className="bg-white rounded-2xl border border-border p-5 sm:p-6 flex gap-5 shadow-luxe">
               <Link href={`/product/${item.slug}`} className="shrink-0">
-                <div className="h-24 w-24 sm:h-28 sm:w-28 rounded-xl overflow-hidden bg-muted">
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center">
-                      <ShoppingBag className="h-6 w-6 text-muted-foreground/30" />
-                    </div>
+                {/* Square thumbnail — graceful fallback behind the image so broken URLs never look broken */}
+                <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-xl overflow-hidden bg-muted border border-border/60">
+                  <div className="absolute inset-0 flex items-center justify-center text-[var(--primary)]/25">
+                    <ShoppingBag className="h-7 w-7" />
+                  </div>
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
                   )}
                 </div>
               </Link>
@@ -126,36 +133,43 @@ export default function CartView() {
 
         {/* Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border border-border p-6 shadow-luxe lg:sticky lg:top-24">
-            <h2 className="font-display text-xl font-semibold text-[var(--primary)] mb-5">{t("orderSummary")}</h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
+          <div className="bg-white rounded-2xl border border-border p-7 shadow-luxe lg:sticky lg:top-24">
+            <h2 className="font-display text-xl font-semibold text-[var(--primary)] mb-4">{t("orderSummary")}</h2>
+            <div className="divide-y divide-border/70 text-sm">
+              <div className="flex justify-between py-3.5">
                 <span className="text-muted-foreground">{t("subtotal")}</span>
-                <span className="font-medium text-[var(--primary)]">{formatMoney(subtotal)}</span>
+                <span className="font-semibold text-[var(--primary)]">{formatMoney(subtotal)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center py-3.5">
                 <span className="text-muted-foreground">{t("deliveryFee")}</span>
-                <span className="text-muted-foreground text-xs">{t("selectBoth")}</span>
+                <span className="text-muted-foreground text-xs text-end leading-snug max-w-[55%]">{t("selectBoth")}</span>
               </div>
             </div>
 
-            <div className="border-t border-border mt-5 pt-5">
+            {/* COD reassurance — matches the checkout notice */}
+            <div className="mt-4 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 p-4 flex gap-3">
+              <Banknote className="h-5 w-5 text-[var(--gold)] shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-[var(--primary)]">{t("codOnly")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("codOnlyHint")}</p>
+              </div>
+            </div>
+
+            <div className="border-t border-border mt-6 pt-6">
               <Link
                 href="/checkout"
-                className="w-full inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-medium py-3.5 rounded-full hover:bg-[var(--primary)]/90 transition-colors"
+                className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold py-4 rounded-full hover:bg-[var(--primary)]/90 transition-colors"
               >
                 <Banknote className="h-4 w-4" />
                 {t("checkout")}
               </Link>
               <Link
                 href="/products"
-                className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-border text-[var(--primary)] font-medium py-3 rounded-full hover:bg-muted transition-colors text-sm"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 border border-border text-[var(--primary)] font-medium py-3.5 rounded-full hover:bg-muted transition-colors text-sm"
               >
                 {t("continueShopping")}
               </Link>
             </div>
-
-            <p className="mt-4 text-xs text-muted-foreground text-center leading-relaxed">{t("codBadgeText")}</p>
           </div>
         </div>
       </div>

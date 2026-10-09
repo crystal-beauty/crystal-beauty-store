@@ -53,40 +53,40 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ================= HERO ================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        <div className="relative overflow-hidden rounded-[2rem] shadow-luxe-lg min-h-[460px] lg:min-h-[560px] flex items-center bg-[var(--primary)] animate-rise">
-          {settings.heroImage ? (
-            <>
-              <img
-                src={settings.heroImage}
-                alt={settings.storeName}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" />
-            </>
-          ) : (
-            /* Premium composed fallback — no fake imagery, pure design */
-            <>
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
-              <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-[var(--gold)]/15 blur-3xl" />
-              <div className="absolute -bottom-44 -start-28 h-[26rem] w-[26rem] rounded-full bg-[#46639f]/25 blur-3xl" />
-              <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
-              <span
-                aria-hidden
-                className="hidden lg:block absolute end-8 top-1/2 -translate-y-1/2 font-display text-[17rem] leading-none text-white/[0.05] select-none pointer-events-none"
-              >
-                {settings.storeName.charAt(0)}
-              </span>
-              <span
-                aria-hidden
-                className="lg:hidden absolute -end-6 -top-10 font-display text-[11rem] leading-none text-white/[0.05] select-none pointer-events-none"
-              >
-                {settings.storeName.charAt(0)}
-              </span>
-            </>
-          )}
-          <div className="relative z-10 px-8 sm:px-12 lg:px-16 py-16 max-w-2xl">
+      {/* ================= HERO — full-bleed navy band ================= */}
+      <section className="relative overflow-hidden bg-[var(--primary)] animate-rise">
+        {settings.heroImage ? (
+          <>
+            <img
+              src={settings.heroImage}
+              alt={settings.storeName}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" />
+          </>
+        ) : (
+          /* Premium composed fallback — no fake imagery, pure design */
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
+            <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-[var(--gold)]/15 blur-3xl" />
+            <div className="absolute -bottom-44 -start-28 h-[26rem] w-[26rem] rounded-full bg-[#46639f]/25 blur-3xl" />
+            <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
+            <span
+              aria-hidden
+              className="hidden lg:block absolute end-8 top-1/2 -translate-y-1/2 font-display text-[17rem] leading-none text-white/[0.05] select-none pointer-events-none"
+            >
+              {settings.storeName.charAt(0)}
+            </span>
+            <span
+              aria-hidden
+              className="lg:hidden absolute -end-6 -top-10 font-display text-[11rem] leading-none text-white/[0.05] select-none pointer-events-none"
+            >
+              {settings.storeName.charAt(0)}
+            </span>
+          </>
+        )}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl py-16 sm:py-20 lg:py-28">
             {settings.tagline && (
               <span
                 className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6 animate-rise"
@@ -110,17 +110,17 @@ export default async function HomePage() {
                 {heroSubtitle}
               </p>
             )}
-            <div className="mt-8 flex flex-wrap gap-3 animate-rise" style={{ animationDelay: "380ms" }}>
+            <div className="mt-9 flex flex-wrap gap-3.5 animate-rise" style={{ animationDelay: "380ms" }}>
               <Link
                 href={settings.heroCtaLink || "/products"}
-                className="inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-medium px-7 py-3.5 rounded-full transition-all hover:scale-[1.02] shadow-lg"
+                className="press inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-semibold px-8 py-4 rounded-full shadow-lg"
               >
                 {heroCta}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
               <Link
                 href="/track"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur text-white font-medium px-7 py-3.5 rounded-full transition-colors border border-white/25"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur text-white font-medium px-8 py-4 rounded-full transition-colors border border-white/25"
               >
                 {t("trackYourOrder", lang)}
               </Link>
@@ -279,25 +279,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <Reveal>
-          <div className="relative overflow-hidden rounded-[2rem] bg-[var(--primary)] shadow-luxe-lg px-8 py-14 text-center">
-            <div className="absolute inset-0 dot-texture opacity-30" aria-hidden />
-            <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl" />
-            <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
-            <div className="relative">
-              <Sparkles className="h-10 w-10 text-[var(--gold)] mx-auto mb-5" />
-              <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white max-w-2xl mx-auto leading-tight text-balance">{t("codBadge", lang)}</h2>
-              <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
-              <Link
-                href="/products"
-                className="mt-8 inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-medium px-9 py-4 rounded-full transition-all hover:scale-[1.02] shadow-lg"
-              >
-                {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-            </div>
-          </div>
+      {/* ================= CTA — full-bleed navy band, flows into the footer ================= */}
+      <section className="relative overflow-hidden bg-[var(--primary)]">
+        <div className="absolute inset-0 dot-texture opacity-30" aria-hidden />
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl" aria-hidden />
+        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" aria-hidden />
+        <Reveal className="relative max-w-2xl mx-auto px-4 sm:px-6 py-16 lg:py-20 text-center">
+          <Sparkles className="h-10 w-10 text-[var(--gold)] mx-auto mb-5" />
+          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white leading-tight text-balance">{t("codBadge", lang)}</h2>
+          <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
+          <Link
+            href="/products"
+            className="press mt-9 inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-semibold px-9 py-4 rounded-full shadow-lg"
+          >
+            {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </Link>
         </Reveal>
       </section>
     </div>

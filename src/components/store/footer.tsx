@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin, Clock, Banknote } from "lucide-react";
+import { Sparkles, Facebook, Instagram, Twitter, Music2, Phone, Mail, MapPin, Clock, Banknote, Truck, PackageSearch } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 import { getLang } from "@/lib/locale-server";
 import { t } from "@/lib/i18n";
@@ -24,7 +24,10 @@ export default async function StoreFooter() {
   ].filter((p) => p.body.trim());
 
   return (
-    <footer className="mt-auto bg-[var(--primary)] text-[var(--primary-foreground)]">
+    <footer
+      className="mt-auto text-[var(--primary-foreground)] border-t border-white/10"
+      style={{ backgroundColor: "color-mix(in srgb, var(--primary) 82%, black)" }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
@@ -49,6 +52,21 @@ export default async function StoreFooter() {
                 ))}
               </div>
             )}
+            {/* Assurance badges — verifiable claims only (COD is the only payment method) */}
+            <div className="flex flex-wrap items-center gap-2.5 mt-7">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
+                <Banknote className="h-3.5 w-3.5 text-[var(--gold)]" />
+                {t("codBadge", lang)}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
+                <Truck className="h-3.5 w-3.5 text-[var(--gold)]" />
+                {t("wilayasBadge", lang)}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
+                <PackageSearch className="h-3.5 w-3.5 text-[var(--gold)]" />
+                {t("trackBadge", lang)}
+              </span>
+            </div>
           </div>
 
           <div>
@@ -114,7 +132,7 @@ export default async function StoreFooter() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
+        <div className="border-t border-white/10 mt-12 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">
           <p>{settings.footerText.replace("{year}", String(year)).replace("{store}", settings.storeName)}</p>
           {settings.carrierEnabled && (
             <p className="flex items-center gap-1.5">

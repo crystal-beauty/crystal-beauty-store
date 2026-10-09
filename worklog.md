@@ -63,3 +63,20 @@ Work Log:
 Stage Summary:
 - Catalog remains empty (real store, no demo data) — product card & checkout polish becomes visible once owner adds real products
 - Reconfirmed: delivery prices 100% live from World Express API, never hardcoded, never estimated
+
+---
+Task ID: 4
+Agent: Super Z (main agent)
+Task: Close the four "professional gaps" flagged by the owner: floating-card hero/CTA, cart thumbnails + summary spacing, footer emptiness/balance, conversion-button typography.
+
+Work Log:
+- Hero + CTA banner converted from rounded cards inside a max-w frame to FULL-BLEED navy bands (edge-to-edge); content constrained via inner max-w-7xl container; CTA band now flows directly into the footer
+- Footer: darker tone derived from admin's primary via color-mix(82% primary, black) so live color override still works; added border-t white/10 separation; added honest assurance badge row (COD / 58 wilayas / live tracking) in the brand column — deliberate choice NOT to add Visa/MC logos since store is COD-only (no fake claims); bottom bar contrast white/50 → white/60, pt-7
+- Cart: thumbnails now layered (branded fallback always behind image, img hides on onError so broken URLs never look broken); item cards p-6/gap-5; summary box p-7 with divide-y rows (py-3.5), COD gold notice block matching checkout, mt-6/pt-6 CTA zone; "Passer la commande" → py-4 font-semibold press
+- Button typography upgraded at every conversion point: hero gold CTA (px-8 py-4 font-semibold), CTA banner (font-semibold press), product page Add-to-cart + Order-now (py-4 font-semibold), quick-order submit + sticky mobile bar (press added), empty-cart CTA (py-4 font-semibold)
+- Fixed self-inflicted JSX collision in page.tsx (trust bar section tag restored)
+- Verified: ESLint 0 errors, production build OK, screenshots: v2-home (full-bleed hero), v2-home-bottom (CTA→footer flow + badges), v2-cart
+
+Stage Summary:
+- Page now reads as one cohesive high-end site: navy hero band → white trust bar → cream sections → navy CTA band → darker navy footer
+- No fake payment logos or fabricated claims introduced (COD-only badges)

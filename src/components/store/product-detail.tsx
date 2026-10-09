@@ -366,7 +366,7 @@ export default function ProductDetail({
             <button
               onClick={handleAddToCart}
               disabled={soldOut}
-              className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-medium py-3.5 rounded-full hover:bg-[var(--primary)]/90 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold py-4 rounded-full hover:bg-[var(--primary)]/90 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ShoppingBag className="h-4.5 w-4.5" />
               {t("addToCart")}
@@ -374,7 +374,7 @@ export default function ProductDetail({
             <button
               onClick={handleBuyNow}
               disabled={soldOut}
-              className="press inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-medium py-3.5 rounded-full hover:bg-[#b8903a] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="press inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Banknote className="h-4.5 w-4.5" />
               {t("orderNow")}
@@ -512,7 +512,7 @@ export default function ProductDetail({
             <button
               type="submit"
               disabled={submitting || soldOut || fee === null || feeState !== "idle"}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {submitting ? (
                 <>
@@ -567,7 +567,7 @@ export default function ProductDetail({
         </div>
         <a
           href="#quick-order"
-          className="shrink-0 inline-flex items-center gap-2 bg-[var(--gold)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#b8903a] transition-colors"
+          className="press shrink-0 inline-flex items-center gap-2 bg-[var(--gold)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#b8903a] transition-colors"
         >
           <Banknote className="h-4.5 w-4.5" />
           {t("orderNow")}
