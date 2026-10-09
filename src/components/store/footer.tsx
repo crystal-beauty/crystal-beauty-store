@@ -32,7 +32,7 @@ export default async function StoreFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-[var(--gold)]" />
+              <Sparkles className="h-6 w-6 text-white" />
               <span className="font-display text-2xl font-semibold">{settings.storeName}</span>
             </div>
             {settings.footerAbout && <p className="text-sm leading-relaxed text-white/70 max-w-md">{settings.footerAbout}</p>}
@@ -45,7 +45,7 @@ export default async function StoreFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="h-10 w-10 rounded-full bg-white/10 hover:bg-[var(--gold)] transition-colors flex items-center justify-center"
+                    className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/25 transition-colors flex items-center justify-center"
                   >
                     <Icon className="h-4.5 w-4.5" />
                   </a>
@@ -55,22 +55,22 @@ export default async function StoreFooter() {
             {/* Assurance badges — verifiable claims only (COD is the only payment method) */}
             <div className="flex flex-wrap items-center gap-2.5 mt-7">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
-                <Banknote className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <Banknote className="h-3.5 w-3.5 text-white/80" />
                 {t("codBadge", lang)}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
-                <Truck className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <Truck className="h-3.5 w-3.5 text-white/80" />
                 {t("wilayasBadge", lang)}
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/80">
-                <PackageSearch className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <PackageSearch className="h-3.5 w-3.5 text-white/80" />
                 {t("trackBadge", lang)}
               </span>
             </div>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">{t("quickLinks", lang)}</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">{t("quickLinks", lang)}</h3>
             <ul className="space-y-2.5 text-sm text-white/70">
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
@@ -98,7 +98,7 @@ export default async function StoreFooter() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)] mb-4">{t("getInTouch", lang)}</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">{t("getInTouch", lang)}</h3>
             <ul className="space-y-3 text-sm text-white/70">
               {settings.contactPhone && (
                 <li className="flex items-start gap-2.5">

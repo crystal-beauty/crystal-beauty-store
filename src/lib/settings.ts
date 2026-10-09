@@ -7,7 +7,7 @@ export interface StoreSettings {
   logoUrl: string;
   // Appearance
   primaryColor: string; // dark blue
-  accentColor: string; // gold
+  accentColor: string; // brand accent — navy/black/white charter only
   // Announcement
   announcementEnabled: boolean;
   announcementText: string; // FR
@@ -74,7 +74,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   tagline: "",
   logoUrl: "",
   primaryColor: "#0A1F44",
-  accentColor: "#C8A24B",
+  accentColor: "#0A1F44",
   announcementEnabled: false,
   announcementText: "",
   announcementTextAr: "",

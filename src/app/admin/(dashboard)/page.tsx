@@ -72,11 +72,11 @@ export default async function AdminOverviewPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {cards.map((card) => (
-          <Link key={card.label} href={card.href} className="bg-white rounded-2xl border border-border p-5 shadow-luxe hover:border-[var(--gold)]/50 transition-colors">
+          <Link key={card.label} href={card.href} className="bg-white rounded-2xl border border-border p-5 shadow-luxe hover:border-[var(--brand)]/50 transition-colors">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">{card.label}</p>
               <div className="h-9 w-9 rounded-xl bg-[var(--primary)]/5 flex items-center justify-center">
-                <card.icon className="h-4.5 w-4.5 text-[var(--gold)]" />
+                <card.icon className="h-4.5 w-4.5 text-[var(--brand)]" />
               </div>
             </div>
             <p className="mt-3 text-2xl font-bold text-[var(--primary)]">{card.value}</p>
@@ -90,7 +90,7 @@ export default async function AdminOverviewPage() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-luxe">
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Dernières commandes</h2>
-            <Link href="/admin/orders" className="text-sm text-[var(--gold)] hover:underline inline-flex items-center gap-1">
+            <Link href="/admin/orders" className="text-sm text-[var(--brand)] hover:underline inline-flex items-center gap-1">
               Tout voir <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
             </Link>
           </div>
@@ -127,7 +127,7 @@ export default async function AdminOverviewPage() {
           <div className="bg-white rounded-2xl border border-border shadow-luxe">
             <div className="px-5 py-4 border-b border-border">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)] flex items-center gap-2">
-                <MapPin className="h-4.5 w-4.5 text-[var(--gold)]" /> Commandes par wilaya
+                <MapPin className="h-4.5 w-4.5 text-[var(--brand)]" /> Commandes par wilaya
               </h2>
             </div>
             {byWilaya.length === 0 ? (
@@ -137,7 +137,7 @@ export default async function AdminOverviewPage() {
                 {byWilaya.map((w) => (
                   <div key={w.wilayaName} className="py-2.5 flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-[var(--primary)] truncate">{w.wilayaName}</p>
-                    <span className="text-sm font-bold text-[var(--gold)] shrink-0">{w._count._all}</span>
+                    <span className="text-sm font-bold text-[var(--brand)] shrink-0">{w._count._all}</span>
                   </div>
                 ))}
               </div>
@@ -145,19 +145,19 @@ export default async function AdminOverviewPage() {
           </div>
 
           {lowStock.length > 0 && (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-              <h2 className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+            <div className="rounded-2xl border border-[#d7deea] bg-[#eef1f6] p-5">
+              <h2 className="text-sm font-semibold text-[#0a1f44] flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" /> Stock faible
               </h2>
               <ul className="mt-3 space-y-1.5">
                 {lowStock.map((p) => (
-                  <li key={p.id} className="text-sm text-amber-800 flex justify-between gap-3">
+                  <li key={p.id} className="text-sm text-[#0a1f44] flex justify-between gap-3">
                     <span className="truncate">{p.name}</span>
                     <span className="font-semibold shrink-0">{p.stock} restant</span>
                   </li>
                 ))}
               </ul>
-              <Link href="/admin/products" className="mt-3 inline-block text-xs font-medium text-amber-800 underline">
+              <Link href="/admin/products" className="mt-3 inline-block text-xs font-medium text-[#0a1f44] underline">
                 Gérer le stock
               </Link>
             </div>

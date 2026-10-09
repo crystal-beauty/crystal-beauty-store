@@ -142,7 +142,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                   <div className="flex-1 min-w-[200px]">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-[var(--primary)] bg-muted rounded-lg px-2.5 py-1 text-sm">{p.code}</span>
-                      <span className="text-sm font-semibold text-[var(--gold)]">
+                      <span className="text-sm font-semibold text-[var(--brand)]">
                         {p.type === "PERCENT" ? `${p.value}% off` : `${formatMoney(p.value, settings)} off`}
                       </span>
                       {p.minOrder > 0 && (
@@ -159,7 +159,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                       "text-[11px] font-semibold px-2.5 py-1 rounded-full border shrink-0",
                       !p.active || expired || exhausted
                         ? "bg-gray-100 text-gray-500 border-gray-200"
-                        : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]"
                     )}
                   >
                     {!p.active ? "Paused" : expired ? "Expired" : exhausted ? "Used up" : "Active"}
@@ -238,7 +238,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
               <button
                 onClick={save}
                 disabled={saving}
-                className="w-full bg-[var(--gold)] text-white font-semibold py-3 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {editing ? "Save Changes" : "Create Promo Code"}

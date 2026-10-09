@@ -133,9 +133,9 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
         {Object.entries(ROLE_INFO).map(([role, info]) => (
           <div key={role} className={cn(
             "rounded-2xl border p-4",
-            role === "OWNER" ? "bg-[var(--gold)]/5 border-[var(--gold)]/30" : "bg-white border-border"
+            role === "OWNER" ? "bg-[var(--brand)]/5 border-[var(--brand)]/30" : "bg-white border-border"
           )}>
-            <info.icon className={cn("h-5 w-5 mb-2", role === "OWNER" ? "text-[var(--gold)]" : "text-[var(--primary)]")} />
+            <info.icon className={cn("h-5 w-5 mb-2", role === "OWNER" ? "text-[var(--brand)]" : "text-[var(--primary)]")} />
             <p className="text-sm font-semibold text-[var(--primary)]">{info.label}</p>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{info.desc}</p>
           </div>
@@ -179,7 +179,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
                   disabled={member.id === currentUserId}
                   className={cn(
                     "text-[11px] font-semibold px-2.5 py-1 rounded-full border shrink-0 disabled:opacity-40",
-                    member.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-500 border-gray-200"
+                    member.active ? "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]" : "bg-gray-100 text-gray-500 border-gray-200"
                   )}
                 >
                   {member.active ? "Active" : "Inactive"}
@@ -205,7 +205,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
           <div className="bg-white rounded-2xl w-full max-w-md shadow-luxe-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)] flex items-center gap-2">
-                <Users className="h-5 w-5 text-[var(--gold)]" /> Add Team Member
+                <Users className="h-5 w-5 text-[var(--brand)]" /> Add Team Member
               </h2>
               <button onClick={() => setDialogOpen(false)} className="p-2 text-muted-foreground hover:text-[var(--primary)]">
                 <X className="h-4 w-4" />
@@ -237,7 +237,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
               <button
                 onClick={addMember}
                 disabled={saving}
-                className="w-full bg-[var(--gold)] text-white font-semibold py-3 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 Add to Team

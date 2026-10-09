@@ -94,7 +94,7 @@ export default function TrackView() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14">
       <div className="text-center mb-10">
-        <PackageSearch className="h-12 w-12 text-[var(--gold)] mx-auto mb-4" />
+        <PackageSearch className="h-12 w-12 text-[var(--brand)] mx-auto mb-4" />
         <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{t("trackTitle")}</h1>
         <p className="mt-3 text-muted-foreground">{t("trackSubtitle")}</p>
       </div>
@@ -169,10 +169,10 @@ export default function TrackView() {
                   className={cn(
                     "inline-block text-xs font-semibold px-3 py-1 rounded-full border",
                     order.status === "DELIVERED"
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      ? "bg-[var(--primary)] text-white border-transparent"
                       : badEnd
                         ? "bg-rose-50 text-rose-700 border-rose-200"
-                        : "bg-[var(--gold)]/10 text-[var(--gold)] border-[var(--gold)]/30"
+                        : "bg-[var(--brand)]/10 text-[var(--brand)] border-[var(--brand)]/30"
                   )}
                 >
                   {statusLabel(order.status)}
@@ -186,7 +186,7 @@ export default function TrackView() {
               <div className="relative">
                 <div className="absolute top-4 start-4 end-4 h-0.5 bg-muted" />
                 <div
-                  className="absolute top-4 start-4 h-0.5 bg-[var(--gold)] transition-all"
+                  className="absolute top-4 start-4 h-0.5 bg-[var(--brand)] transition-all"
                   style={{ width: `calc(${(currentStep / (STEPS.length - 1)) * 100}% - 8px)` }}
                 />
                 <div className="relative grid grid-cols-5">
@@ -197,13 +197,13 @@ export default function TrackView() {
                         <div
                           className={cn(
                             "h-8 w-8 rounded-full border-2 flex items-center justify-center bg-white z-10",
-                            done ? "border-[var(--gold)]" : "border-muted"
+                            done ? "border-[var(--brand)]" : "border-muted"
                           )}
                         >
                           {i < currentStep ? (
-                            <CheckCircle2 className="h-4.5 w-4.5 text-[var(--gold)]" />
+                            <CheckCircle2 className="h-4.5 w-4.5 text-[var(--brand)]" />
                           ) : done ? (
-                            <Clock className="h-4 w-4 text-[var(--gold)]" />
+                            <Clock className="h-4 w-4 text-[var(--brand)]" />
                           ) : (
                             <div className="h-2.5 w-2.5 rounded-full bg-muted" />
                           )}
@@ -220,8 +220,7 @@ export default function TrackView() {
             {badEnd && (
               <div
                 className={cn(
-                  "rounded-xl px-4 py-3.5 flex items-center gap-2.5 text-sm",
-                  order.status === "REFUSED" ? "bg-orange-50 text-orange-800" : "bg-rose-50 text-rose-800"
+                  "rounded-xl px-4 py-3.5 flex items-center gap-2.5 text-sm bg-rose-50 text-rose-800"
                 )}
               >
                 {order.status === "REFUSED" ? <AlertTriangle className="h-4.5 w-4.5 shrink-0" /> : <Ban className="h-4.5 w-4.5 shrink-0" />}
@@ -231,7 +230,7 @@ export default function TrackView() {
 
             {order.trackingNumber && (
               <div className="mt-6 rounded-xl bg-muted px-4 py-3.5 flex items-center gap-2.5">
-                <Truck className="h-4.5 w-4.5 text-[var(--gold)] shrink-0" />
+                <Truck className="h-4.5 w-4.5 text-[var(--brand)] shrink-0" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-[var(--primary)]">
                     {t("carrierStatus")}

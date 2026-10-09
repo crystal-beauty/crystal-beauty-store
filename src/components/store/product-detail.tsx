@@ -278,7 +278,7 @@ export default function ProductDetail({
 
           {/* Real stock from the dashboard */}
           {product.trackStock && (
-            <p className={cn("mt-4 text-sm font-medium", soldOut ? "text-destructive" : product.stock <= 5 ? "text-amber-600" : "text-emerald-600")}>
+            <p className={cn("mt-4 text-sm font-medium", soldOut ? "text-destructive" : "text-[var(--primary)]")}>
               {soldOut ? t("soldOut") : product.stock <= 5 ? `${t("lowStock")} ${product.stock} ${t("unitsLeft")}` : `${t("inStock")} (${product.stock})`}
             </p>
           )}
@@ -325,15 +325,15 @@ export default function ProductDetail({
             <label
               className={cn(
                 "mt-6 flex items-start gap-3.5 rounded-2xl border p-4 cursor-pointer transition-all",
-                giftBoxActive ? "border-[var(--gold)] bg-[var(--gold)]/5" : "border-input bg-white hover:border-[var(--primary)]/40"
+                giftBoxActive ? "border-[var(--brand)] bg-[var(--brand)]/5" : "border-input bg-white hover:border-[var(--primary)]/40"
               )}
             >
-              <input type="checkbox" checked={giftBoxActive} onChange={(e) => selectGiftBox(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--gold)]" />
+              <input type="checkbox" checked={giftBoxActive} onChange={(e) => selectGiftBox(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--brand)]" />
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Gift className="h-4 w-4 text-[var(--gold)]" />
+                  <Gift className="h-4 w-4 text-[var(--brand)]" />
                   <span className="text-sm font-semibold text-[var(--primary)]">{giftBox.label}</span>
-                  <span className="text-sm font-semibold text-[var(--gold)]">+{formatMoney(giftBox.fee)}</span>
+                  <span className="text-sm font-semibold text-[var(--brand)]">+{formatMoney(giftBox.fee)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{giftBox.description}</p>
               </div>
@@ -374,7 +374,7 @@ export default function ProductDetail({
             <button
               onClick={handleBuyNow}
               disabled={soldOut}
-              className="press inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="press inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Banknote className="h-4.5 w-4.5" />
               {t("orderNow")}
@@ -389,7 +389,7 @@ export default function ProductDetail({
               { icon: PackageSearch, label: t("trackBadge") },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="rounded-xl bg-muted/70 border border-border/70 py-3 px-2">
-                <Icon className="h-5 w-5 text-[var(--gold)] mx-auto mb-1.5" />
+                <Icon className="h-5 w-5 text-[var(--brand)] mx-auto mb-1.5" />
                 <p className="text-xs font-medium text-[var(--primary)] leading-tight">{label}</p>
               </div>
             ))}
@@ -411,15 +411,15 @@ export default function ProductDetail({
                 <AccordionContent>
                   <ul className="space-y-2 text-muted-foreground">
                     <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-[var(--gold)] mt-0.5 shrink-0" />
+                      <Check className="h-4 w-4 text-[var(--brand)] mt-0.5 shrink-0" />
                       {t("deliveryInfo")}
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-[var(--gold)] mt-0.5 shrink-0" />
+                      <Check className="h-4 w-4 text-[var(--brand)] mt-0.5 shrink-0" />
                       {t("codOnlyHint")}
                     </li>
                     <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-[var(--gold)] mt-0.5 shrink-0" />
+                      <Check className="h-4 w-4 text-[var(--brand)] mt-0.5 shrink-0" />
                       {t("giftBadgeText")}
                     </li>
                   </ul>
@@ -512,7 +512,7 @@ export default function ProductDetail({
             <button
               type="submit"
               disabled={submitting || soldOut || fee === null || feeState !== "idle"}
-              className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {submitting ? (
                 <>
@@ -546,7 +546,7 @@ export default function ProductDetail({
                   </p>
                   <div className="flex items-center gap-0.5" aria-label={`${r.rating}/5`}>
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={cn("h-3.5 w-3.5", i < r.rating ? "fill-[var(--gold)] text-[var(--gold)]" : "text-muted-foreground/30")} />
+                      <Star key={i} className={cn("h-3.5 w-3.5", i < r.rating ? "fill-[var(--brand)] text-[var(--brand)]" : "text-muted-foreground/30")} />
                     ))}
                   </div>
                 </div>
@@ -567,7 +567,7 @@ export default function ProductDetail({
         </div>
         <a
           href="#quick-order"
-          className="press shrink-0 inline-flex items-center gap-2 bg-[var(--gold)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#b8903a] transition-colors"
+          className="press shrink-0 inline-flex items-center gap-2 bg-[var(--brand)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#16305c] transition-colors"
         >
           <Banknote className="h-4.5 w-4.5" />
           {t("orderNow")}
@@ -578,7 +578,7 @@ export default function ProductDetail({
             target="_blank"
             rel="noopener noreferrer"
             aria-label="WhatsApp"
-            className="shrink-0 h-11 w-11 rounded-full bg-[#25D366] text-white flex items-center justify-center"
+            className="shrink-0 h-11 w-11 rounded-full bg-[var(--primary)] text-white flex items-center justify-center"
           >
             <MessageCircle className="h-5 w-5" />
           </a>

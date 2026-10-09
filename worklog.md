@@ -80,3 +80,24 @@ Work Log:
 Stage Summary:
 - Page now reads as one cohesive high-end site: navy hero band → white trust bar → cream sections → navy CTA band → darker navy footer
 - No fake payment logos or fabricated claims introduced (COD-only badges)
+
+---
+Task ID: 5
+Agent: Super Z (main agent)
+Task: Rebrand the entire palette to strictly dark blue + black + white — remove every gold/yellow (and other off-charter) color from store and dashboard.
+
+Work Log:
+- Token rename: --gold → --brand across all of src (sed over ~90 usages), value locked to #0a1f44 (same navy as --primary); --brand-foreground = white; Tailwind theme mapping updated; .gold-hairline (unused) removed
+- globals.css de-warmed: background #fbfaf7→#fafafa, muted #f4f4f5, border #e5e7eb, input #d4d4d8, primary-foreground/navy-foreground → pure white, charts + sidebar tokens → navy family, .dark block de-golded, skeleton/scrollbar neutrals gray
+- Hardcoded gold hexes: #b8903a hovers → #16305c (lighter-navy hover), not-found.tsx #c8a24b icon → navy
+- On-navy surfaces converted to white CTAs: hero "Voir la boutique" + CTA band "Commencer mes achats" now bg-white text-navy hover #e8ecf5; hero/CTA blur glows → white/10; hero + footer + admin-sidebar icons/headings → white/white-80
+- Footer: social hover white/25, column headings white, badge icons white/80 (was navy-on-navy after rename)
+- Storefront status colors de-rainbowed: stock line (amber/emerald → navy, sold-out stays red), promo/discount amounts (emerald → navy), success check circles (confirmation, review form → navy), track page DELIVERED pill → solid navy, REFUSED/CANCELLED banner → rose/gray, WhatsApp buttons (3× #25D366 → navy), product-card hover #16305c + title hover #2c4a7c
+- Admin: STATUS_STYLES → monochrome navy scale (NEW→DELIVERED light→dark navy), REFUSED rose, RETURNED light rose, CANCELLED gray; low-stock panel, pending badges, refused warning (rose), WhatsApp buttons, "Publié"/active pills, approve/request-review buttons, shipping/pixel status icons → all navy charter
+- Settings pipeline: DEFAULT_SETTINGS.accentColor #C8A24B→#0A1F44; layout.tsx injects --brand (was --gold); DB Setting row accentColor explicitly set to #0A1F44 (script scripts/fix-accent-color.ts); admin appearance tab label "Couleur d'accent" + charter hint (navy/black/white only)
+- Verified: zero matches for gold|amber|yellow|orange|emerald|sky|indigo|purple|#c8a24b|#b8903a|#25D366 in src; ESLint 0 errors; production build OK; screenshots (download/screenshots/v3-*): home FR (white hero CTA), home mid, CTA→footer navy bands, home AR RTL, cart, admin login — all strictly navy/black/white
+
+Stage Summary:
+- Whole app now renders ONLY dark blue (#0a1f44 family), black/gray neutrals, and white (+ rose/red solely for refusal/error states in admin/track)
+- Accent is dashboard-editable again but defaults to navy; DB row pinned so no legacy gold resurfaces
+- Catalog still empty (real store) — product/checkout accents will appear on-palette once owner adds products

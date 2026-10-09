@@ -190,7 +190,7 @@ export default function DeliverySelector({
             )}
           >
             <input type="radio" name="dtype-home" checked={value.deliveryType === "HOME"} onChange={() => handleType("HOME")} className="h-4 w-4 accent-[var(--primary)]" />
-            <Home className="h-4.5 w-4.5 text-[var(--gold)] shrink-0" />
+            <Home className="h-4.5 w-4.5 text-[var(--brand)] shrink-0" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[var(--primary)] truncate">{t("homeDelivery")}</p>
               {selectedWilaya && <p className="text-xs text-muted-foreground">{formatMoney(selectedWilaya.homeFee)}</p>}
@@ -211,7 +211,7 @@ export default function DeliverySelector({
               onChange={() => handleType("STOP_DESK")}
               className="h-4 w-4 accent-[var(--primary)]"
             />
-            <Building className="h-4.5 w-4.5 text-[var(--gold)] shrink-0" />
+            <Building className="h-4.5 w-4.5 text-[var(--brand)] shrink-0" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[var(--primary)] truncate">{t("stopDesk")}</p>
               {selectedWilaya && <p className="text-xs text-muted-foreground">{formatMoney(selectedWilaya.stopDeskFee)}</p>}
@@ -239,7 +239,7 @@ export default function DeliverySelector({
           {value.commune && selectedWilaya && fee !== null && (
             <div className="flex items-center justify-between rounded-xl bg-[var(--primary)]/[0.04] border border-[var(--primary)]/10 px-4 py-3">
               <span className="text-sm text-[var(--primary)] flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-[var(--gold)]" /> {t("deliveryFee")}
+                <MapPin className="h-4 w-4 text-[var(--brand)]" /> {t("deliveryFee")}
               </span>
               <span className="font-semibold text-[var(--primary)]">{formatMoney(fee)}</span>
             </div>

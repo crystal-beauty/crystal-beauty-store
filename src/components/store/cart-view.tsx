@@ -79,7 +79,7 @@ export default function CartView() {
                   <div>
                     <Link
                       href={`/product/${item.slug}`}
-                      className="font-display text-lg font-medium text-[var(--primary)] hover:text-[var(--gold)] transition-colors"
+                      className="font-display text-lg font-medium text-[var(--primary)] hover:text-[var(--brand)] transition-colors"
                     >
                       {item.name}
                     </Link>
@@ -105,7 +105,7 @@ export default function CartView() {
                     className={cn(
                       "mt-2 inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1.5 border transition-colors",
                       item.giftBox
-                        ? "bg-[var(--gold)]/10 border-[var(--gold)] text-[var(--gold)]"
+                        ? "bg-[var(--brand)]/10 border-[var(--brand)] text-[var(--brand)]"
                         : "bg-muted border-transparent text-muted-foreground hover:text-[var(--primary)]"
                     )}
                   >
@@ -147,8 +147,8 @@ export default function CartView() {
             </div>
 
             {/* COD reassurance — matches the checkout notice */}
-            <div className="mt-4 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 p-4 flex gap-3">
-              <Banknote className="h-5 w-5 text-[var(--gold)] shrink-0 mt-0.5" />
+            <div className="mt-4 rounded-xl bg-[var(--brand)]/10 border border-[var(--brand)]/25 p-4 flex gap-3">
+              <Banknote className="h-5 w-5 text-[var(--brand)] shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-[var(--primary)]">{t("codOnly")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t("codOnlyHint")}</p>

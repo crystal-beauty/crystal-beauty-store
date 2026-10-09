@@ -159,12 +159,12 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
             </h1>
             <span className={cn("text-[11px] font-semibold px-2.5 py-1 rounded-full border", STATUS_STYLES[order.status])}>{STATUS_LABELS[order.status]}</span>
             {refusedWarning && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-full">
                 <AlertTriangle className="h-3 w-3" /> Refus/retour précédent sur ce numéro
               </span>
             )}
             {parsedResponse?.pending === true && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--primary)] bg-[#eef1f6] border border-[#d7deea] px-2.5 py-1 rounded-full">
                 <Loader2 className="h-3 w-3 animate-spin" /> Réservation en cours…
               </span>
             )}
@@ -197,12 +197,12 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
           href={`https://wa.me/${toInternationalDz(waNumber).replace("+", "")}?text=${waText}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={cn(btnBase, "bg-[#25D366] text-white hover:bg-[#1fb857]")}
+          className={cn(btnBase, "bg-[var(--primary)] text-white hover:bg-[#16305c]")}
         >
           <MessageCircle className="h-4 w-4" /> WhatsApp
         </a>
         {["NEW", "CONFIRMED"].includes(order.status) && (
-          <button onClick={sendToCarrier} disabled={Boolean(busy)} className={cn(btnBase, "bg-[var(--gold)] text-white hover:bg-[#b8903a]")}>
+          <button onClick={sendToCarrier} disabled={Boolean(busy)} className={cn(btnBase, "bg-[var(--brand)] text-white hover:bg-[#16305c]")}>
             {busy === "ship" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
             Envoyer au transporteur
           </button>
@@ -211,7 +211,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
           <Printer className="h-4 w-4" /> Imprimer l'étiquette
         </a>
         {order.status === "DELIVERED" && (
-          <button onClick={requestReview} disabled={Boolean(busy)} className={cn(btnBase, "bg-emerald-600 text-white hover:bg-emerald-700")}>
+          <button onClick={requestReview} disabled={Boolean(busy)} className={cn(btnBase, "bg-[var(--primary)] text-white hover:bg-[#16305c]")}>
             {busy === "review" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
             {order.reviewRequestedAt ? "Renvoyer la demande d'avis" : "Demander un avis (WhatsApp)"}
           </button>
@@ -228,7 +228,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
       </div>
 
       {reviewLink && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800 break-all">
+        <div className="rounded-xl bg-[#eef1f6] border border-[#d7deea] px-4 py-3 text-sm text-[#0a1f44] break-all">
           Lien de demande d'avis ouvert dans WhatsApp. Lien direct :{" "}
           <a href={reviewLink} target="_blank" rel="noopener noreferrer" className="underline font-medium">
             ouvrir à nouveau
@@ -258,7 +258,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
               )}
               {order.recipientName && (
                 <p className="flex items-center gap-1.5">
-                  <Gift className="h-3.5 w-3.5 text-[var(--gold)]" />
+                  <Gift className="h-3.5 w-3.5 text-[var(--brand)]" />
                   <span className="text-muted-foreground">Destinataire :</span>
                   <span className="font-medium">
                     {order.recipientName} {order.recipientPhone ? `(${order.recipientPhone})` : ""}
@@ -266,7 +266,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
                 </p>
               )}
               {order.giftMessage && (
-                <p className="rounded-lg bg-[var(--gold)]/10 border border-[var(--gold)]/25 px-3 py-2">
+                <p className="rounded-lg bg-[var(--brand)]/10 border border-[var(--brand)]/25 px-3 py-2">
                   <span className="text-muted-foreground">Message cadeau :</span> <em>{order.giftMessage}</em>
                 </p>
               )}
@@ -275,7 +275,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
 
           <div className={cardCls}>
             <h2 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
-              {order.deliveryType === "STOP_DESK" ? <Building className="h-4 w-4 text-[var(--gold)]" /> : <MapPin className="h-4 w-4 text-[var(--gold)]" />}
+              {order.deliveryType === "STOP_DESK" ? <Building className="h-4 w-4 text-[var(--brand)]" /> : <MapPin className="h-4 w-4 text-[var(--brand)]" />}
               Livraison — {order.deliveryType === "STOP_DESK" ? "Stop desk" : "Domicile"}
             </h2>
             <div className="space-y-2 text-sm">
@@ -329,7 +329,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
                 <span>{formatMoney(order.subtotal)}</span>
               </div>
               {order.discount > 0 && (
-                <div className="flex justify-between text-emerald-600">
+                <div className="flex justify-between text-[var(--primary)]">
                   <span>Remise {order.promoCodeStr && `(${order.promoCodeStr})`}</span>
                   <span>-{formatMoney(order.discount)}</span>
                 </div>
@@ -346,7 +346,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
               </div>
               <div className="flex justify-between border-t border-border pt-2.5 font-semibold text-[var(--primary)]">
                 <span className="flex items-center gap-1.5">
-                  <Banknote className="h-4 w-4 text-[var(--gold)]" /> À encaisser (COD)
+                  <Banknote className="h-4 w-4 text-[var(--brand)]" /> À encaisser (COD)
                 </span>
                 <span>{formatMoney(order.total)}</span>
               </div>
@@ -356,7 +356,7 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
           {/* Carrier */}
           <div className={cardCls}>
             <h2 className="font-semibold text-[var(--primary)] mb-3 flex items-center gap-2">
-              <Truck className="h-4 w-4 text-[var(--gold)]" /> Transporteur — {order.carrier || "non envoyé"}
+              <Truck className="h-4 w-4 text-[var(--brand)]" /> Transporteur — {order.carrier || "non envoyé"}
             </h2>
             {order.trackingNumber ? (
               <div className="space-y-2 text-sm" dir="ltr">

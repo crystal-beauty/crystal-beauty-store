@@ -93,21 +93,21 @@ export default function PixelCenter({
       {/* Event pipeline diagram */}
       <div className="grid sm:grid-cols-3 gap-3">
         <div className="rounded-2xl border border-border bg-white p-4 shadow-luxe">
-          <Zap className="h-5 w-5 text-[var(--gold)] mb-2" />
+          <Zap className="h-5 w-5 text-[var(--brand)] mb-2" />
           <p className="text-sm font-semibold text-[var(--primary)]">1 · Browser Pixel</p>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
             PageView, ViewContent, AddToCart, InitiateCheckout, Purchase, Search fire automatically.
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-white p-4 shadow-luxe">
-          <ShieldCheck className="h-5 w-5 text-[var(--gold)] mb-2" />
+          <ShieldCheck className="h-5 w-5 text-[var(--brand)] mb-2" />
           <p className="text-sm font-semibold text-[var(--primary)]">2 · Server CAPI Relay</p>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
             Every event is mirrored to Meta&apos;s Conversions API with hashed customer data (iOS-proof).
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-white p-4 shadow-luxe">
-          <Activity className="h-5 w-5 text-[var(--gold)] mb-2" />
+          <Activity className="h-5 w-5 text-[var(--brand)] mb-2" />
           <p className="text-sm font-semibold text-[var(--primary)]">3 · Event Dedup</p>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
             Shared <code className="text-[10px]">event_id</code> between browser & server so Meta counts each event once.
@@ -147,7 +147,7 @@ export default function PixelCenter({
               className={inputCls}
               placeholder="Generate in Meta Events Manager → Settings → Conversions API"
             />
-            <p className={cn("text-xs mt-2 flex items-center gap-1.5", capiActive ? "text-emerald-600" : "text-muted-foreground")}>
+            <p className={cn("text-xs mt-2 flex items-center gap-1.5", capiActive ? "text-[var(--primary)]" : "text-muted-foreground")}>
               {capiActive ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
               {capiActive
                 ? "Server-side Conversions API is active — events are sent from your server with deduplication."
@@ -166,7 +166,7 @@ export default function PixelCenter({
           <button
             onClick={save}
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 bg-[var(--brand)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save Pixel Settings
@@ -218,7 +218,7 @@ export default function PixelCenter({
                 <span
                   className={cn(
                     "text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0",
-                    ev.source === "server" ? "bg-[var(--gold)]/10 text-[var(--gold)]" : "bg-muted text-muted-foreground"
+                    ev.source === "server" ? "bg-[var(--brand)]/10 text-[var(--brand)]" : "bg-muted text-muted-foreground"
                   )}
                 >
                   {ev.source === "server" ? "SERVER CAPI" : "BROWSER"}
@@ -226,7 +226,7 @@ export default function PixelCenter({
                 {ev.source === "server" && (
                   <span className="flex items-center gap-1 text-[10px] shrink-0" title={ev.forwarded ? "Forwarded to Meta" : "Not forwarded (no CAPI token)"}>
                     {ev.forwarded ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[var(--primary)]" />
                     ) : (
                       <XCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
                     )}

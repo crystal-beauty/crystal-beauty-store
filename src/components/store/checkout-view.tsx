@@ -139,7 +139,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="font-display text-3xl font-semibold text-[var(--primary)] mb-2">{t("checkoutTitle")}</h1>
       <p className="text-sm text-muted-foreground mb-8 flex items-center gap-1.5">
-        <Lock className="h-3.5 w-3.5 text-[var(--gold)]" /> {t("checkoutSubtitle")}
+        <Lock className="h-3.5 w-3.5 text-[var(--brand)]" /> {t("checkoutSubtitle")}
       </p>
 
       <form onSubmit={placeOrder} className="grid lg:grid-cols-5 gap-8">
@@ -268,7 +268,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
                       </p>
                     )}
                     {item.giftBox && (
-                      <p className="text-[11px] text-[var(--gold)] font-medium flex items-center gap-1">
+                      <p className="text-[11px] text-[var(--brand)] font-medium flex items-center gap-1">
                         <Gift className="h-3 w-3" /> {t("giftBox")}
                       </p>
                     )}
@@ -298,7 +298,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
               </div>
               {promoError && <p className="text-xs text-destructive mt-2">{promoError}</p>}
               {promo && (
-                <p className="text-xs text-emerald-600 mt-2 flex items-center justify-between">
+                <p className="text-xs text-[var(--primary)] mt-2 flex items-center justify-between">
                   <span>✓ {promo.code}</span>
                   <span>-{formatMoney(promo.discount)}</span>
                 </p>
@@ -312,7 +312,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
                 <span className="font-medium text-[var(--primary)]">{formatMoney(subtotal)}</span>
               </div>
               {promo && (
-                <div className="flex justify-between text-emerald-600">
+                <div className="flex justify-between text-[var(--primary)]">
                   <span>
                     {t("discount")} ({promo.code})
                   </span>
@@ -346,8 +346,8 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             </div>
 
             {/* COD notice */}
-            <div className="mt-5 rounded-xl bg-[var(--gold)]/10 border border-[var(--gold)]/25 p-4 flex gap-3">
-              <Banknote className="h-5 w-5 text-[var(--gold)] shrink-0 mt-0.5" />
+            <div className="mt-5 rounded-xl bg-[var(--brand)]/10 border border-[var(--brand)]/25 p-4 flex gap-3">
+              <Banknote className="h-5 w-5 text-[var(--brand)] shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-[var(--primary)]">{t("codOnly")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t("codOnlyHint")}</p>
@@ -357,7 +357,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             <button
               type="submit"
               disabled={submitting || fee === null || feeState !== "idle"}
-              className="press mt-5 w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-4 rounded-full hover:bg-[#b8903a] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="press mt-5 w-full inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {submitting ? (
                 <>

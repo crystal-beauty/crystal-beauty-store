@@ -61,7 +61,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Heading */}
       <div className="text-center mb-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] mb-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">
           {activeCategory ? "Collection" : "The Full Collection"}
         </p>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">
@@ -88,7 +88,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           <Search className="h-10 w-10 text-muted-foreground/40 mx-auto mb-4" />
           <p className="text-lg font-medium text-[var(--primary)]">No gifts found</p>
           <p className="text-sm text-muted-foreground mt-1">Try a different collection or search term.</p>
-          <Link href="/products" className="mt-6 inline-block text-sm font-medium text-[var(--gold)] hover:underline">
+          <Link href="/products" className="mt-6 inline-block text-sm font-medium text-[var(--brand)] hover:underline">
             Clear filters
           </Link>
         </div>

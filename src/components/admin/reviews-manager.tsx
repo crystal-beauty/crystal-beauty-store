@@ -100,10 +100,10 @@ export default function ReviewsManager() {
                       {r.order.orderNumber}
                     </span>
                     {!r.submitted && (
-                      <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">En attente du client</span>
+                      <span className="text-[11px] font-semibold text-[var(--primary)] bg-[#eef1f6] border border-[#d7deea] px-2 py-0.5 rounded-full">En attente du client</span>
                     )}
                     {r.submitted && r.approved && (
-                      <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Publié</span>
+                      <span className="text-[11px] font-semibold text-[var(--primary)] bg-[#eef1f6] border border-[#d7deea] px-2 py-0.5 rounded-full">Publié</span>
                     )}
                     {r.submitted && !r.approved && (
                       <span className="text-[11px] font-semibold text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded-full">Masqué</span>
@@ -111,7 +111,7 @@ export default function ReviewsManager() {
                   </div>
                   <div className="flex items-center gap-0.5 mt-1.5" aria-label={`${r.rating}/5`}>
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <Star key={n} className={cn("h-3.5 w-3.5", n <= r.rating ? "fill-[var(--gold)] text-[var(--gold)]" : "text-muted-foreground/30")} />
+                      <Star key={n} className={cn("h-3.5 w-3.5", n <= r.rating ? "fill-[var(--brand)] text-[var(--brand)]" : "text-muted-foreground/30")} />
                     ))}
                   </div>
                   {r.text && <p className="mt-2 text-sm text-foreground/80">{r.text}</p>}
@@ -123,7 +123,7 @@ export default function ReviewsManager() {
                     </button>
                   )}
                   {r.submitted && !r.approved && (
-                    <button onClick={() => update(r.id, { approved: true })} className="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-600 text-white px-3 py-2 rounded-xl hover:bg-emerald-700">
+                    <button onClick={() => update(r.id, { approved: true })} className="inline-flex items-center gap-1.5 text-xs font-medium bg-[var(--primary)] text-white px-3 py-2 rounded-xl hover:bg-[#16305c]">
                       <Check className="h-3.5 w-3.5" /> Approuver
                     </button>
                   )}

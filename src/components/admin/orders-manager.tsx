@@ -177,7 +177,7 @@ export default function OrdersManager() {
       {selected.size > 0 && (
         <div className="mb-4 rounded-xl bg-[var(--primary)] text-white px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
           <span className="text-sm font-medium">{selected.size} commande(s) sélectionnée(s)</span>
-          <button onClick={bulkShip} disabled={bulkSending} className="inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white text-sm font-semibold px-5 py-2.5 rounded-xl disabled:opacity-50">
+          <button onClick={bulkShip} disabled={bulkSending} className="inline-flex items-center gap-2 bg-[var(--brand)] hover:bg-[#16305c] text-white text-sm font-semibold px-5 py-2.5 rounded-xl disabled:opacity-50">
             {bulkSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
             Envoyer au transporteur
           </button>
@@ -225,7 +225,7 @@ export default function OrdersManager() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <Link href={`/admin/orders/${o.id}`} className="font-semibold text-[var(--primary)] hover:text-[var(--gold)]" dir="ltr">
+                        <Link href={`/admin/orders/${o.id}`} className="font-semibold text-[var(--primary)] hover:text-[var(--brand)]" dir="ltr">
                           {o.orderNumber}
                         </Link>
                         <p className="text-xs text-muted-foreground mt-0.5">{new Date(o.createdAt).toLocaleDateString("fr-FR")}</p>
@@ -235,7 +235,7 @@ export default function OrdersManager() {
                           <span className="font-medium text-foreground">{o.customerName}</span>
                           {o.refusedWarning && (
                             <span title="Refus/retour précédent sur ce numéro" className="inline-flex items-center">
-                              <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />
+                              <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
                             </span>
                           )}
                         </div>
@@ -247,7 +247,7 @@ export default function OrdersManager() {
                             href={`https://wa.me/${toInternationalDz(o.phone).replace("+", "")}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-600 hover:text-emerald-700"
+                            className="text-[var(--primary)] hover:text-[#2c4a7c]"
                             aria-label="WhatsApp"
                           >
                             <MessageCircle className="h-3.5 w-3.5" />

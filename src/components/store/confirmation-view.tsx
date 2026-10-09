@@ -75,11 +75,11 @@ export default function ConfirmationView({
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14">
       {/* Success hero */}
       <div className="text-center">
-        <div className="h-20 w-20 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+        <div className="h-20 w-20 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/15 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 className="h-10 w-10 text-[var(--primary)]" />
         </div>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{t("thankYouTitle")}</h1>
-        <div className="mt-6 inline-flex flex-col items-center rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 px-8 py-4">
+        <div className="mt-6 inline-flex flex-col items-center rounded-2xl border border-[var(--brand)]/40 bg-[var(--brand)]/5 px-8 py-4">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">{t("thankYouNumber")}</p>
           <p className="font-display text-2xl font-bold text-[var(--primary)] mt-1" dir="ltr">
             {order.orderNumber}
@@ -91,7 +91,7 @@ export default function ConfirmationView({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1fb857] text-white font-medium px-7 py-3.5 rounded-full transition-colors shadow-lg"
+            className="mt-6 inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[#16305c] text-white font-medium px-7 py-3.5 rounded-full transition-colors shadow-lg"
           >
             <MessageCircle className="h-4.5 w-4.5" /> {t("thankYouWhatsapp")}
           </a>
@@ -103,7 +103,7 @@ export default function ConfirmationView({
       <div className="mt-10 bg-white rounded-2xl border border-border p-6 shadow-luxe">
         <div className="flex items-center justify-between text-sm mb-4">
           <span className="flex items-center gap-2 font-medium text-[var(--primary)]">
-            <Package className="h-4 w-4 text-[var(--gold)]" /> {t("orderSummary")}
+            <Package className="h-4 w-4 text-[var(--brand)]" /> {t("orderSummary")}
           </span>
           <span className="text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</span>
         </div>
@@ -133,7 +133,7 @@ export default function ConfirmationView({
             <span>{formatMoney(order.subtotal)}</span>
           </div>
           {order.discount > 0 && (
-            <div className="flex justify-between text-emerald-600">
+            <div className="flex justify-between text-[var(--primary)]">
               <span>
                 {t("discount")} {order.promoCodeStr && `(${order.promoCodeStr})`}
               </span>
@@ -157,7 +157,7 @@ export default function ConfirmationView({
           )}
           <div className="flex justify-between border-t border-border pt-3 font-semibold text-[var(--primary)]">
             <span className="flex items-center gap-1.5">
-              <Phone className="h-4 w-4 text-[var(--gold)]" /> {t("payOnDelivery")}
+              <Phone className="h-4 w-4 text-[var(--brand)]" /> {t("payOnDelivery")}
             </span>
             <span>{formatMoney(order.total)}</span>
           </div>
@@ -165,10 +165,10 @@ export default function ConfirmationView({
       </div>
 
       <div className="mt-8 text-center flex flex-wrap justify-center gap-4">
-        <Link href="/products" className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--gold)] transition-colors">
+        <Link href="/products" className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--brand)] transition-colors">
           <Home className="h-4 w-4" /> {t("backHome")}
         </Link>
-        <Link href={`/track?order=${order.orderNumber}`} className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--gold)] transition-colors">
+        <Link href={`/track?order=${order.orderNumber}`} className="inline-flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:text-[var(--brand)] transition-colors">
           <Package className="h-4 w-4" /> {t("trackThisOrder")}
         </Link>
       </div>

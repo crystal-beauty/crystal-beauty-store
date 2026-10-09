@@ -71,7 +71,7 @@ export default function AdminShell({
       {/* ===== Sidebar (desktop) ===== */}
       <aside className="hidden lg:flex flex-col w-72 bg-[var(--sidebar)] text-[var(--sidebar-foreground)] fixed inset-y-0 z-40">
         <div className="flex items-center gap-2.5 px-6 h-16 border-b border-[var(--sidebar-border)]">
-          <Sparkles className="h-6 w-6 text-[var(--gold)]" />
+          <Sparkles className="h-6 w-6 text-white" />
           <div>
             <p className="font-display text-lg font-semibold leading-none">Dashboard</p>
             <p className="text-[11px] text-white/50 mt-1">Store Management</p>
@@ -109,7 +109,7 @@ export default function AdminShell({
             View Store
           </Link>
           <div className="flex items-center gap-3 px-3.5 py-2.5">
-            <div className="h-9 w-9 rounded-full bg-[var(--gold)]/20 text-[var(--gold)] flex items-center justify-center text-sm font-bold shrink-0">
+            <div className="h-9 w-9 rounded-full bg-white/15 text-white flex items-center justify-center text-sm font-bold shrink-0">
               {initials || "A"}
             </div>
             <div className="min-w-0 flex-1">
@@ -130,7 +130,7 @@ export default function AdminShell({
       {/* ===== Mobile header ===== */}
       <div className="lg:hidden fixed top-0 inset-x-0 h-14 bg-[var(--sidebar)] text-white z-40 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-[var(--gold)]" />
+          <Sparkles className="h-5 w-5 text-white" />
           <span className="font-display font-semibold">Dashboard</span>
         </div>
         <button onClick={() => setOpen(!open)} aria-label="Toggle menu" className="p-2">

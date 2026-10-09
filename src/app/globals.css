@@ -38,8 +38,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-gold: var(--gold);
-  --color-gold-foreground: var(--gold-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-navy: var(--navy);
   --color-navy-foreground: var(--navy-foreground);
   --radius-sm: calc(var(--radius) - 4px);
@@ -50,41 +50,42 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #fbfaf7;
+  --background: #fafafa;
   --foreground: #16233f;
   --card: #ffffff;
   --card-foreground: #16233f;
   --popover: #ffffff;
   --popover-foreground: #16233f;
   --primary: #0a1f44;
-  --primary-foreground: #fdfcf8;
+  --primary-foreground: #ffffff;
   --secondary: #eef1f6;
   --secondary-foreground: #0a1f44;
-  --muted: #f3f1ec;
+  --muted: #f4f4f5;
   --muted-foreground: #6b7280;
   --accent: #eef1f6;
   --accent-foreground: #0a1f44;
   --destructive: #b3392e;
-  --border: #e8e5dd;
-  --input: #ddd9cf;
+  --border: #e5e7eb;
+  --input: #d4d4d8;
   --ring: #0a1f44;
   --chart-1: #0a1f44;
-  --chart-2: #c8a24b;
-  --chart-3: #143061;
+  --chart-2: #143061;
+  --chart-3: #2c4a7c;
   --chart-4: #8fa3c4;
-  --chart-5: #e5d5a4;
+  --chart-5: #d7deea;
   --sidebar: #0a1f44;
   --sidebar-foreground: #e8ecf5;
-  --sidebar-primary: #c8a24b;
+  --sidebar-primary: #e8ecf5;
   --sidebar-primary-foreground: #0a1f44;
   --sidebar-accent: #143061;
   --sidebar-accent-foreground: #e8ecf5;
   --sidebar-border: #1d3a68;
-  --sidebar-ring: #c8a24b;
-  --gold: #c8a24b;
-  --gold-foreground: #ffffff;
+  --sidebar-ring: #2c4a7c;
+  /* Brand accent — locked to the navy/black/white charter */
+  --brand: #0a1f44;
+  --brand-foreground: #ffffff;
   --navy: #0a1f44;
-  --navy-foreground: #fdfcf8;
+  --navy-foreground: #ffffff;
 }
 
 .dark {
@@ -94,8 +95,8 @@
   --card-foreground: #f3f4f6;
   --popover: #131b2e;
   --popover-foreground: #f3f4f6;
-  --primary: #c8a24b;
-  --primary-foreground: #0a1f44;
+  --primary: #143061;
+  --primary-foreground: #f3f4f6;
   --secondary: #1a2439;
   --secondary-foreground: #f3f4f6;
   --muted: #1a2439;
@@ -105,7 +106,7 @@
   --destructive: #ef4444;
   --border: #24304a;
   --input: #24304a;
-  --ring: #c8a24b;
+  --ring: #143061;
 }
 
 @layer base {
@@ -124,7 +125,7 @@
     text-wrap: balance;
   }
   ::selection {
-    background: color-mix(in srgb, var(--gold) 30%, transparent);
+    background: color-mix(in srgb, var(--brand) 30%, transparent);
     color: var(--primary);
   }
   html {
@@ -132,7 +133,7 @@
   }
   /* Visible, brand-tinted keyboard focus — accessibility = professionalism */
   :focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--gold) 75%, transparent);
+    outline: 2px solid color-mix(in srgb, var(--brand) 75%, transparent);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -191,21 +192,6 @@
 }
 
 /* ---------- Luxury details ---------- */
-/* Fine gold hairline used under section titles */
-.gold-hairline {
-  position: relative;
-}
-.gold-hairline::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-
 /* Elegant dotted texture for navy surfaces without imagery */
 .dot-texture {
   background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.14) 1px, transparent 0);
@@ -234,7 +220,7 @@
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #c9c4b8;
+  background: #d1d1d6;
   border-radius: 999px;
 }
 
@@ -265,7 +251,7 @@
   }
 }
 .skeleton {
-  background: linear-gradient(90deg, #efece5 25%, #f7f5f0 40%, #efece5 55%);
+  background: linear-gradient(90deg, #efeff0 25%, #f7f7f8 40%, #efeff0 55%);
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
 }

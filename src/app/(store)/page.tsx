@@ -68,7 +68,7 @@ export default async function HomePage() {
           /* Premium composed fallback — no fake imagery, pure design */
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
-            <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-[var(--gold)]/15 blur-3xl" />
+            <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-white/10 blur-3xl" />
             <div className="absolute -bottom-44 -start-28 h-[26rem] w-[26rem] rounded-full bg-[#46639f]/25 blur-3xl" />
             <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
             <span
@@ -92,7 +92,7 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6 animate-rise"
                 style={{ animationDelay: "100ms" }}
               >
-                <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <Sparkles className="h-3.5 w-3.5 text-white/90" />
                 {settings.tagline}
               </span>
             )}
@@ -113,7 +113,7 @@ export default async function HomePage() {
             <div className="mt-9 flex flex-wrap gap-3.5 animate-rise" style={{ animationDelay: "380ms" }}>
               <Link
                 href={settings.heroCtaLink || "/products"}
-                className="press inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-semibold px-8 py-4 rounded-full shadow-lg"
+                className="press inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-8 py-4 rounded-full shadow-lg"
               >
                 {heroCta}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -131,11 +131,11 @@ export default async function HomePage() {
               style={{ animationDelay: "480ms" }}
             >
               <span className="inline-flex items-center gap-1.5">
-                <Banknote className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <Banknote className="h-3.5 w-3.5 text-white/80" />
                 {t("codBadge", lang)}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5 text-[var(--gold)]" />
+                <Truck className="h-3.5 w-3.5 text-white/80" />
                 {t("wilayasBadge", lang)}
               </span>
             </div>
@@ -154,7 +154,7 @@ export default async function HomePage() {
           ].map(({ icon: Icon, title, text }, i) => (
             <Reveal key={title} delay={i * 80} className="flex items-start gap-3">
               <div className="h-11 w-11 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5 text-[var(--gold)]" />
+                <Icon className="h-5 w-5 text-[var(--brand)]" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--primary)]">{title}</p>
@@ -168,7 +168,7 @@ export default async function HomePage() {
       {/* ================= HOW IT WORKS (honest, COD-specific) ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <Reveal className="text-center mb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] mb-2">{t("howEyebrow", lang)}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">{t("howEyebrow", lang)}</p>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{t("howTitle", lang)}</h2>
         </Reveal>
         <div className="grid sm:grid-cols-3 gap-4 lg:gap-8">
@@ -189,7 +189,7 @@ export default async function HomePage() {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className="h-12 w-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center mb-5 shadow-luxe">
-                <Icon className="h-5.5 w-5.5 text-[var(--gold)]" />
+                <Icon className="h-5.5 w-5.5 text-[var(--brand)]" />
               </div>
               <h3 className="font-display text-lg font-semibold text-[var(--primary)]">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>
@@ -203,10 +203,10 @@ export default async function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] mb-2">{t("browse", lang)}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">{t("browse", lang)}</p>
               <h2 className="font-display text-3xl font-semibold text-[var(--primary)]">{t("shopByCollection", lang)}</h2>
             </div>
-            <Link href="/products" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:text-[var(--gold)] transition-colors">
+            <Link href="/products" className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:text-[var(--brand)] transition-colors">
               {t("viewAll", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </div>
@@ -237,7 +237,7 @@ export default async function HomePage() {
       <section className="bg-white border-y border-border py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gold)] mb-2">{t("shopAll", lang)}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">{t("shopAll", lang)}</p>
             <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{settings.storeName}</h2>
           </div>
           {featuredCards.length > 0 ? (
@@ -252,7 +252,7 @@ export default async function HomePage() {
             // Clean honest empty state — no fabricated products
             <Reveal className="rounded-3xl border-2 border-dashed border-border bg-background/60 py-16 px-8 text-center max-w-2xl mx-auto">
               <div className="h-16 w-16 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center mx-auto mb-5">
-                <Package className="h-7 w-7 text-[var(--gold)]" />
+                <Package className="h-7 w-7 text-[var(--brand)]" />
               </div>
               <p className="font-display text-xl font-semibold text-[var(--primary)]">{t("comingSoon", lang)}</p>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">{t("emptyStoreHint", lang)}</p>
@@ -282,15 +282,15 @@ export default async function HomePage() {
       {/* ================= CTA — full-bleed navy band, flows into the footer ================= */}
       <section className="relative overflow-hidden bg-[var(--primary)]">
         <div className="absolute inset-0 dot-texture opacity-30" aria-hidden />
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl" aria-hidden />
-        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" aria-hidden />
+        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden />
+        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" aria-hidden />
         <Reveal className="relative max-w-2xl mx-auto px-4 sm:px-6 py-16 lg:py-20 text-center">
-          <Sparkles className="h-10 w-10 text-[var(--gold)] mx-auto mb-5" />
+          <Sparkles className="h-10 w-10 text-white/80 mx-auto mb-5" />
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white leading-tight text-balance">{t("codBadge", lang)}</h2>
           <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
           <Link
             href="/products"
-            className="press mt-9 inline-flex items-center gap-2 bg-[var(--gold)] hover:bg-[#b8903a] text-white font-semibold px-9 py-4 rounded-full shadow-lg"
+            className="press mt-9 inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-9 py-4 rounded-full shadow-lg"
           >
             {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>

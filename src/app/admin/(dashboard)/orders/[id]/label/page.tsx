@@ -52,7 +52,7 @@ export default async function LabelPage({ params }: { params: Promise<{ id: stri
               {order.wilayaId ? <span className="text-muted-foreground"> ({order.wilayaId})</span> : null}
             </p>
             {order.deliveryType === "STOP_DESK" && (
-              <p className="mt-2 inline-block bg-[var(--gold)]/15 text-[var(--gold)] border border-[var(--gold)]/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
+              <p className="mt-2 inline-block bg-[var(--brand)]/15 text-[var(--brand)] border border-[var(--brand)]/40 rounded-lg px-2.5 py-1 text-xs font-semibold">
                 STOP DESK — {order.stopDeskName || order.commune}
               </p>
             )}

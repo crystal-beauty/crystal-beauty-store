@@ -151,7 +151,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
                 <span
                   className={cn(
                     "text-[11px] font-semibold px-2.5 py-1 rounded-full border shrink-0",
-                    c.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-500 border-gray-200"
+                    c.active ? "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]" : "bg-gray-100 text-gray-500 border-gray-200"
                   )}
                 >
                   {c.active ? "Active" : "Hidden"}
@@ -230,7 +230,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
               <button
                 onClick={save}
                 disabled={saving}
-                className="w-full bg-[var(--gold)] text-white font-semibold py-3 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
                 {editing ? "Save Changes" : "Create Category"}

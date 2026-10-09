@@ -3,10 +3,10 @@ import { Sparkles } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#fbfaf7] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#fafafa] flex items-center justify-center px-4">
       <div className="text-center max-w-md">
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-[#0a1f44]/5 border border-[#0a1f44]/10 mb-6">
-          <Sparkles className="h-7 w-7 text-[#c8a24b]" />
+          <Sparkles className="h-7 w-7 text-[#0a1f44]" />
         </div>
         <p className="font-display text-7xl font-semibold text-[#0a1f44]">404</p>
         <h1 className="font-display text-2xl font-semibold text-[#0a1f44] mt-3">Page introuvable · الصفحة غير موجودة</h1>

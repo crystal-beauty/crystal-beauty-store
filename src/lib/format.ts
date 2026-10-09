@@ -57,14 +57,14 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_STYLES: Record<string, string> = {
-  NEW: "bg-amber-100 text-amber-800 border-amber-200",
-  CONFIRMED: "bg-sky-100 text-sky-800 border-sky-200",
-  SENT_TO_CARRIER: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  IN_DELIVERY: "bg-blue-100 text-blue-800 border-blue-200",
-  DELIVERED: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  REFUSED: "bg-orange-100 text-orange-800 border-orange-200",
-  RETURNED: "bg-purple-100 text-purple-800 border-purple-200",
-  CANCELLED: "bg-rose-100 text-rose-800 border-rose-200",
+  NEW: "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]",
+  CONFIRMED: "bg-[#d7deea] text-[#0a1f44] border-[#c3cede]",
+  SENT_TO_CARRIER: "bg-[#b9c8e0] text-[#0a1f44] border-[#a5b8d6]",
+  IN_DELIVERY: "bg-[#2c4a7c] text-white border-[#2c4a7c]",
+  DELIVERED: "bg-[#0a1f44] text-white border-[#0a1f44]",
+  REFUSED: "bg-rose-600 text-white border-rose-600",
+  RETURNED: "bg-rose-100 text-rose-800 border-rose-200",
+  CANCELLED: "bg-gray-100 text-gray-700 border-gray-200",
 };
 
 // ---------- Wilayas (official 58 codes, FR + AR names) ----------

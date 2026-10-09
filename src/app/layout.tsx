@@ -58,7 +58,7 @@ export default async function RootLayout({
           lang === "ar" ? "lang-ar" : ""
         }`}
       >
-        <style>{`:root { --primary: ${settings.primaryColor}; --navy: ${settings.primaryColor}; --gold: ${settings.accentColor}; --ring: ${settings.primaryColor}; }`}</style>
+        <style>{`:root { --primary: ${settings.primaryColor}; --navy: ${settings.primaryColor}; --brand: ${settings.accentColor}; --ring: ${settings.primaryColor}; }`}</style>
         <SettingsProvider settings={settings}>
           <LocaleProvider lang={lang}>
             {children}

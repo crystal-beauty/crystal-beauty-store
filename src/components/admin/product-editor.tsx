@@ -215,7 +215,7 @@ export default function ProductEditor({
         <button
           onClick={save}
           disabled={saving}
-          className="inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#b8903a] transition-colors disabled:opacity-60"
+          className="inline-flex items-center gap-2 bg-[var(--brand)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {isEdit ? "Save Changes" : "Create Product"}
@@ -311,7 +311,7 @@ export default function ProductEditor({
                       <img src={m.url} alt={m.alt || ""} className="h-full w-full object-cover" />
                     )}
                     {i === 0 && (
-                      <span className="absolute top-1.5 left-1.5 bg-[var(--gold)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      <span className="absolute top-1.5 left-1.5 bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                         Main
                       </span>
                     )}
@@ -344,7 +344,7 @@ export default function ProductEditor({
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
             <div className="flex items-center justify-between mb-1">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Variants & Options</h2>
-              <button type="button" onClick={addVariant} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--gold)] hover:underline">
+              <button type="button" onClick={addVariant} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:underline">
                 <Plus className="h-4 w-4" /> Add Variant
               </button>
             </div>
@@ -441,7 +441,7 @@ export default function ProductEditor({
                     <button
                       type="button"
                       onClick={() => updateVariant(vi, { options: [...variant.options, { label: "", priceModifier: 0, hexColor: "", stock: "" }] })}
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--primary)] hover:text-[var(--gold)]"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[var(--primary)] hover:text-[var(--brand)]"
                     >
                       <Plus className="h-3.5 w-3.5" /> Add Option
                     </button>

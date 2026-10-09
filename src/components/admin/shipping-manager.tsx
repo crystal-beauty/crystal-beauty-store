@@ -88,11 +88,11 @@ export default function ShippingManager() {
           <div className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
-                {status.connected ? <CheckCircle2 className="h-8 w-8 text-emerald-500" /> : <XCircle className="h-8 w-8 text-rose-500" />}
+                {status.connected ? <CheckCircle2 className="h-8 w-8 text-[var(--primary)]" /> : <XCircle className="h-8 w-8 text-rose-500" />}
                 <div>
                   <p className="font-semibold text-[var(--primary)] flex items-center gap-2">
                     {status.connected ? "Connecté" : "Déconnecté"}
-                    {status.connected ? <Wifi className="h-4 w-4 text-emerald-500" /> : <WifiOff className="h-4 w-4 text-rose-500" />}
+                    {status.connected ? <Wifi className="h-4 w-4 text-[var(--primary)]" /> : <WifiOff className="h-4 w-4 text-rose-500" />}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5" dir="ltr">
                     {status.baseUrl}
@@ -140,7 +140,7 @@ export default function ShippingManager() {
           {status.samples && status.samples.length > 0 && (
             <div className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
               <h2 className="font-semibold text-[var(--primary)] flex items-center gap-2 mb-4">
-                <Truck className="h-4.5 w-4.5 text-[var(--gold)]" /> Tarifs en direct (échantillon)
+                <Truck className="h-4.5 w-4.5 text-[var(--brand)]" /> Tarifs en direct (échantillon)
               </h2>
               <div className="grid sm:grid-cols-3 gap-4 text-sm">
                 {status.samples.map((s) => (

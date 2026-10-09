@@ -92,7 +92,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           <button
             onClick={quickAdd}
             aria-label={product.hasVariants ? product.name : `${t("addToCart")} — ${product.name}`}
-            className="absolute bottom-3 inset-x-3 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium py-2.5 rounded-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--gold)] max-md:opacity-100 max-md:translate-y-0"
+            className="absolute bottom-3 inset-x-3 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium py-2.5 rounded-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[#16305c] max-md:opacity-100 max-md:translate-y-0"
           >
             <ShoppingBag className="h-4 w-4" />
             {product.hasVariants ? t("choose") : t("addToCart")}
@@ -101,7 +101,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       </div>
 
       <div className="pt-3.5 px-1">
-        <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[var(--gold)] transition-colors">{product.name}</h3>
+        <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[#2c4a7c] transition-colors">{product.name}</h3>
         <div className="mt-1.5 flex items-baseline gap-2">
           {/* Old price shown ONLY if the admin set one on this product */}
           <span className="text-[var(--primary)] font-semibold text-[17px] tracking-tight">{formatMoney(product.price)}</span>

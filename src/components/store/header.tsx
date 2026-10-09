@@ -60,7 +60,7 @@ export default function StoreHeader() {
               {settings.logoUrl ? (
                 <img src={settings.logoUrl} alt={settings.storeName} className="h-8 w-auto" />
               ) : (
-                <Sparkles className="h-6 w-6 text-[var(--gold)] transition-transform duration-500 group-hover:rotate-12" />
+                <Sparkles className="h-6 w-6 text-[var(--brand)] transition-transform duration-500 group-hover:rotate-12" />
               )}
               <span className="font-display text-xl lg:text-2xl font-semibold tracking-wide text-[var(--primary)]">{settings.storeName}</span>
             </Link>
@@ -68,11 +68,11 @@ export default function StoreHeader() {
             {/* Desktop nav */}
             <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-[var(--primary)]">
               {NAV_LINKS.map((link) => (
-                <Link key={link.href} href={link.href} className={cn("relative py-1 group/nav", pathname === link.href ? "text-[var(--gold)]" : "hover:text-[var(--gold)] transition-colors")}>
+                <Link key={link.href} href={link.href} className={cn("relative py-1 group/nav", pathname === link.href ? "text-[var(--brand)]" : "hover:text-[var(--brand)] transition-colors")}>
                   {link.label}
                   <span
                     className={cn(
-                      "absolute inset-x-0 -bottom-0.5 h-px bg-[var(--gold)] origin-center transition-transform duration-300",
+                      "absolute inset-x-0 -bottom-0.5 h-px bg-[var(--brand)] origin-center transition-transform duration-300",
                       pathname === link.href ? "scale-x-100" : "scale-x-0 group-hover/nav:scale-x-100"
                     )}
                   />
@@ -102,12 +102,12 @@ export default function StoreHeader() {
               <Link href="/track" className="lg:hidden p-2 text-[var(--primary)]" aria-label={t("trackOrder")}>
                 <PackageSearch className="h-5 w-5" />
               </Link>
-              <Link href="/cart" className="relative p-2 text-[var(--primary)] hover:text-[var(--gold)] transition-colors" aria-label={`${t("cart")}: ${count}`}>
+              <Link href="/cart" className="relative p-2 text-[var(--primary)] hover:text-[var(--brand)] transition-colors" aria-label={`${t("cart")}: ${count}`}>
                 <ShoppingBag className="h-6 w-6" />
                 {count > 0 && (
                   <span
                     key={count}
-                    className="animate-pop absolute -top-0.5 -right-0.5 bg-[var(--gold)] text-white text-[10px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center shadow-sm"
+                    className="animate-pop absolute -top-0.5 -right-0.5 bg-[var(--brand)] text-white text-[10px] font-bold rounded-full h-5 min-w-5 px-1 flex items-center justify-center shadow-sm"
                   >
                     {count}
                   </span>
@@ -127,7 +127,7 @@ export default function StoreHeader() {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "block px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
-                  pathname === link.href ? "bg-[var(--primary)]/5 text-[var(--gold)]" : "text-[var(--primary)] hover:bg-muted"
+                  pathname === link.href ? "bg-[var(--primary)]/5 text-[var(--brand)]" : "text-[var(--primary)] hover:bg-muted"
                 )}
               >
                 {link.label}

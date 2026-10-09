@@ -115,7 +115,7 @@ export default function SettingsManager({ initial }: { initial: Record<string, s
           <h1 className="font-display text-2xl font-semibold text-[var(--primary)]">Paramètres</h1>
           <p className="text-sm text-muted-foreground mt-1">Tout ce qui est vide n&apos;apparaît pas sur la boutique — aucune fausse information.</p>
         </div>
-        <button onClick={save} disabled={saving} className="inline-flex items-center gap-2 bg-[var(--gold)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#b8903a] disabled:opacity-50">
+        <button onClick={save} disabled={saving} className="inline-flex items-center gap-2 bg-[var(--brand)] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#16305c] disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Enregistrer
         </button>
       </div>
@@ -160,12 +160,13 @@ export default function SettingsManager({ initial }: { initial: Record<string, s
               </div>
               <div>
                 <label className={labelCls} htmlFor="f-accentColor">
-                  Couleur d&apos;accent (doré)
+                  Couleur d&apos;accent
                 </label>
                 <div className="flex gap-2">
                   <input type="color" value={String(form.accentColor)} onChange={(e) => set("accentColor", e.target.value)} className="h-11 w-14 rounded-xl border border-input" aria-label="Accent" />
                   <input value={String(form.accentColor)} onChange={(e) => set("accentColor", e.target.value)} className={inputCls} dir="ltr" />
                 </div>
+                <p className="mt-2 text-xs text-muted-foreground">Charte : bleu marine (#0A1F44), noir (#111111) ou blanc (#FFFFFF) uniquement.</p>
               </div>
             </div>
           </Card>
@@ -277,7 +278,7 @@ export default function SettingsManager({ initial }: { initial: Record<string, s
       </div>
 
       <div className="mt-6 max-w-3xl">
-        <button onClick={save} disabled={saving} className="w-full inline-flex items-center justify-center gap-2 bg-[var(--gold)] text-white font-semibold py-3.5 rounded-xl hover:bg-[#b8903a] disabled:opacity-50">
+        <button onClick={save} disabled={saving} className="w-full inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-3.5 rounded-xl hover:bg-[#16305c] disabled:opacity-50">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Enregistrer les paramètres
         </button>
       </div>

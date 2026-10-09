@@ -129,7 +129,7 @@ export default function ProductsManager({ canDelete }: { canDelete: boolean }) {
             <Package className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
             <p className="text-sm font-medium text-[var(--primary)]">No products yet</p>
             <p className="text-xs text-muted-foreground mt-1">Create your first gift to start selling.</p>
-            <Link href="/admin/products/new" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--gold)] hover:underline">
+            <Link href="/admin/products/new" className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--brand)] hover:underline">
               <Plus className="h-4 w-4" /> Add your first product
             </Link>
           </div>
@@ -164,7 +164,7 @@ export default function ProductsManager({ canDelete }: { canDelete: boolean }) {
                             <p className="text-xs text-muted-foreground">
                               {p.variants.length > 0 && `${p.variants.length} variant${p.variants.length > 1 ? "s" : ""} · `}
                               {p._count.orderItems} sold
-                              {p.featured && <span className="text-[var(--gold)] font-medium"> · Featured</span>}
+                              {p.featured && <span className="text-[var(--brand)] font-medium"> · Featured</span>}
                             </p>
                           </div>
                         </div>
@@ -175,7 +175,7 @@ export default function ProductsManager({ canDelete }: { canDelete: boolean }) {
                         {p.trackStock ? (
                           <span className={cn(
                             "font-medium",
-                            p.stock <= 3 ? "text-amber-600" : "text-emerald-600"
+                            p.stock <= 3 ? "text-[var(--primary)]" : "text-[var(--primary)]"
                           )}>
                             {p.stock}
                           </span>
@@ -187,7 +187,7 @@ export default function ProductsManager({ canDelete }: { canDelete: boolean }) {
                         <span
                           className={cn(
                             "inline-block text-[11px] font-semibold px-2.5 py-1 rounded-full border",
-                            p.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-gray-100 text-gray-500 border-gray-200"
+                            p.active ? "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]" : "bg-gray-100 text-gray-500 border-gray-200"
                           )}
                         >
                           {p.active ? "Live" : "Hidden"}
