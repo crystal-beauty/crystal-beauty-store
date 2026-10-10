@@ -223,9 +223,9 @@ export default function ProductDetail({
   return (
     <div className="pb-24 lg:pb-0">
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-        {/* ============ GALLERY ============ */}
-        <div>
-          <div className="relative overflow-hidden rounded-[1.75rem] bg-muted aspect-square shadow-luxe-lg">
+        {/* ============ GALLERY — sticky on desktop ============ */}
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="relative overflow-hidden rounded-2xl bg-muted aspect-square shadow-luxe">
             {media[activeMedia]?.type === "video" ? (
               <video key={media[activeMedia].url} src={media[activeMedia].url} controls playsInline className="h-full w-full object-cover" />
             ) : media[activeMedia] ? (
@@ -263,140 +263,159 @@ export default function ProductDetail({
           )}
         </div>
 
-        {/* ============ DETAILS ============ */}
-        <div>
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)] leading-tight">{product.name}</h1>
+        {/* ============ DETAILS — clear groups with generous proximity ============ */}
+        <div className="flex flex-col gap-9">
+          {/* — Identity & price — */}
+          <section>
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)] leading-tight">{product.name}</h1>
 
-          <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold tracking-tight text-[var(--primary)]">{formatMoney(unitPrice)}</span>
-            {product.comparePrice && product.comparePrice > product.price && (
-              <span className="text-lg text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
-            )}
-          </div>
+            {product.shortDescription && <p className="mt-3 text-muted-foreground leading-relaxed">{product.shortDescription}</p>}
 
-          {product.shortDescription && <p className="mt-4 text-muted-foreground leading-relaxed">{product.shortDescription}</p>}
-
-          {/* Real stock from the dashboard */}
-          {product.trackStock && (
-            <p className={cn("mt-4 text-sm font-medium", soldOut ? "text-destructive" : "text-[var(--primary)]")}>
-              {soldOut ? t("soldOut") : product.stock <= 5 ? `${t("lowStock")} ${product.stock} ${t("unitsLeft")}` : `${t("inStock")} (${product.stock})`}
-            </p>
-          )}
-
-          {/* Variants */}
-          {product.variants.map((variant) => (
-            <div key={variant.id} className="mt-6">
-              <div className="flex items-center justify-between mb-2.5">
-                <p className="text-sm font-semibold text-[var(--primary)]">
-                  {variant.name}
-                  {variant.required && <span className="text-destructive"> *</span>}
-                </p>
-                {selections[variant.name] && <p className="text-sm text-muted-foreground">{selections[variant.name]}</p>}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {variant.options.map((option) => {
-                  const active = selections[variant.name] === option.label;
-                  return (
-                    <button
-                      key={option.id}
-                      onClick={() => setSelections((s) => ({ ...s, [variant.name]: option.label }))}
-                      aria-pressed={active}
-                      className={cn(
-                        "relative px-4 py-2.5 rounded-xl border text-sm font-medium transition-all flex items-center gap-2",
-                        active ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-input bg-white text-[var(--primary)] hover:border-[var(--primary)]"
-                      )}
-                    >
-                      {option.hexColor && <span className="h-4 w-4 rounded-full border border-black/10 inline-block" style={{ backgroundColor: option.hexColor }} />}
-                      {option.label}
-                      {option.priceModifier !== 0 && (
-                        <span className={cn("text-xs", active ? "text-white/80" : "text-muted-foreground")}>
-                          {option.priceModifier > 0 ? `+${formatMoney(option.priceModifier)}` : `-${formatMoney(Math.abs(option.priceModifier))}`}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-
-          {/* Gift box add-on (optional — gifts are single-piece by default) */}
-          {giftBox.enabled && (
-            <label
-              className={cn(
-                "mt-6 flex items-start gap-3.5 rounded-2xl border p-4 cursor-pointer transition-all",
-                giftBoxActive ? "border-[var(--brand)] bg-[var(--brand)]/5" : "border-input bg-white hover:border-[var(--primary)]/40"
+            <div className="mt-5 flex items-baseline gap-3 flex-wrap">
+              <span className="text-3xl font-semibold tracking-tight text-[var(--primary)]">{formatMoney(unitPrice)}</span>
+              {product.comparePrice && product.comparePrice > product.price && (
+                <>
+                  <span className="text-lg text-muted-foreground line-through">{formatMoney(product.comparePrice)}</span>
+                  <span className="self-center rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-semibold text-[var(--primary)]">
+                    -{Math.round((1 - product.price / product.comparePrice) * 100)}%
+                  </span>
+                </>
               )}
-            >
-              <input type="checkbox" checked={giftBoxActive} onChange={(e) => selectGiftBox(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--brand)]" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Gift className="h-4 w-4 text-[var(--brand)]" />
-                  <span className="text-sm font-semibold text-[var(--primary)]">{giftBox.label}</span>
-                  <span className="text-sm font-semibold text-[var(--brand)]">+{formatMoney(giftBox.fee)}</span>
+            </div>
+
+            {/* Real stock from the dashboard */}
+            {product.trackStock && (
+              <p className={cn("mt-3 text-sm font-medium", soldOut ? "text-destructive" : "text-[var(--primary)]")}>
+                {soldOut ? t("soldOut") : product.stock <= 5 ? `${t("lowStock")} ${product.stock} ${t("unitsLeft")}` : `${t("inStock")} (${product.stock})`}
+              </p>
+            )}
+          </section>
+
+          {/* — Options: variants + gift box (one tight group) — */}
+          {(product.variants.length > 0 || giftBox.enabled) && (
+            <section className="space-y-5">
+              {product.variants.map((variant) => (
+                <div key={variant.id}>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <p className="text-sm font-semibold text-[var(--primary)]">
+                      {variant.name}
+                      {variant.required && <span className="text-destructive"> *</span>}
+                    </p>
+                    {selections[variant.name] && <p className="text-sm text-muted-foreground">{selections[variant.name]}</p>}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {variant.options.map((option) => {
+                      const active = selections[variant.name] === option.label;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => setSelections((s) => ({ ...s, [variant.name]: option.label }))}
+                          aria-pressed={active}
+                          className={cn(
+                            "relative px-4 py-2.5 rounded-xl border text-sm font-medium transition-all flex items-center gap-2",
+                            active ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-input bg-white text-[var(--primary)] hover:border-[var(--primary)]"
+                          )}
+                        >
+                          {option.hexColor && <span className="h-4 w-4 rounded-full border border-black/10 inline-block" style={{ backgroundColor: option.hexColor }} />}
+                          {option.label}
+                          {option.priceModifier !== 0 && (
+                            <span className={cn("text-xs", active ? "text-white/80" : "text-muted-foreground")}>
+                              {option.priceModifier > 0 ? `+${formatMoney(option.priceModifier)}` : `-${formatMoney(Math.abs(option.priceModifier))}`}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{giftBox.description}</p>
-              </div>
-            </label>
+              ))}
+
+              {/* Gift box add-on (optional — gifts are single-piece by default) */}
+              {giftBox.enabled && (
+                <label
+                  className={cn(
+                    "flex items-start gap-3.5 rounded-2xl border p-4 cursor-pointer transition-all",
+                    giftBoxActive ? "border-[var(--brand)] bg-[var(--brand)]/5" : "border-input bg-white hover:border-[var(--primary)]/40"
+                  )}
+                >
+                  <input type="checkbox" checked={giftBoxActive} onChange={(e) => selectGiftBox(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--brand)]" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Gift className="h-4 w-4 text-[var(--brand)]" />
+                      <span className="text-sm font-semibold text-[var(--primary)]">{giftBox.label}</span>
+                      <span className="text-sm font-semibold text-[var(--brand)]">+{formatMoney(giftBox.fee)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{giftBox.description}</p>
+                  </div>
+                </label>
+              )}
+            </section>
           )}
 
-          {/* Quantity + actions */}
-          <div className="mt-6 flex items-center gap-4">
-            <div className="flex items-center border border-input rounded-xl bg-white">
-              <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="p-3 text-[var(--primary)] hover:bg-muted rounded-s-xl" aria-label="-">
-                <Minus className="h-4 w-4" />
-              </button>
-              <span className="w-10 text-center font-semibold text-[var(--primary)]" aria-live="polite">
-                {quantity}
-              </span>
+          {/* — Action: quantity, total, one clear primary CTA — */}
+          <section>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center border border-input rounded-xl bg-white">
+                <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} className="p-3 text-[var(--primary)] hover:bg-muted rounded-s-xl" aria-label="-">
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-10 text-center font-semibold text-[var(--primary)]" aria-live="polite">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity((q) => (maxStock > 0 ? Math.min(maxStock, q + 1) : Math.min(99, q + 1)))}
+                  className="p-3 text-[var(--primary)] hover:bg-muted rounded-e-xl"
+                  aria-label="+"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t("total")}: <span className="font-semibold text-[var(--primary)]">{formatMoney(lineTotal)}</span>
+              </p>
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {/* Primary — the COD-native action */}
               <button
-                onClick={() => setQuantity((q) => (maxStock > 0 ? Math.min(maxStock, q + 1) : Math.min(99, q + 1)))}
-                className="p-3 text-[var(--primary)] hover:bg-muted rounded-e-xl"
-                aria-label="+"
+                onClick={handleBuyNow}
+                disabled={soldOut}
+                className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Plus className="h-4 w-4" />
+                <Banknote className="h-4.5 w-4.5" />
+                {t("orderNow")}
+              </button>
+              {/* Secondary — outline, clearly subordinate */}
+              <button
+                onClick={handleAddToCart}
+                disabled={soldOut}
+                className="press inline-flex items-center justify-center gap-2 border border-[var(--primary)]/25 bg-white text-[var(--primary)] font-semibold py-4 rounded-full hover:border-[var(--primary)] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ShoppingBag className="h-4.5 w-4.5" />
+                {t("addToCart")}
               </button>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {t("total")}: <span className="font-semibold text-[var(--primary)]">{formatMoney(lineTotal)}</span>
-            </p>
-          </div>
+          </section>
 
-          <div className="mt-5 grid sm:grid-cols-2 gap-3">
-            <button
-              onClick={handleAddToCart}
-              disabled={soldOut}
-              className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold py-4 rounded-full hover:bg-[var(--primary)]/90 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <ShoppingBag className="h-4.5 w-4.5" />
-              {t("addToCart")}
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={soldOut}
-              className="press inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Banknote className="h-4.5 w-4.5" />
-              {t("orderNow")}
-            </button>
-          </div>
-
-          {/* Trust chips — verifiable only */}
-          <div className="mt-8 grid grid-cols-3 gap-3 text-center">
+          {/* — Reassurance: flat honest list, real facts only — */}
+          <ul className="space-y-3 border-t border-border pt-7">
             {[
-              { icon: Banknote, label: t("codBadge") },
-              { icon: Truck, label: t("wilayasBadge") },
-              { icon: PackageSearch, label: t("trackBadge") },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="rounded-xl bg-muted/70 border border-border/70 py-3 px-2">
-                <Icon className="h-5 w-5 text-[var(--brand)] mx-auto mb-1.5" />
-                <p className="text-xs font-medium text-[var(--primary)] leading-tight">{label}</p>
-              </div>
+              { icon: Banknote, title: t("codBadge"), text: t("codBadgeText") },
+              { icon: Truck, title: t("wilayasBadge"), text: t("wilayasBadgeText") },
+              { icon: PackageSearch, title: t("trackBadge"), text: t("trackBadgeText") },
+            ].map(({ icon: Icon, title, text }) => (
+              <li key={title} className="flex items-start gap-3">
+                <Icon className="h-4.5 w-4.5 text-[var(--brand)] mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-[var(--primary)] leading-snug">{title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{text}</p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Description accordion */}
-          <div className="mt-8">
+          {/* — Details — */}
+          <section>
             <Accordion type="multiple" defaultValue={["description"]}>
               {product.description && (
                 <AccordionItem value="description">
@@ -426,19 +445,19 @@ export default function ProductDetail({
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          </div>
 
-          {product.sku && (
-            <p className="mt-4 text-xs text-muted-foreground" dir="ltr">
-              SKU: {product.sku}
-            </p>
-          )}
+            {product.sku && (
+              <p className="mt-4 text-xs text-muted-foreground" dir="ltr">
+                SKU: {product.sku}
+              </p>
+            )}
+          </section>
         </div>
       </div>
 
       {/* ============ QUICK ORDER (COD) ============ */}
       <section id="quick-order" className="mt-16 scroll-mt-24">
-        <div className="rounded-[2rem] border border-border bg-white shadow-luxe p-6 sm:p-10 max-w-3xl mx-auto">
+        <div className="rounded-3xl border border-border bg-white shadow-luxe p-6 sm:p-10 max-w-3xl mx-auto">
           <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[var(--primary)]">{t("quickOrder")}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("quickOrderSubtitle")}</p>
 

@@ -126,3 +126,25 @@ Stage Summary:
 - Every storefront + admin page visually verified and corrected; palette strictly navy/black/white; UI language consistent (FR store chrome + FR dashboard, AR storefront)
 - ⚠️ OWNER ACTION NEEDED: World Express API token lost when .env was recreated — add WORLDEXPRESS_API_TOKEN=<token> to .env (or dashboard → Livraison). Until then delivery shows the new calm "Livraison momentanément indisponible" state everywhere (no fake fees, orders blocked server-side)
 - VR scripts kept in scripts/ (vr-seed / vr-images / vr-order / vr-cleanup) for future full-flow visual testing
+
+---
+Task ID: 7
+Agent: Super Z (main agent)
+Task: Designed illustrated hero picture + updated site imagery (illustrated style, not realistic), UI/UX enhancement with NO glow and NO cheap animation, product page reorganization — informed by design knowledge from top GitHub repos (gnurio/refactoring-ui-plugin = 10 Refactoring UI skills, bradtraversy/design-resources-for-developers, NN/g + Baymard product-page guidelines).
+
+Work Log:
+- Design research first (per owner request): pulled 5 Refactoring UI skill specs (visual hierarchy, eliminate clutter, group-by-proximity, button hierarchy, shadows-as-elevation) + NN/g & Baymard product-page UX; distilled rules: one filled primary CTA per view, whitespace over borders/boxes, spacing scale 4-8 within / 16-24 related / 32-64 sections, shadows only signal elevation, weight+color over size for hierarchy
+- Generated illustrated hero artwork (3 candidates, picked best): flat vector navy #0a1f44 gift box + white ribbon + crystal ball + moon/sparkles/orbit lines, textless, left 2/3 empty for headline; saved public/uploads/hero-illustration.png; set DB Setting heroImage=/uploads/hero-illustration.png (still dashboard-editable); added rtl:-scale-x-100 so AR mirrors the artwork to match RTL text side; hero band height increased (py-16/sm:24/lg:36) so illustration isn't cropped
+- Glow purge: removed all 4 blur-3xl glow circles (hero fallback ×2, CTA band ×2); removed backdrop-blur from tagline pill, hero track button, product-card badge (kept ONLY the functional frosted sticky header); logo rotate-12 hover gimmick removed
+- Motion restraint: animate-rise 0.8s/18px → 0.5s/10px; hero 5-element stagger → single calm entrance; animate-pop bouncy overshoot (scale 0.4→1.18) → gentle fade-scale 0.2s; Reveal 700ms/24px → 500ms/16px; hover zooms 700ms/1.05-1.04 → 500ms/1.03; shadow system rebuilt to 3 levels (luxe = 2-layer subtle rest, luxe-lg = raised) — philosophy comment added to globals.css
+- Product page reorganized (product-detail.tsx): details column now 5 clearly grouped sections with flex gap-9 (identity+price+stock / options: variants+gift box / action: qty+total+CTAs / reassurance: flat icon list with border-t replacing boxy 3-col chips / details: accordions+SKU); button hierarchy fixed — "Commander maintenant" = sole filled primary, "Ajouter au panier" demoted to outline secondary; honest save-% pill (real comparePrice math) next to price; gallery now lg:sticky top-28, radius unified (1.75rem→2xl, 2rem→3xl); quick-order + reviews kept
+- Empty state upgraded: generated coming-soon-gift.png (flat navy gift on PURE white, 2 regens to kill gray-bg seam + edge-cropped sparkle) replaces Package icon on home "coming soon" card
+- Calmer misc: hero CTA shadow-lg→shadow-md, category image zoom 500ms/1.03
+- Visual verification loop (agent-browser, with clearly-tagged TEST-VR seed data then cleanup): home FR desktop full-scroll, home AR RTL mobile (mirrored artwork verified), products grid (badges/fallback/old-price), product FR desktop + full mobile + AR RTL desktop (buy box mirrors, primary-first RTL), cart with item (thumbnail, gift toggle, Récapitulatif hierarchy), empty state after vr-cleanup — all strictly navy/black/white
+- Cleanup: vr-cleanup.ts restored honest empty catalog (0 products/orders); final assets copied to download/final-images/; ESLint 0 errors; dev.log clean
+- Reconfirmed untouched: live World Express fees, server-side recompute, COD-only claims (token still missing → calm "Livraison momentanément indisponible" panel shows, owner must re-add WORLDEXPRESS_API_TOKEN)
+
+Stage Summary:
+- Store now has designed brand imagery (illustrated hero live via settings, still dashboard-replaceable) with zero glows and restrained, reduced-motion-safe animation
+- Product page reads as organized buy-box flow: identity → options → action → trust → details; single primary CTA per view
+- Catalog remains honestly empty pending owner's real products; hero image editable in Dashboard → Réglages → Hero

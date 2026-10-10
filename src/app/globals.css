@@ -139,11 +139,13 @@
   }
 }
 
-/* ---------- Motion (respects reduced-motion) ---------- */
+/* ---------- Motion (restrained, respects reduced-motion) ----------
+   Philosophy: motion communicates state, never decorates.
+   Small distances, short durations, no bounce, no glow. */
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -151,21 +153,20 @@
   }
 }
 .animate-rise {
-  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes pop {
-  0% {
-    transform: scale(0.4);
+  from {
+    opacity: 0;
+    transform: scale(0.85);
   }
-  60% {
-    transform: scale(1.18);
-  }
-  100% {
+  to {
+    opacity: 1;
     transform: scale(1);
   }
 }
 .animate-pop {
-  animation: pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pop 0.2s ease-out both;
 }
 @keyframes menu-in {
   from {
@@ -224,12 +225,13 @@
   border-radius: 999px;
 }
 
-/* Soft luxury shadows used across the storefront */
+/* Shadow system — 3 consistent levels (Refactoring UI: shadows signal elevation,
+   never decoration). rest = cards, raised = overlays/sticky bars only. */
 .shadow-luxe {
-  box-shadow: 0 8px 30px -12px rgba(10, 31, 68, 0.18);
+  box-shadow: 0 1px 2px rgba(10, 31, 68, 0.05), 0 6px 20px -12px rgba(10, 31, 68, 0.14);
 }
 .shadow-luxe-lg {
-  box-shadow: 0 24px 60px -20px rgba(10, 31, 68, 0.28);
+  box-shadow: 0 2px 4px rgba(10, 31, 68, 0.05), 0 14px 34px -18px rgba(10, 31, 68, 0.2);
 }
 
 /* Hide scrollbars for media thumbnail strip */

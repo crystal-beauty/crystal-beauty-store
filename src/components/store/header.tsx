@@ -60,7 +60,7 @@ export default function StoreHeader() {
               {settings.logoUrl ? (
                 <img src={settings.logoUrl} alt={settings.storeName} className="h-8 w-auto" />
               ) : (
-                <Sparkles className="h-6 w-6 text-[var(--brand)] transition-transform duration-500 group-hover:rotate-12" />
+                <Sparkles className="h-6 w-6 text-[var(--brand)]" />
               )}
               <span className="font-display text-xl lg:text-2xl font-semibold tracking-wide text-[var(--primary)]">{settings.storeName}</span>
             </Link>

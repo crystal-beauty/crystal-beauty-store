@@ -4,7 +4,7 @@ import { getSettings } from "@/lib/settings";
 import { getLang } from "@/lib/locale-server";
 import { t, pick } from "@/lib/i18n";
 import { parseMedia } from "@/lib/format";
-import { Banknote, Truck, Gift, PackageSearch, Package, ArrowRight, Sparkles, ClipboardCheck } from "lucide-react";
+import { Banknote, Truck, Gift, PackageSearch, ArrowRight, Sparkles, ClipboardCheck } from "lucide-react";
 import ProductCard, { type ProductCardData } from "@/components/store/product-card";
 import Reveal from "@/components/store/reveal";
 import { toInternationalDz } from "@/lib/format";
@@ -60,16 +60,14 @@ export default async function HomePage() {
             <img
               src={settings.heroImage}
               alt={settings.storeName}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover rtl:-scale-x-100"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" />
           </>
         ) : (
-          /* Premium composed fallback — no fake imagery, pure design */
+          /* Calm composed fallback — pure design, no glows, no fake imagery */
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
-            <div className="absolute -top-32 -end-32 h-[28rem] w-[28rem] rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute -bottom-44 -start-28 h-[26rem] w-[26rem] rounded-full bg-[#46639f]/25 blur-3xl" />
             <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
             <span
               aria-hidden
@@ -86,50 +84,39 @@ export default async function HomePage() {
           </>
         )}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl py-16 sm:py-20 lg:py-28">
+          {/* One calm entrance for the whole block — no per-element stagger */}
+          <div className="max-w-2xl py-16 sm:py-24 lg:py-36 animate-rise">
             {settings.tagline && (
-              <span
-                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6 animate-rise"
-                style={{ animationDelay: "100ms" }}
-              >
+              <span className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6">
                 <Sparkles className="h-3.5 w-3.5 text-white/90" />
                 {settings.tagline}
               </span>
             )}
-            <h1
-              className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] text-balance animate-rise"
-              style={{ animationDelay: "180ms" }}
-            >
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] text-balance">
               {heroTitle}
             </h1>
             {heroSubtitle && (
-              <p
-                className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-lg animate-rise"
-                style={{ animationDelay: "280ms" }}
-              >
+              <p className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-lg">
                 {heroSubtitle}
               </p>
             )}
-            <div className="mt-9 flex flex-wrap gap-3.5 animate-rise" style={{ animationDelay: "380ms" }}>
+            <div className="mt-9 flex flex-wrap gap-3.5">
               <Link
                 href={settings.heroCtaLink || "/products"}
-                className="press inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-8 py-4 rounded-full shadow-lg"
+                className="press inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-8 py-4 rounded-full shadow-md"
               >
                 {heroCta}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
               <Link
                 href="/track"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur text-white font-medium px-8 py-4 rounded-full transition-colors border border-white/25"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-full transition-colors border border-white/25"
               >
                 {t("trackYourOrder", lang)}
               </Link>
             </div>
             {/* Reassurance row — verifiable facts only */}
-            <div
-              className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/60 animate-rise"
-              style={{ animationDelay: "480ms" }}
-            >
+            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/60">
               <span className="inline-flex items-center gap-1.5">
                 <Banknote className="h-3.5 w-3.5 text-white/80" />
                 {t("codBadge", lang)}
@@ -218,7 +205,7 @@ export default async function HomePage() {
                     src={cat.image}
                     alt={cat.name}
                     loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-[var(--primary)]" />
@@ -250,10 +237,14 @@ export default async function HomePage() {
             </div>
           ) : (
             // Clean honest empty state — no fabricated products
-            <Reveal className="rounded-3xl border-2 border-dashed border-border bg-background/60 py-16 px-8 text-center max-w-2xl mx-auto">
-              <div className="h-16 w-16 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center mx-auto mb-5">
-                <Package className="h-7 w-7 text-[var(--brand)]" />
-              </div>
+            <Reveal className="rounded-3xl border-2 border-dashed border-border bg-white py-14 px-8 text-center max-w-2xl mx-auto">
+              <img
+                src="/uploads/coming-soon-gift.png"
+                alt=""
+                aria-hidden
+                loading="lazy"
+                className="h-44 w-44 sm:h-52 sm:w-52 object-contain mx-auto mb-2"
+              />
               <p className="font-display text-xl font-semibold text-[var(--primary)]">{t("comingSoon", lang)}</p>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">{t("emptyStoreHint", lang)}</p>
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
@@ -282,15 +273,13 @@ export default async function HomePage() {
       {/* ================= CTA — full-bleed navy band, flows into the footer ================= */}
       <section className="relative overflow-hidden bg-[var(--primary)]">
         <div className="absolute inset-0 dot-texture opacity-30" aria-hidden />
-        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden />
-        <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-white/5 blur-3xl" aria-hidden />
         <Reveal className="relative max-w-2xl mx-auto px-4 sm:px-6 py-16 lg:py-20 text-center">
           <Sparkles className="h-10 w-10 text-white/80 mx-auto mb-5" />
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white leading-tight text-balance">{t("codBadge", lang)}</h2>
           <p className="mt-4 text-white/70 max-w-xl mx-auto">{t("ctaSubtitle", lang)}</p>
           <Link
             href="/products"
-            className="press mt-9 inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-9 py-4 rounded-full shadow-lg"
+            className="press mt-9 inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-9 py-4 rounded-full shadow-md"
           >
             {t("startGifting", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>

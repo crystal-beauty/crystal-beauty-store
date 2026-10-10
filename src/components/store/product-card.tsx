@@ -66,7 +66,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             src={product.image}
             alt={product.shortDescription ? `${product.name} — ${product.shortDescription}` : product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-[var(--primary)]/25">
@@ -82,7 +82,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
 
         {/* Honest low-stock hint — real dashboard stock only */}
         {!soldOut && product.trackStock && product.stock > 0 && product.stock <= 5 && (
-          <span className="absolute top-3 end-3 bg-white/95 backdrop-blur text-[var(--primary)] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[var(--primary)]/10 shadow-sm">
+          <span className="absolute top-3 end-3 bg-white/95 text-[var(--primary)] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[var(--primary)]/10 shadow-sm">
             {t("lowStock")} {product.stock}
           </span>
         )}
