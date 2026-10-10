@@ -4,17 +4,19 @@ import { Suspense } from "react";
 import { Search } from "lucide-react";
 import ProductCard, { type ProductCardData } from "@/components/store/product-card";
 import ShopFilters from "@/components/store/shop-filters";
+import { getLang } from "@/lib/locale-server";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Shop All Gifts" };
+export const metadata = { title: "Boutique · Lumina Gifts" };
 
 interface Props {
   searchParams: Promise<{ category?: string; sort?: string; q?: string }>;
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { category, sort = "newest", q } = await searchParams;
+  const [{ category, sort = "newest", q }, lang] = await Promise.all([searchParams, getLang()]);
 
   const categories = await db.category.findMany({
     where: { active: true },
@@ -62,10 +64,10 @@ export default async function ProductsPage({ searchParams }: Props) {
       {/* Heading */}
       <div className="text-center mb-10">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">
-          {activeCategory ? "Collection" : "The Full Collection"}
+          {activeCategory ? t("browse", lang) : t("collectionEyebrow", lang)}
         </p>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">
-          {activeCategory ? activeCategory.name : q ? `Results for “${q}”` : "Find the Perfect Gift"}
+          {activeCategory ? activeCategory.name : q ? `${t("resultsFor", lang)} «${q}»` : t("findPerfectGift", lang)}
         </h1>
         {activeCategory?.description && (
           <p className="mt-3 text-muted-foreground max-w-xl mx-auto text-sm">{activeCategory.description}</p>
@@ -73,7 +75,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       </div>
 
       <Suspense fallback={<div className="h-14" />}>
-        <ShopFilters categories={categories.map((c) => ({ slug: c.slug, name: c.name }))} activeCategory={category} sort={sort} q={q || ""} />
+        <ShopFilters categories={categories.map((c) => ({ slug: c.slug, name: c.name }))} activeCategory={category} sort={sort} q={q || ""} lang={lang} />
       </Suspense>
 
       {/* Grid */}
@@ -86,10 +88,10 @@ export default async function ProductsPage({ searchParams }: Props) {
       ) : (
         <div className="text-center py-20">
           <Search className="h-10 w-10 text-muted-foreground/40 mx-auto mb-4" />
-          <p className="text-lg font-medium text-[var(--primary)]">No gifts found</p>
-          <p className="text-sm text-muted-foreground mt-1">Try a different collection or search term.</p>
+          <p className="text-lg font-medium text-[var(--primary)]">{t("noResults", lang)}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t("noResultsHint", lang)}</p>
           <Link href="/products" className="mt-6 inline-block text-sm font-medium text-[var(--brand)] hover:underline">
-            Clear filters
+            {t("clearFilters", lang)}
           </Link>
         </div>
       )}

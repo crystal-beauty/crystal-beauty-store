@@ -65,7 +65,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
   }
 
   async function save() {
-    if (!form.code.trim() || !form.value) return toast.error("Code and value are required");
+    if (!form.code.trim() || !form.value) return toast.error("Le code et la valeur sont obligatoires");
     setSaving(true);
     try {
       const res = await fetch(editing ? `/api/admin/promo-codes/${editing.id}` : "/api/admin/promo-codes", {
@@ -82,8 +82,8 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
         }),
       });
       const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Could not save");
-      toast.success(editing ? "Promo code updated" : "Promo code created");
+      if (!res.ok) return toast.error(data.error || "Impossible d'enregistrer");
+      toast.success(editing ? "Code promo mis à jour" : "Code promo créé");
       setDialogOpen(false);
       load();
     } finally {
@@ -95,11 +95,11 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
     if (!deleteTarget) return;
     const res = await fetch(`/api/admin/promo-codes/${deleteTarget.id}`, { method: "DELETE" });
     if (res.ok) {
-      toast.success("Promo code deleted");
+      toast.success("Code promo supprimé");
       load();
     } else {
       const d = await res.json();
-      toast.error(d.error || "Could not delete");
+      toast.error(d.error || "Impossible de supprimer");
     }
     setDeleteTarget(null);
   }
@@ -112,25 +112,25 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Promo Codes</h1>
-          <p className="text-sm text-muted-foreground mt-1">Run campaigns and reward loyal gifters.</p>
+          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Codes promo</h1>
+          <p className="text-sm text-muted-foreground mt-1">Lancez des campagnes et récompensez vos clients fidèles.</p>
         </div>
         <button
           onClick={() => { setEditing(null); setForm(empty); setDialogOpen(true); }}
           className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 transition-colors"
         >
-          <Plus className="h-4 w-4" /> New Promo Code
+          <Plus className="h-4 w-4" /> Nouveau code
         </button>
       </div>
 
       <div className="bg-white rounded-2xl border border-border shadow-luxe overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="py-16 text-center text-sm text-muted-foreground">Chargement…</div>
         ) : promos.length === 0 ? (
           <div className="py-16 text-center">
             <TicketPercent className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm font-medium text-[var(--primary)]">No promo codes yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Create one to run your first campaign.</p>
+            <p className="text-sm font-medium text-[var(--primary)]">Aucun code promo pour le moment</p>
+            <p className="text-xs text-muted-foreground mt-1">Créez-en un pour lancer votre première campagne.</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -143,15 +143,15 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-bold text-[var(--primary)] bg-muted rounded-lg px-2.5 py-1 text-sm">{p.code}</span>
                       <span className="text-sm font-semibold text-[var(--brand)]">
-                        {p.type === "PERCENT" ? `${p.value}% off` : `${formatMoney(p.value, settings)} off`}
+                        {p.type === "PERCENT" ? `-${p.value}%` : `-${formatMoney(p.value, settings)}`}
                       </span>
                       {p.minOrder > 0 && (
-                        <span className="text-xs text-muted-foreground">min {formatMoney(p.minOrder, settings)}</span>
+                        <span className="text-xs text-muted-foreground">dès {formatMoney(p.minOrder, settings)}</span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      Used {p.usedCount}{p.maxUses ? ` / ${p.maxUses}` : ""} times
-                      {p.expiresAt && ` · expires ${new Date(p.expiresAt).toLocaleDateString()}`}
+                      Utilisé {p.usedCount}{p.maxUses ? ` / ${p.maxUses}` : ""} fois
+                      {p.expiresAt && ` · expire le ${new Date(p.expiresAt).toLocaleDateString("fr-FR")}`}
                     </p>
                   </div>
                   <span
@@ -162,7 +162,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                         : "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]"
                     )}
                   >
-                    {!p.active ? "Paused" : expired ? "Expired" : exhausted ? "Used up" : "Active"}
+                    {!p.active ? "En pause" : expired ? "Expiré" : exhausted ? "Épuisé" : "Actif"}
                   </span>
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-muted-foreground hover:text-[var(--primary)] hover:bg-muted">
@@ -186,7 +186,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setDialogOpen(false)}>
           <div className="bg-white rounded-2xl w-full max-w-md shadow-luxe-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-semibold text-[var(--primary)]">{editing ? "Edit Promo Code" : "New Promo Code"}</h2>
+              <h2 className="font-display text-lg font-semibold text-[var(--primary)]">{editing ? "Modifier le code" : "Nouveau code promo"}</h2>
               <button onClick={() => setDialogOpen(false)} className="p-2 text-muted-foreground hover:text-[var(--primary)]">
                 <X className="h-4 w-4" />
               </button>
@@ -206,34 +206,34 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                 <div>
                   <label className={labelCls}>Type</label>
                   <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className={inputCls}>
-                    <option value="PERCENT">Percentage off</option>
-                    <option value="FIXED">Fixed amount off</option>
+                    <option value="PERCENT">Pourcentage</option>
+                    <option value="FIXED">Montant fixe</option>
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>{form.type === "PERCENT" ? "Discount %" : `Discount (${settings.currencyCode})`} *</label>
+                  <label className={labelCls}>{form.type === "PERCENT" ? "Réduction (%)" : `Réduction (${settings.currencyCode})`} *</label>
                   <input type="number" step="0.01" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} className={inputCls} placeholder="10" />
                 </div>
                 <div>
-                  <label className={labelCls}>Minimum Order</label>
+                  <label className={labelCls}>Commande minimum</label>
                   <input type="number" step="0.01" value={form.minOrder} onChange={(e) => setForm({ ...form, minOrder: e.target.value })} className={inputCls} placeholder="0" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>Max Uses (blank = ∞)</label>
+                  <label className={labelCls}>Utilisations max (vide = ∞)</label>
                   <input type="number" value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: e.target.value })} className={inputCls} placeholder="100" />
                 </div>
                 <div>
-                  <label className={labelCls}>Expires On</label>
+                  <label className={labelCls}>Expire le</label>
                   <input type="date" value={form.expiresAt} onChange={(e) => setForm({ ...form, expiresAt: e.target.value })} className={inputCls} />
                 </div>
               </div>
               <label className="flex items-center gap-2.5 text-sm text-[var(--primary)]">
                 <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="h-4 w-4 accent-[var(--primary)]" />
-                Active (customers can use it)
+                Actif (utilisable par les clients)
               </label>
               <button
                 onClick={save}
@@ -241,7 +241,7 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
                 className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editing ? "Save Changes" : "Create Promo Code"}
+                {editing ? "Enregistrer" : "Créer le code promo"}
               </button>
             </div>
           </div>
@@ -251,13 +251,13 @@ export default function PromoManager({ canDelete }: { canDelete: boolean }) {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deleteTarget?.code}”?</AlertDialogTitle>
-            <AlertDialogDescription>Customers will no longer be able to use this code. This cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle>Supprimer « {deleteTarget?.code} » ?</AlertDialogTitle>
+            <AlertDialogDescription>Les clients ne pourront plus utiliser ce code. Cette action est irréversible.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Delete
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

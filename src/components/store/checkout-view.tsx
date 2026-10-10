@@ -188,6 +188,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             <DeliverySelector
               value={delivery}
               onChange={setDelivery}
+              whatsappNumber={whatsappNumber}
               onFee={(f, s) => {
                 setFee(f);
                 setFeeState(s);
@@ -372,17 +373,9 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
               )}
             </button>
             {feeState === "error" && (
-              <p className="mt-3 text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2.5 flex items-start gap-1.5">
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+              <p className="mt-3 text-xs text-muted-foreground bg-muted/60 border border-border rounded-xl px-3 py-2.5 flex items-start gap-1.5">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[var(--brand)]" />
                 {t("feeError")}
-                {whatsappNumber && (
-                  <>
-                    {" "}
-                    <a href={`https://wa.me/${toInternationalDz(whatsappNumber).replace("+", "")}`} target="_blank" rel="noopener noreferrer" className="underline font-medium">
-                      WhatsApp
-                    </a>
-                  </>
-                )}
               </p>
             )}
             <p className="mt-3 text-[11px] text-muted-foreground text-center leading-relaxed">{t("agreeCod")}</p>

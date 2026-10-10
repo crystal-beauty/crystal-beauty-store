@@ -15,6 +15,8 @@ export default function CartView() {
   const settings = useSettings();
   const t = useT();
   const subtotal = cartSubtotal(items);
+  const giftBoxCount = items.filter((i) => i.giftBox).length;
+  const giftBoxFeeTotal = giftBoxCount * settings.giftBoxFee;
 
   // Meta Pixel: InitiateCheckout on cart view
   useEffect(() => {
@@ -140,6 +142,14 @@ export default function CartView() {
                 <span className="text-muted-foreground">{t("subtotal")}</span>
                 <span className="font-semibold text-[var(--primary)]">{formatMoney(subtotal)}</span>
               </div>
+              {giftBoxFeeTotal > 0 && (
+                <div className="flex justify-between py-3.5">
+                  <span className="text-muted-foreground">
+                    {t("giftBox")} × {giftBoxCount}
+                  </span>
+                  <span className="font-semibold text-[var(--primary)]">{formatMoney(giftBoxFeeTotal)}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center py-3.5">
                 <span className="text-muted-foreground">{t("deliveryFee")}</span>
                 <span className="text-muted-foreground text-xs text-end leading-snug max-w-[55%]">{t("selectBoth")}</span>

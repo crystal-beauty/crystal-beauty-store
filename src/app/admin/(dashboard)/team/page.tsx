@@ -3,7 +3,7 @@ import { getSession, canAccess } from "@/lib/auth";
 import TeamManager from "@/components/admin/team-manager";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Team" };
+export const metadata = { title: "Équipe" };
 
 export default async function AdminTeamPage() {
   const session = await getSession();

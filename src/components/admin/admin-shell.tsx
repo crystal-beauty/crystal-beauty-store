@@ -119,7 +119,7 @@ export default function AdminShell({
             <button
               onClick={logout}
               className="p-2 text-white/60 hover:text-white rounded-lg hover:bg-[var(--sidebar-accent)] transition-colors"
-              aria-label="Sign out"
+              aria-label="Déconnexion"
             >
               <LogOut className="h-4 w-4" />
             </button>

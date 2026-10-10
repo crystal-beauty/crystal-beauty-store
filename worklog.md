@@ -101,3 +101,28 @@ Stage Summary:
 - Whole app now renders ONLY dark blue (#0a1f44 family), black/gray neutrals, and white (+ rose/red solely for refusal/error states in admin/track)
 - Accent is dashboard-editable again but defaults to navy; DB row pinned so no legacy gold resurfaces
 - Catalog still empty (real store) — product/checkout accents will appear on-palette once owner adds products
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: Visual audit of EVERY page (desktop + mobile + AR RTL + admin) — fix everything until perfect.
+
+Work Log:
+- Fixed invisible navy-on-navy icons left by the Task-5 palette rename: home "Comment commander" step icons (now white on navy squares) and admin-login Sparkles badge (white on white/10)
+- Footer: CONTACT column no longer renders when the owner has filled no contact channel (honest empty-state, grid stays balanced)
+- Products page + shop filters were still hardcoded ENGLISH ("Find the Perfect Gift", "All Gifts", "Newest"…): added 13 FR/AR i18n keys (collectionEyebrow, findPerfectGift, resultsFor, allGifts, searchPlaceholder, sort*, noResults*, clearFilters) and wired getLang() through page + ShopFilters; FR metadata title
+- heroCtaText default "Voir la boutique" → "" so the CTA falls back to bilingual t("shopCollection") (FR "Découvrir la collection" / AR "تصفح المجموعة") until owner overrides
+- 404 page: showed FR+AR simultaneously → now respects the lang cookie (getLang + dir=rtl for AR)
+- Admin: dashboard/login forced dir=ltr lang=fr (was inheriting storefront AR cookie → mirrored UI); STATUS_LABELS translated to French (En livraison, Livrée…)
+- Admin FR translation pass (dashboard language is French): products-manager, categories-manager, promo-manager, team-manager, product-editor, pixel-center, page titles/metadata
+- Carrier-unreachable UX (token missing after .env was recreated): checkout/product quick-order showed a full RED takeover; replaced with calm branded panel (Truck icon, explanation, Réessayer button + WhatsApp link when configured, retry nonce re-fetches wilayas; lint-clean event-handler state reset). Summary note de-alarm-colored
+- Cart pricing honesty: gift-box toggle used to change nothing visible until checkout → cart summary now itemizes "Boîte cadeau × N — 500 DA" (matches checkout + server math)
+- formatMoney bidi fix: wrapped in LRI…PDI + NBSP thousands so "4 900 DA" renders correctly inside Arabic RTL (was "DA 900 4")
+- Visual review WITH temporary test data (4 products incl. variant/low-stock/no-image/sold-out, 2 categories, 1 direct-DB order LG-VRTEST1, neutral SVG images): home FR/AR (hero→trust→how→collections→products→CTA→footer), products FR/AR, product detail, quick-order, cart (incl. gift-box toggle), checkout, confirmation, track + timeline, 404, admin login/overview/orders/order-detail/products/settings/shipping — desktop 1440 + mobile 390 + AR RTL
+- Cleanup: vr-cleanup.ts deleted ALL test rows (0 products / 0 orders left) + SVGs; store back to honest empty catalog; empty states verified in FR + AR
+- ESLint 0 errors, production build OK
+
+Stage Summary:
+- Every storefront + admin page visually verified and corrected; palette strictly navy/black/white; UI language consistent (FR store chrome + FR dashboard, AR storefront)
+- ⚠️ OWNER ACTION NEEDED: World Express API token lost when .env was recreated — add WORLDEXPRESS_API_TOKEN=<token> to .env (or dashboard → Livraison). Until then delivery shows the new calm "Livraison momentanément indisponible" state everywhere (no fake fees, orders blocked server-side)
+- VR scripts kept in scripts/ (vr-seed / vr-images / vr-order / vr-cleanup) for future full-flow visual testing

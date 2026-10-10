@@ -4,18 +4,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { t, type Lang } from "@/lib/i18n";
 
-export default function ShopFilters({
-  categories,
-  activeCategory,
-  sort,
-  q,
-}: {
-  categories: { slug: string; name: string }[];
-  activeCategory?: string;
-  sort: string;
-  q: string;
-}) {
+export default function ShopFilters(
+  { categories, activeCategory, sort, q, lang }: {
+    categories: { slug: string; name: string }[];
+    activeCategory?: string;
+    sort: string;
+    q: string;
+    lang: Lang;
+  }
+) {
   const router = useRouter();
   const params = useSearchParams();
   const [search, setSearch] = useState(q);
@@ -33,10 +32,10 @@ export default function ShopFilters({
   }
 
   const sorts = [
-    { value: "newest", label: "Newest" },
-    { value: "featured", label: "Bestsellers" },
-    { value: "price-asc", label: "Price: Low to High" },
-    { value: "price-desc", label: "Price: High to Low" },
+    { value: "newest", label: t("sortNewest", lang) },
+    { value: "featured", label: t("sortFeatured", lang) },
+    { value: "price-asc", label: t("sortPriceAsc", lang) },
+    { value: "price-desc", label: t("sortPriceDesc", lang) },
   ];
 
   return (
@@ -52,7 +51,7 @@ export default function ShopFilters({
               : "bg-white text-[var(--primary)] border-border hover:border-[var(--primary)]"
           )}
         >
-          All Gifts
+          {t("allGifts", lang)}
         </button>
         {categories.map((c) => (
           <button
@@ -77,7 +76,7 @@ export default function ShopFilters({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search gifts…"
+            placeholder={t("searchPlaceholder", lang)}
             className="w-full bg-white border border-input rounded-full pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]"
           />
         </form>
@@ -86,7 +85,7 @@ export default function ShopFilters({
           <select
             value={sort}
             onChange={(e) => update("sort", e.target.value)}
-            aria-label="Sort products"
+            aria-label={t("sortProducts", lang)}
             className="w-full sm:w-56 appearance-none bg-white border border-input rounded-full pl-10 pr-8 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
           >
             {sorts.map((s) => (

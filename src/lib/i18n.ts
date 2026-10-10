@@ -102,6 +102,12 @@ export const DICT = {
   feeError: { fr: "Impossible de calculer la livraison. Réessayez ou contactez-nous sur WhatsApp.", ar: "تعذر حساب التوصيل. أعد المحاولة أو تواصل معنا عبر واتساب." },
   noStopDesk: { fr: "Pas d'arrêt bureau dans cette commune — livraison à domicile uniquement.", ar: "لا يوجد مكتب توقف في هذه البلدية — التوصيل للمنزل فقط." },
   deliveryInfo: { fr: "Frais de livraison officiels du transporteur, calculés en direct.", ar: "رسوم التوصيل الرسمية لشركة التوصيل، تُحسب مباشرة." },
+  carrierDownTitle: { fr: "Livraison momentanément indisponible", ar: "التوصيل غير متاح حاليًا" },
+  carrierDownText: {
+    fr: "Les frais sont calculés en direct auprès de notre transporteur. Le service est momentanément indisponible — réessayez dans un instant ou commandez via WhatsApp.",
+    ar: "تُحسب رسوم التوصيل مباشرة من شركة التوصيل. الخدمة غير متاحة مؤقتًا — أعد المحاولة بعد قليل أو اطلب عبر واتساب.",
+  },
+  retry: { fr: "Réessayer", ar: "إعادة المحاولة" },
 
   // Cart
   cartTitle: { fr: "Votre panier", ar: "سلتك" },
@@ -181,6 +187,21 @@ export const DICT = {
   reviewInvalid: { fr: "Lien d'avis invalide ou déjà utilisé.", ar: "رابط التقييم غير صالح أو مستخدم بالفعل." },
   noReviews: { fr: "Aucun avis pour le moment.", ar: "لا توجد تقييمات حاليًا." },
   reviewsTitle: { fr: "Avis clients vérifiés", ar: "تقييمات عملاء موثقة" },
+
+  // Shop / products listing
+  collectionEyebrow: { fr: "Toute la collection", ar: "كل المجموعة" },
+  findPerfectGift: { fr: "Trouvez le cadeau parfait", ar: "اختر الهدية المثالية" },
+  resultsFor: { fr: "Résultats pour", ar: "نتائج البحث عن" },
+  allGifts: { fr: "Tous les cadeaux", ar: "كل الهدايا" },
+  searchPlaceholder: { fr: "Rechercher un cadeau…", ar: "ابحث عن هدية…" },
+  sortNewest: { fr: "Nouveautés", ar: "الأحدث" },
+  sortFeatured: { fr: "Mise en avant", ar: "المميزة" },
+  sortPriceAsc: { fr: "Prix croissant", ar: "السعر: تصاعدي" },
+  sortPriceDesc: { fr: "Prix décroissant", ar: "السعر: تنازلي" },
+  sortProducts: { fr: "Trier les produits", ar: "ترتيب المنتجات" },
+  noResults: { fr: "Aucun cadeau trouvé", ar: "لم نجد أي هدية" },
+  noResultsHint: { fr: "Essayez une autre collection ou un autre mot-clé.", ar: "جرّب مجموعة أخرى أو كلمة بحث مختلفة." },
+  clearFilters: { fr: "Effacer les filtres", ar: "مسح عوامل التصفية" },
 
   // Misc
   loading: { fr: "Chargement…", ar: "جارٍ التحميل…" },

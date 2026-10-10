@@ -20,9 +20,9 @@ interface TeamRow {
 }
 
 const ROLE_INFO: Record<string, { icon: typeof Shield; label: string; desc: string }> = {
-  OWNER: { icon: ShieldCheck, label: "Owner", desc: "Full control, including team & deletions" },
-  ADMIN: { icon: Shield, label: "Admin", desc: "Everything except team management" },
-  STAFF: { icon: ShieldAlert, label: "Staff", desc: "Products & orders only, no deletions" },
+  OWNER: { icon: ShieldCheck, label: "Propriétaire", desc: "Contrôle total, y compris équipe et suppressions" },
+  ADMIN: { icon: Shield, label: "Admin", desc: "Tout sauf la gestion de l'équipe" },
+  STAFF: { icon: ShieldAlert, label: "Personnel", desc: "Produits et commandes uniquement, sans suppression" },
 };
 
 export default function TeamManager({ currentUserId, isOwner }: { currentUserId: string; isOwner: boolean }) {
@@ -50,7 +50,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
 
   async function addMember() {
     if (!form.name.trim() || !form.email.trim() || form.password.length < 6) {
-      return toast.error("Name, email and a password of 6+ characters are required");
+      return toast.error("Nom, email et mot de passe de 6 caractères minimum sont obligatoires");
     }
     setSaving(true);
     try {
@@ -60,8 +60,8 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Could not add the member");
-      toast.success(`${data.member.name} joined the team`);
+      if (!res.ok) return toast.error(data.error || "Impossible d'ajouter le membre");
+      toast.success(`${data.member.name} a rejoint l'équipe`);
       setDialogOpen(false);
       setForm({ name: "", email: "", password: "", role: "STAFF" });
       load();
@@ -77,8 +77,8 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
       body: JSON.stringify({ role }),
     });
     const data = await res.json();
-    if (!res.ok) return toast.error(data.error || "Could not update the role");
-    toast.success(`${member.name} is now ${ROLE_INFO[role]?.label || role}`);
+    if (!res.ok) return toast.error(data.error || "Impossible de mettre à jour le rôle");
+    toast.success(`${member.name} est maintenant ${ROLE_INFO[role]?.label || role}`);
     load();
   }
 
@@ -89,8 +89,8 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
       body: JSON.stringify({ active: !member.active }),
     });
     const data = await res.json();
-    if (!res.ok) return toast.error(data.error || "Could not update");
-    toast.success(member.active ? `${member.name} deactivated` : `${member.name} activated`);
+    if (!res.ok) return toast.error(data.error || "Impossible de mettre à jour");
+    toast.success(member.active ? `${member.name} désactivé` : `${member.name} activé`);
     load();
   }
 
@@ -99,10 +99,10 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
     const res = await fetch(`/api/admin/team/${deleteTarget.id}`, { method: "DELETE" });
     const data = await res.json();
     if (res.ok) {
-      toast.success("Team member removed");
+      toast.success("Membre retiré de l'équipe");
       load();
     } else {
-      toast.error(data.error || "Could not delete");
+      toast.error(data.error || "Impossible de supprimer");
     }
     setDeleteTarget(null);
   }
@@ -115,16 +115,16 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Team</h1>
+          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Équipe</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Invite your staff and control exactly what each person can do.
+            Invitez votre personnel et contrôlez précisément ce que chacun peut faire.
           </p>
         </div>
         <button
           onClick={() => setDialogOpen(true)}
           className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 transition-colors"
         >
-          <Plus className="h-4 w-4" /> Add Team Member
+          <Plus className="h-4 w-4" /> Ajouter un membre
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
 
       <div className="bg-white rounded-2xl border border-border shadow-luxe overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">Loading team…</div>
+          <div className="py-16 text-center text-sm text-muted-foreground">Chargement de l'équipe…</div>
         ) : (
           <div className="divide-y divide-border">
             {team.map((member) => (
@@ -155,12 +155,12 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
                 <div className="flex-1 min-w-[180px]">
                   <p className="font-medium text-[var(--primary)]">
                     {member.name}
-                    {member.id === currentUserId && <span className="text-xs text-muted-foreground font-normal"> (you)</span>}
+                    {member.id === currentUserId && <span className="text-xs text-muted-foreground font-normal"> (vous)</span>}
                   </p>
                   <p className="text-xs text-muted-foreground">{member.email}</p>
                   {member.lastLoginAt && (
                     <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                      Last login: {new Date(member.lastLoginAt).toLocaleDateString()}
+                      Dernière connexion : {new Date(member.lastLoginAt).toLocaleDateString("fr-FR")}
                     </p>
                   )}
                 </div>
@@ -182,13 +182,13 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
                     member.active ? "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]" : "bg-gray-100 text-gray-500 border-gray-200"
                   )}
                 >
-                  {member.active ? "Active" : "Inactive"}
+                  {member.active ? "Actif" : "Inactif"}
                 </button>
                 {isOwner && member.id !== currentUserId && (
                   <button
                     onClick={() => setDeleteTarget(member)}
                     className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-                    title="Remove from team"
+                    title="Retirer de l'équipe"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -205,7 +205,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
           <div className="bg-white rounded-2xl w-full max-w-md shadow-luxe-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)] flex items-center gap-2">
-                <Users className="h-5 w-5 text-[var(--brand)]" /> Add Team Member
+                <Users className="h-5 w-5 text-[var(--brand)]" /> Ajouter un membre
               </h2>
               <button onClick={() => setDialogOpen(false)} className="p-2 text-muted-foreground hover:text-[var(--primary)]">
                 <X className="h-4 w-4" />
@@ -213,19 +213,19 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
             </div>
             <div className="space-y-4">
               <div>
-                <label className={labelCls}>Full Name *</label>
+                <label className={labelCls}>Nom complet *</label>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} placeholder="Sara Mohamed" />
               </div>
               <div>
                 <label className={labelCls}>Email *</label>
-                <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} placeholder="sara@store.com" />
+                <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls} placeholder="sara@boutique.com" />
               </div>
               <div>
-                <label className={labelCls}>Temporary Password * (min 6 chars)</label>
-                <input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} placeholder="share it privately" />
+                <label className={labelCls}>Mot de passe temporaire * (min. 6 caractères)</label>
+                <input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className={inputCls} placeholder="à communiquer en privé" />
               </div>
               <div>
-                <label className={labelCls}>Role</label>
+                <label className={labelCls}>Rôle</label>
                 <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className={inputCls}>
                   {Object.entries(ROLE_INFO)
                     .filter(([role]) => role !== "OWNER" || isOwner)
@@ -240,7 +240,7 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
                 className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                Add to Team
+                Ajouter à l'équipe
               </button>
             </div>
           </div>
@@ -250,13 +250,13 @@ export default function TeamManager({ currentUserId, isOwner }: { currentUserId:
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove {deleteTarget?.name} from the team?</AlertDialogTitle>
-            <AlertDialogDescription>They will immediately lose access to the dashboard. This cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle>Retirer {deleteTarget?.name} de l'équipe ?</AlertDialogTitle>
+            <AlertDialogDescription>Cette personne perdra immédiatement l'accès au tableau de bord. Cette action est irréversible.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Remove
+              Retirer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

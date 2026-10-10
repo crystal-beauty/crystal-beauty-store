@@ -189,7 +189,7 @@ export default async function HomePage() {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className="h-12 w-12 rounded-2xl bg-[var(--primary)] flex items-center justify-center mb-5 shadow-luxe">
-                <Icon className="h-5.5 w-5.5 text-[var(--brand)]" />
+                <Icon className="h-5.5 w-5.5 text-white" />
               </div>
               <h3 className="font-display text-lg font-semibold text-[var(--primary)]">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{text}</p>

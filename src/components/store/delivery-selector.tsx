@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Home, Building, Loader2, AlertTriangle } from "lucide-react";
+import { MapPin, Home, Building, Loader2, Truck, RefreshCw } from "lucide-react";
 import { useLang, useT } from "@/components/store/locale-provider";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, toInternationalDz } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export interface WilayaOption {
@@ -41,16 +41,20 @@ export default function DeliverySelector({
   value,
   onChange,
   onFee,
+  whatsappNumber = "",
 }: {
   value: DeliveryValue;
   onChange: (next: DeliveryValue) => void;
   /** Called whenever the computed fee or its state changes. */
   onFee: (fee: number | null, feeState: DeliverySelection["feeState"]) => void;
+  /** Real WhatsApp number from settings — shown only when set. */
+  whatsappNumber?: string;
 }) {
   const t = useT();
   const lang = useLang();
   const [wilayas, setWilayas] = useState<WilayaOption[] | null>(null);
   const [wilayasError, setWilayasError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   // cache of communes per wilaya id (only setState inside async callbacks)
   const [communesByWilaya, setCommunesByWilaya] = useState<Record<number, CommuneOption[]>>({});
   const [communesError, setCommunesError] = useState(false);
@@ -71,7 +75,15 @@ export default function DeliverySelector({
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setWilayas(d.wilayas || []))
       .catch(() => setWilayasError(true));
-  }, []);
+  }, [retryNonce]);
+
+  /** Retry handler — resets state here (event), then bumps the fetch nonce. */
+  function retryWilayas() {
+    setWilayas(null);
+    setWilayasError(false);
+    setCommunesError(false);
+    setRetryNonce((n) => n + 1);
+  }
 
   // Report fee state upward whenever it changes (guarded to avoid loops)
   const fee = feeFor(value.wilayaId, value.deliveryType, wilayas);
@@ -128,9 +140,35 @@ export default function DeliverySelector({
 
   if (wilayasError) {
     return (
-      <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3.5 text-sm text-destructive flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4 shrink-0" />
-        {t("feeError")}
+      <div className="rounded-xl border border-border bg-muted/50 px-4 py-4">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
+            <Truck className="h-4.5 w-4.5 text-[var(--brand)]" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[var(--primary)]">{t("carrierDownTitle")}</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{t("carrierDownText")}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <button
+                type="button"
+                onClick={retryWilayas}
+                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold px-4 py-2 hover:bg-[var(--primary)]/90 transition-colors"
+              >
+                <RefreshCw className="h-3.5 w-3.5" /> {t("retry")}
+              </button>
+              {whatsappNumber && (
+                <a
+                  href={`https://wa.me/${toInternationalDz(whatsappNumber).replace("+", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--primary)]/25 text-[var(--primary)] text-xs font-medium px-4 py-2 hover:border-[var(--primary)] transition-colors"
+                >
+                  WhatsApp
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -229,9 +267,19 @@ export default function DeliverySelector({
             </p>
           )}
           {communesError && (
-            <p className="text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3.5 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 shrink-0" /> {t("feeError")}
-            </p>
+            <div className="rounded-xl border border-border bg-muted/50 px-4 py-3.5 flex items-start gap-3">
+              <Truck className="h-4 w-4 text-[var(--brand)] shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground leading-relaxed">{t("carrierDownText")}</p>
+                <button
+                  type="button"
+                  onClick={retryWilayas}
+                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline"
+                >
+                  <RefreshCw className="h-3 w-3" /> {t("retry")}
+                </button>
+              </div>
+            </div>
           )}
           {value.deliveryType === "STOP_DESK" && value.commune && selectedCommune && !selectedCommune.has_stop_desk && (
             <p className="text-xs text-muted-foreground">{t("noStopDesk")}</p>

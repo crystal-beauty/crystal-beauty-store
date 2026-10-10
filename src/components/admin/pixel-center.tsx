@@ -145,13 +145,13 @@ export default function PixelCenter({
               value={form.metaCapiToken}
               onChange={(e) => setForm({ ...form, metaCapiToken: e.target.value })}
               className={inputCls}
-              placeholder="Generate in Meta Events Manager → Settings → Conversions API"
+              placeholder="Générez-le dans Meta Events Manager → Paramètres → Conversions API"
             />
             <p className={cn("text-xs mt-2 flex items-center gap-1.5", capiActive ? "text-[var(--primary)]" : "text-muted-foreground")}>
               {capiActive ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
               {capiActive
-                ? "Server-side Conversions API is active — events are sent from your server with deduplication."
-                : "Add a CAPI token to enable iOS-protected, server-side event delivery."}
+                ? "La Conversions API côté serveur est active — les événements partent de votre serveur avec déduplication."
+                : "Ajoutez un token CAPI pour activer l'envoi côté serveur, protégé contre la limitation iOS."}
             </p>
           </div>
           <label className="flex items-center gap-2.5 text-sm text-[var(--primary)]">
@@ -242,13 +242,13 @@ export default function PixelCenter({
       <AlertDialog open={clearOpen} onOpenChange={setClearOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear the event log?</AlertDialogTitle>
-            <AlertDialogDescription>All logged pixel events will be deleted. Your Meta Pixel settings are untouched.</AlertDialogDescription>
+            <AlertDialogTitle>Effacer le journal d'événements ?</AlertDialogTitle>
+            <AlertDialogDescription>Tous les événements pixel enregistrés seront supprimés. Vos réglages Meta Pixel restent inchangés.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={(e) => { e.preventDefault(); clearEvents(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Clear Log
+              Effacer le journal
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

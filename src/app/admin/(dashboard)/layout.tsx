@@ -14,5 +14,9 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   const allowedSections =
     perms.includes("*") ? allSections : perms.includes("team") ? allSections : perms;
 
-  return <AdminShell session={session} allowedSections={allowedSections}>{children}</AdminShell>;
+  return (
+    <div dir="ltr" lang="fr">
+      <AdminShell session={session} allowedSections={allowedSections}>{children}</AdminShell>
+    </div>
+  );
 }

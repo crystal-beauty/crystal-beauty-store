@@ -4,7 +4,7 @@ import ProductEditor, { type ProductEditorData } from "@/components/admin/produc
 import type { MediaItem } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Edit Product" };
+export const metadata = { title: "Modifier le produit" };
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

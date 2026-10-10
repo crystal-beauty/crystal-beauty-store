@@ -82,8 +82,8 @@ export default function ProductEditor({
   }, [data.name]);
 
   async function save() {
-    if (!data.name.trim()) return toast.error("Product name is required");
-    if (!data.price || isNaN(parseFloat(data.price))) return toast.error("Enter a valid price");
+    if (!data.name.trim()) return toast.error("Le nom du produit est obligatoire");
+    if (!data.price || isNaN(parseFloat(data.price))) return toast.error("Saisissez un prix valide");
     setSaving(true);
     try {
       const payload = {
@@ -122,14 +122,14 @@ export default function ProductEditor({
       });
       const resData = await res.json();
       if (!res.ok) {
-        toast.error(resData.error || "Could not save the product");
+        toast.error(resData.error || "Impossible d'enregistrer le produit");
         return;
       }
-      toast.success(isEdit ? "Product updated" : "Product created");
+      toast.success(isEdit ? "Produit mis à jour" : "Produit créé");
       router.push("/admin/products");
       router.refresh();
     } catch {
-      toast.error("Network error — try again");
+      toast.error("Erreur réseau — réessayez");
     } finally {
       setSaving(false);
     }
@@ -146,7 +146,7 @@ export default function ProductEditor({
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         const resData = await res.json();
         if (!res.ok) {
-          toast.error(resData.error || "Upload failed");
+          toast.error(resData.error || "Échec du téléversement");
           continue;
         }
         uploaded.push({ type: resData.type, url: resData.url, alt: data.name });
@@ -205,10 +205,10 @@ export default function ProductEditor({
           </Link>
           <div>
             <h1 className="font-display text-2xl font-semibold text-[var(--primary)]">
-              {isEdit ? "Edit Product" : "New Product"}
+              {isEdit ? "Modifier le produit" : "Nouveau produit"}
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isEdit ? "Update details, media, variants and pricing" : "Add a beautiful gift to your store"}
+              {isEdit ? "Détails, médias, variantes et tarifs" : "Ajoutez un beau cadeau à votre boutique"}
             </p>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function ProductEditor({
           className="inline-flex items-center gap-2 bg-[var(--brand)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          {isEdit ? "Save Changes" : "Create Product"}
+          {isEdit ? "Enregistrer" : "Créer le produit"}
         </button>
       </div>
 
@@ -329,7 +329,7 @@ export default function ProductEditor({
                         type="button"
                         onClick={() => set("media", data.media.filter((_, j) => j !== i))}
                         className="p-1.5 bg-white/90 rounded-lg text-destructive hover:bg-white"
-                        title="Remove"
+                        title="Retirer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -343,19 +343,19 @@ export default function ProductEditor({
           {/* Variants builder */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
             <div className="flex items-center justify-between mb-1">
-              <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Variants & Options</h2>
+              <h2 className="font-display text-lg font-semibold text-[var(--primary)]">Variantes et options</h2>
               <button type="button" onClick={addVariant} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)] hover:underline">
-                <Plus className="h-4 w-4" /> Add Variant
+                <Plus className="h-4 w-4" /> Ajouter une variante
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-5">
-              Option groups like <strong>Size</strong> or <strong>Color</strong>. Each choice can adjust the price.
+              Groupes d'options comme <strong>Taille</strong> ou <strong>Couleur</strong>. Chaque choix peut ajuster le prix.
             </p>
 
             {data.variants.length === 0 ? (
               <div className="rounded-xl border-2 border-dashed border-border py-10 text-center">
                 <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No variants — the product sells as one standard piece</p>
+                <p className="text-sm text-muted-foreground">Aucune variante — le produit se vend comme une pièce standard</p>
               </div>
             ) : (
               <div className="space-y-5">
@@ -366,7 +366,7 @@ export default function ProductEditor({
                       <input
                         value={variant.name}
                         onChange={(e) => updateVariant(vi, { name: e.target.value })}
-                        placeholder="Variant name (e.g. Size, Color)"
+                        placeholder="Nom de la variante (ex. Taille, Couleur)"
                         className="flex-1 bg-white border border-input rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25"
                       />
                       <label className="flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
@@ -382,7 +382,7 @@ export default function ProductEditor({
                         type="button"
                         onClick={() => set("variants", data.variants.filter((_, i) => i !== vi))}
                         className="p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10"
-                        title="Remove variant"
+                        title="Retirer la variante"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -394,7 +394,7 @@ export default function ProductEditor({
                           <input
                             value={option.label}
                             onChange={(e) => updateOption(vi, oi, { label: e.target.value })}
-                            placeholder="Option (e.g. Large)"
+                            placeholder="Option (ex. Grande)"
                             className="col-span-12 sm:col-span-4 bg-white border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25"
                           />
                           <div className="col-span-4 sm:col-span-3 relative">
@@ -412,7 +412,7 @@ export default function ProductEditor({
                               type="color"
                               value={option.hexColor || "#0a1f44"}
                               onChange={(e) => updateOption(vi, oi, { hexColor: e.target.value })}
-                              title="Swatch color (optional)"
+                              title="Pastille de couleur (optionnel)"
                               className="w-full h-9 rounded-lg border border-input cursor-pointer bg-white p-1"
                             />
                           </div>
@@ -422,7 +422,7 @@ export default function ProductEditor({
                               value={option.stock}
                               onChange={(e) => updateOption(vi, oi, { stock: e.target.value })}
                               placeholder="Stock"
-                              title="Per-option stock (optional)"
+                              title="Stock par option (optionnel)"
                               className="w-full bg-white border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25"
                             />
                           </div>
@@ -430,7 +430,7 @@ export default function ProductEditor({
                             type="button"
                             onClick={() => updateVariant(vi, { options: variant.options.filter((_, j) => j !== oi) })}
                             className="col-span-1 justify-self-end p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10"
-                            title="Remove option"
+                            title="Retirer l'option"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -503,12 +503,12 @@ export default function ProductEditor({
 
           {/* Organization */}
           <section className="bg-white rounded-2xl border border-border p-6 shadow-luxe">
-            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Organization</h2>
+            <h2 className="font-display text-lg font-semibold text-[var(--primary)] mb-4">Organisation</h2>
             <div className="space-y-4">
               <div>
-                <label className={labelCls}>Category</label>
+                <label className={labelCls}>Catégorie</label>
                 <select value={data.categoryId} onChange={(e) => set("categoryId", e.target.value)} className={inputCls}>
-                  <option value="">No category</option>
+                  <option value="">Sans catégorie</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}

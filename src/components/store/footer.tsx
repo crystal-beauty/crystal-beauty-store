@@ -23,6 +23,11 @@ export default async function StoreFooter() {
     { href: "/policies/privacy", label: t("policyPrivacy", lang), body: pick(settings.policyPrivacy, settings.policyPrivacyAr, lang) },
   ].filter((p) => p.body.trim());
 
+  // Contact column only renders when at least one real channel exists
+  const hasContact = Boolean(
+    settings.contactPhone || settings.contactEmail || settings.contactAddress || settings.contactHours
+  );
+
   return (
     <footer
       className="mt-auto text-[var(--primary-foreground)] border-t border-white/10"
@@ -97,6 +102,7 @@ export default async function StoreFooter() {
             </ul>
           </div>
 
+          {hasContact && (
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">{t("getInTouch", lang)}</h3>
             <ul className="space-y-3 text-sm text-white/70">
@@ -130,6 +136,7 @@ export default async function StoreFooter() {
               )}
             </ul>
           </div>
+          )}
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/60">

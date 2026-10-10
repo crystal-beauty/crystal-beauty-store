@@ -4,8 +4,10 @@ import type { StoreSettings } from "@/lib/settings";
 
 export function formatMoney(amount: number, _settings?: unknown): string {
   const whole = Math.round(Number.isFinite(amount) ? amount : 0);
-  const withSpaces = String(Math.abs(whole)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  return `${whole < 0 ? "-" : ""}${withSpaces} DA`;
+  const withSpaces = String(Math.abs(whole)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0");
+  // LRI…PDI bidi isolation: keeps "4 900 DA" as one LTR run inside Arabic RTL text
+  // (otherwise RTL reordering displays it as "DA 900 4").
+  return `\u2066${whole < 0 ? "-" : ""}${withSpaces}\u00A0DA\u2069`;
 }
 
 // kept for compatibility with older imports — same output in DZD
@@ -46,14 +48,14 @@ export const ORDER_STATUSES = [
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const STATUS_LABELS: Record<string, string> = {
-  NEW: "New",
-  CONFIRMED: "Confirmed",
-  SENT_TO_CARRIER: "Sent to carrier",
-  IN_DELIVERY: "In delivery",
-  DELIVERED: "Delivered",
-  REFUSED: "Refused",
-  RETURNED: "Returned",
-  CANCELLED: "Cancelled",
+  NEW: "Nouvelle",
+  CONFIRMED: "Confirmée",
+  SENT_TO_CARRIER: "Expédiée au transporteur",
+  IN_DELIVERY: "En livraison",
+  DELIVERED: "Livrée",
+  REFUSED: "Refusée",
+  RETURNED: "Retournée",
+  CANCELLED: "Annulée",
 };
 
 export const STATUS_STYLES: Record<string, string> = {

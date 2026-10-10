@@ -67,14 +67,14 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (res.ok) setForm((f) => ({ ...f, image: data.url }));
-      else toast.error(data.error || "Upload failed");
+      else toast.error(data.error || "Échec du téléversement");
     } finally {
       setUploading(false);
     }
   }
 
   async function save() {
-    if (!form.name.trim()) return toast.error("Category name is required");
+    if (!form.name.trim()) return toast.error("Le nom de la catégorie est obligatoire");
     setSaving(true);
     try {
       const res = await fetch(editing ? `/api/admin/categories/${editing.id}` : "/api/admin/categories", {
@@ -83,8 +83,8 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) return toast.error(data.error || "Could not save");
-      toast.success(editing ? "Category updated" : "Category created");
+      if (!res.ok) return toast.error(data.error || "Impossible d'enregistrer");
+      toast.success(editing ? "Catégorie mise à jour" : "Catégorie créée");
       setDialogOpen(false);
       load();
     } finally {
@@ -97,10 +97,10 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
     const res = await fetch(`/api/admin/categories/${deleteTarget.id}`, { method: "DELETE" });
     const data = await res.json();
     if (res.ok) {
-      toast.success("Category deleted");
+      toast.success("Catégorie supprimée");
       load();
     } else {
-      toast.error(data.error || "Could not delete");
+      toast.error(data.error || "Impossible de supprimer");
     }
     setDeleteTarget(null);
   }
@@ -112,25 +112,25 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Categories</h1>
-          <p className="text-sm text-muted-foreground mt-1">Group your gifts into collections for the storefront.</p>
+          <h1 className="font-display text-2xl lg:text-3xl font-semibold text-[var(--primary)]">Catégories</h1>
+          <p className="text-sm text-muted-foreground mt-1">Regroupez vos cadeaux en collections pour la boutique.</p>
         </div>
         <button
           onClick={openNew}
           className="inline-flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-[var(--primary)]/90 transition-colors"
         >
-          <Plus className="h-4 w-4" /> New Category
+          <Plus className="h-4 w-4" /> Nouvelle catégorie
         </button>
       </div>
 
       <div className="bg-white rounded-2xl border border-border shadow-luxe overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-sm text-muted-foreground">Loading…</div>
+          <div className="py-16 text-center text-sm text-muted-foreground">Chargement…</div>
         ) : categories.length === 0 ? (
           <div className="py-16 text-center">
             <FolderTree className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm font-medium text-[var(--primary)]">No categories yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Create one to organize your products.</p>
+            <p className="text-sm font-medium text-[var(--primary)]">Aucune catégorie pour le moment</p>
+            <p className="text-xs text-muted-foreground mt-1">Créez-en une pour organiser vos produits.</p>
           </div>
         ) : (
           <div className="divide-y divide-border">
@@ -145,7 +145,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-[var(--primary)] truncate">{c.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    /{c.slug} · {c._count.products} products · order {c.sortOrder}
+                    /{c.slug} · {c._count.products} produit(s) · ordre {c.sortOrder}
                   </p>
                 </div>
                 <span
@@ -154,7 +154,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
                     c.active ? "bg-[#e8ecf5] text-[#0a1f44] border-[#d7deea]" : "bg-gray-100 text-gray-500 border-gray-200"
                   )}
                 >
-                  {c.active ? "Active" : "Hidden"}
+                  {c.active ? "Active" : "Masquée"}
                 </span>
                 <div className="flex items-center gap-1 shrink-0">
                   <button onClick={() => openEdit(c)} className="p-2 rounded-lg text-muted-foreground hover:text-[var(--primary)] hover:bg-muted">
@@ -178,7 +178,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
           <div className="bg-white rounded-2xl w-full max-w-md shadow-luxe-lg p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-lg font-semibold text-[var(--primary)]">
-                {editing ? "Edit Category" : "New Category"}
+                {editing ? "Modifier la catégorie" : "Nouvelle catégorie"}
               </h2>
               <button onClick={() => setDialogOpen(false)} className="p-2 text-muted-foreground hover:text-[var(--primary)]">
                 <X className="h-4 w-4" />
@@ -186,19 +186,19 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Name *</label>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} placeholder="Crystal Decor" />
+                <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Nom *</label>
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls} placeholder="Déco cristal" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} className={inputCls} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Cover Image</label>
+                <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Image de couverture</label>
                 <div className="flex items-center gap-3">
                   <label className="flex-1 flex items-center justify-center gap-2 border-2 border-dashed border-border rounded-xl py-3 text-sm text-muted-foreground cursor-pointer hover:border-[var(--primary)]/40 transition-colors">
                     {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    {uploading ? "Uploading…" : "Upload image"}
+                    {uploading ? "Téléversement…" : "Téléverser une image"}
                     <input type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])} />
                   </label>
                   {form.image && (
@@ -217,7 +217,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Sort Order</label>
+                  <label className="block text-sm font-medium text-[var(--primary)] mb-1.5">Ordre d'affichage</label>
                   <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className={inputCls} />
                 </div>
                 <div className="flex items-end pb-1">
@@ -233,7 +233,7 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
                 className="w-full bg-[var(--brand)] text-white font-semibold py-3 rounded-xl hover:bg-[#16305c] transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {editing ? "Save Changes" : "Create Category"}
+                {editing ? "Enregistrer" : "Créer la catégorie"}
               </button>
             </div>
           </div>
@@ -244,15 +244,15 @@ export default function CategoriesManager({ canDelete }: { canDelete: boolean })
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deleteTarget?.name}”?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer « {deleteTarget?.name} » ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Products in this category will stay in your store but become uncategorized. This cannot be undone.
+              Les produits de cette catégorie resteront dans la boutique mais deviendront sans catégorie. Cette action est irréversible.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={(e) => { e.preventDefault(); confirmDelete(); }} className="bg-destructive text-white hover:bg-destructive/90">
-              Delete
+              Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

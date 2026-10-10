@@ -39,11 +39,11 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--primary)] px-4">
+    <div dir="ltr" lang="fr" className="min-h-screen flex items-center justify-center bg-[var(--primary)] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="h-16 w-16 rounded-2xl bg-[var(--brand)]/15 border border-[var(--brand)]/30 flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="h-8 w-8 text-[var(--brand)]" />
+          <div className="h-16 w-16 rounded-2xl bg-white/10 border border-white/25 flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="h-8 w-8 text-white" />
           </div>
           <h1 className="font-display text-3xl font-semibold text-white">{settings.storeName}</h1>
           <p className="text-white/60 text-sm mt-1">Store Dashboard — sign in to manage your gifts</p>

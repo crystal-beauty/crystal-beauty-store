@@ -84,7 +84,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   heroTitleAr: "",
   heroSubtitleAr: "",
   heroImage: "",
-  heroCtaText: "Voir la boutique",
+  heroCtaText: "", // empty → storefront falls back to the bilingual i18n CTA
   heroCtaLink: "/products",
   currencyCode: "DZD",
   currencySymbol: "DA",
