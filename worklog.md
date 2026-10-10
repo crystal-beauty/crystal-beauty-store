@@ -148,3 +148,21 @@ Stage Summary:
 - Store now has designed brand imagery (illustrated hero live via settings, still dashboard-replaceable) with zero glows and restrained, reduced-motion-safe animation
 - Product page reads as organized buy-box flow: identity → options → action → trust → details; single primary CTA per view
 - Catalog remains honestly empty pending owner's real products; hero image editable in Dashboard → Réglages → Hero
+
+---
+Task ID: 8
+Agent: Super Z (main agent)
+Task: Owner asked "can you add products on it?" — opinion + build a starter catalog (products, categories, variants) with illustrated images matching the new navy/white art direction.
+
+Work Log:
+- Opinion given: empty catalog = 0 sales; since owner explicitly asked, added a REAL starter catalog (not test data — owner-editable/removable in dashboard)
+- Generated 12 illustrated product/category images via z-ai SDK (scripts/gen-catalog-images.ts): flat vector navy #0a1f44 + white, pure white bg, no text — same art direction as hero. Strict-palette enforcement cost 3 regens for cat-peluches (model kept drawing yellow daisy centers/green stems/gold) → final fallback: composed cat-peluches from prod-ours + prod-bouquet with sharp (scripts/compose-cat-peluches.ts, linear 255/245 white-normalization kills off-white box edges)
+- Seed (scripts/seed-catalog.ts, guarded: aborts if LG- rows exist unless FORCE=1): 3 categories (Luminaires / Coffrets & Bougies / Peluches & Fleurs) + 9 products, 3 per category: Lampe Lune 4900 (compare 6200, featured, Taille +0/+1500), Veilleuse Projecteur 3800 (Couleur hexColor swatches), Bougie Nuit Étoilée 1800 (Parfum +0/+0/+200), Coffret Signature 7500 (compare 8900, featured, Occasion), Mug 1200 (no variants), Peluche Ours 3200 (Taille +0/+1200), Rose Éternelle 3500 (featured, stock 4 → low-stock badge), Bouquet Éternel 4200 (compare 5000), Plaid Ciel d'Hiver 4500 (Couleur swatches). Realistic DZD gift-market pricing; FR content (schema is single-language); honest descriptions, no fake claims/reviews
+- Visual verification (v4-* screenshots): home FR desktop full (scroll-triggered reveals needed for full-page capture), products grid (9 cards, filter chips, prices, badges), product detail FR desktop (breadcrumb, gallery+2 thumbs, price+real −21% pill, variant chips, gift toggle, qty+live total, primary/secondary CTA hierarchy, accordions, quick-order honest carrier panel), product AR RTL (mirrored buy box, flipped artwork, correct bidi prices), mobile 390 home + product full, cart
+- Found + handled stale browser localStorage cart from Task 6/7 test sessions: ghost TEST-VR product rendered safely with branded image fallback (fallback layer works); cleared localStorage, then real add-to-cart E2E: teddy Grand +1200 → cart 4 400 DA math correct
+- ESLint 0 errors, production build OK; catalog images copied to download/final-images/catalog/
+
+Stage Summary:
+- Store is no longer empty: 9 sellable products / 3 categories live, all dashboard-editable; exercises variants (size/scent/occasion), color swatches, comparePrice promos, low-stock badge, featured home section
+- Known limits: product content is FR-only (schema has no AR fields — owner can rewrite in dashboard); WORLDEXPRESS_API_TOKEN still missing → delivery fees show honest "momentanément indisponible" panel (owner must re-add token for live fees)
+- Scripts kept: gen-catalog-images.ts (regen any image by filename), compose-cat-peluches.ts, seed-catalog.ts (FORCE=1 to reseed)
