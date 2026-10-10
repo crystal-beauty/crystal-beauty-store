@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Loader2, Star, MessageCircle } from "lucide-react";
+import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Loader2, Star, MessageCircle, RefreshCw } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/pixel";
 import { useSettings } from "@/components/store/settings-provider";
@@ -76,6 +76,15 @@ export default function ProductDetail({
   const [fee, setFee] = useState<number | null>(null);
   const [feeState, setFeeState] = useState<"idle" | "loading" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
+  // bumping this remounts the quick-order form (DeliverySelector refetches on mount)
+  const [qoRetry, setQoRetry] = useState(0);
+
+  function retryQuickOrder() {
+    setDelivery(emptyDelivery);
+    setFee(null);
+    setFeeState("loading");
+    setQoRetry((n) => n + 1);
+  }
 
   // ---- pricing ----
   const unitPrice = useMemo(() => {
@@ -92,6 +101,16 @@ export default function ProductDetail({
   const soldOut = product.trackStock && product.stock <= 0;
   const giftBoxActive = giftBox.enabled && wantGiftBox;
   const lineTotal = unitPrice * quantity + (giftBoxActive ? giftBox.fee * quantity : 0);
+
+  // WhatsApp deep-link with the exact product, options and total — used by the
+  // graceful quick-order fallback when the carrier fee service is unreachable.
+  const waOrderHref = whatsappNumber
+    ? `https://wa.me/${toInternationalDz(whatsappNumber).replace("+", "")}?text=${encodeURIComponent(
+        `Bonjour / مرحبًا — je souhaite commander : ${product.name}${
+          Object.entries(selections).length ? ` (${Object.entries(selections).map(([, v]) => v).join(", ")})` : ""
+        } × ${quantity} — ${formatMoney(lineTotal)}`,
+      )}`
+    : "";
 
   // ---- Meta Pixel: ViewContent ----
   useEffect(() => {
@@ -459,9 +478,54 @@ export default function ProductDetail({
       <section id="quick-order" className="mt-16 scroll-mt-24">
         <div className="rounded-3xl border border-border bg-white shadow-luxe p-6 sm:p-10 max-w-3xl mx-auto">
           <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[var(--primary)]">{t("quickOrder")}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{t("quickOrderSubtitle")}</p>
+          {feeState !== "error" && <p className="mt-2 text-sm text-muted-foreground">{t("quickOrderSubtitle")}</p>}
 
-          <form onSubmit={handleQuickOrder} className="mt-8 space-y-5">
+          {feeState === "error" ? (
+            /* Carrier fee service down → no dead form with a disabled button.
+               One clear honest path: order via WhatsApp (real number from settings). */
+            <div className="mt-8 space-y-4">
+              <div className="rounded-xl bg-muted px-4 py-3.5 text-sm flex items-center justify-between flex-wrap gap-2">
+                <span className="text-muted-foreground">{t("orderSummary")}</span>
+                <span className="font-semibold text-[var(--primary)]">
+                  {product.name} × {quantity} — {formatMoney(lineTotal)}
+                </span>
+              </div>
+              <div className="rounded-2xl border border-border bg-[var(--primary)]/[0.03] px-5 py-6 sm:px-6">
+                <div className="flex items-start gap-4">
+                  <div className="h-11 w-11 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
+                    <Truck className="h-5 w-5 text-[var(--brand)]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-[var(--primary)]">{t("quickOrderDownTitle")}</p>
+                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                      {waOrderHref ? t("quickOrderDownText") : t("quickOrderDownTextNoWa")}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 mt-4">
+                      {waOrderHref && (
+                        <a
+                          href={waOrderHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="press inline-flex items-center gap-2 bg-[var(--brand)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#16305c] transition-colors"
+                        >
+                          <MessageCircle className="h-4.5 w-4.5" />
+                          {t("orderViaWhatsapp")}
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={retryQuickOrder}
+                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--primary)] hover:underline"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" /> {t("retry")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <form key={qoRetry} onSubmit={handleQuickOrder} className="mt-8 space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls} htmlFor="qo-name">
@@ -544,10 +608,8 @@ export default function ProductDetail({
                 </>
               )}
             </button>
-            {feeState === "error" && (
-              <p className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-3 py-2.5">{t("feeError")}</p>
-            )}
           </form>
+          )}
         </div>
       </section>
 

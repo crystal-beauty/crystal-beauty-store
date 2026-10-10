@@ -166,3 +166,21 @@ Stage Summary:
 - Store is no longer empty: 9 sellable products / 3 categories live, all dashboard-editable; exercises variants (size/scent/occasion), color swatches, comparePrice promos, low-stock badge, featured home section
 - Known limits: product content is FR-only (schema has no AR fields — owner can rewrite in dashboard); WORLDEXPRESS_API_TOKEN still missing → delivery fees show honest "momentanément indisponible" panel (owner must re-add token for live fees)
 - Scripts kept: gen-catalog-images.ts (regen any image by filename), compose-cat-peluches.ts, seed-catalog.ts (FORCE=1 to reseed)
+
+---
+Task ID: 9
+Agent: Super Z (main agent)
+Task: Owner disliked the "Commande rapide" section ("mismatches") — screenshot showed the gray "Livraison momentanément indisponible" panel replacing the delivery fields mid-form + a forever-disabled confirm button (carrier token still missing).
+
+Work Log:
+- Root cause: carrier-down state of DeliverySelector did a full takeover (wilaya/commune fields vanished, gray panel, orphaned form fields, dead CTA) on BOTH product quick-order and checkout
+- Fix 1 (product-detail.tsx): when carrier fee service is down, replace the dead form entirely with one intentional card — Récapitulatif row (product × qty — total) + "Commande rapide momentanément indisponible" panel with filled navy "Commander via WhatsApp" CTA (deep-link prefilled: product + selected variant options + qty + exact total via formatMoney) + quiet Réessayer link; retry resets delivery state + remounts form via qoRetry key; subtitle "Remplissez le formulaire…" hidden in down state
+- Fix 2 (delivery-selector.tsx): error state keeps the FORM SHAPE — wilaya/commune selects stay in place disabled with "Momentanément indisponible" option + one compact bordered notice (Truck icon, carrierDownText, retry + WhatsApp links) — no more takeover panel; benefits checkout automatically
+- Fix 3 (i18n.ts): 6 new FR/AR keys (carrierUnavailableShort, quickOrderDownTitle, quickOrderDownText, quickOrderDownTextNoWa, orderViaWhatsapp); conditional copy — WhatsApp mentioned only when the number is actually configured (waOrderHref truthy)
+- E2E verified: fixed card (FR desktop + AR RTL mirrored + checkout shape) with TEMP test whatsapp row 0555123456 (wa.me/213555123456 href confirmed prefilled); temp row DELETED after test — live state now shows honest no-WhatsApp copy + retry only; test cart cleared
+- Caught + fixed a self-inflicted TDZ crash (waOrderHref referenced lineTotal before init) via dev.log; ESLint 0 errors, production build OK
+- Screenshots: v5-quickorder-fixed / v5-quickorder-ar / v5-checkout-shape / v5-checkout-fields / v5-quickorder-nowa
+
+Stage Summary:
+- Carrier-down is now a designed state, not a broken-looking one: product page = one clear action (WhatsApp order or retry), checkout = intact form with disabled selects + compact notice
+- ⚠️ OWNER: ordering is currently impossible until EITHER (a) WORLDEXPRESS_API_TOKEN is re-added to .env (normal live-fee flow), OR (b) WhatsApp number is set in Dashboard → Réglages (fallback flow). No fake fees/numbers were used.

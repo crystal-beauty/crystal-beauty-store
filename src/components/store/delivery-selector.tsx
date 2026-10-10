@@ -139,29 +139,46 @@ export default function DeliverySelector({
   }
 
   if (wilayasError) {
+    // Carrier unreachable — keep the form shape intact (no takeover panel):
+    // fields stay in place but disabled, with one compact honest notice.
     return (
-      <div className="rounded-xl border border-border bg-muted/50 px-4 py-4">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
-            <Truck className="h-4.5 w-4.5 text-[var(--brand)]" />
+      <div className="space-y-4">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-[var(--primary)] mb-1.5" htmlFor="d-wilaya">
+              {t("yourWilaya")} *
+            </label>
+            <select id="d-wilaya" disabled className={cn(inputCls, "disabled:bg-muted disabled:cursor-not-allowed")}>
+              <option>{t("carrierUnavailableShort")}</option>
+            </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--primary)] mb-1.5" htmlFor="d-commune">
+              {t("yourCommune")} *
+            </label>
+            <select id="d-commune" disabled className={cn(inputCls, "disabled:bg-muted disabled:cursor-not-allowed")}>
+              <option>{t("carrierUnavailableShort")}</option>
+            </select>
+          </div>
+        </div>
+        <div className="rounded-xl border border-border bg-white px-4 py-3.5 flex items-start gap-3">
+          <Truck className="h-4 w-4 text-[var(--brand)] shrink-0 mt-0.5" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[var(--primary)]">{t("carrierDownTitle")}</p>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{t("carrierDownText")}</p>
-            <div className="flex flex-wrap items-center gap-2 mt-3">
+            <p className="text-xs text-muted-foreground leading-relaxed">{t("carrierDownText")}</p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2">
               <button
                 type="button"
                 onClick={retryWilayas}
-                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] text-xs font-semibold px-4 py-2 hover:bg-[var(--primary)]/90 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline"
               >
-                <RefreshCw className="h-3.5 w-3.5" /> {t("retry")}
+                <RefreshCw className="h-3 w-3" /> {t("retry")}
               </button>
               {whatsappNumber && (
                 <a
                   href={`https://wa.me/${toInternationalDz(whatsappNumber).replace("+", "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--primary)]/25 text-[var(--primary)] text-xs font-medium px-4 py-2 hover:border-[var(--primary)] transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--primary)] hover:underline"
                 >
                   WhatsApp
                 </a>

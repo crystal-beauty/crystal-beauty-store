@@ -108,6 +108,17 @@ export const DICT = {
     ar: "تُحسب رسوم التوصيل مباشرة من شركة التوصيل. الخدمة غير متاحة مؤقتًا — أعد المحاولة بعد قليل أو اطلب عبر واتساب.",
   },
   retry: { fr: "Réessayer", ar: "إعادة المحاولة" },
+  carrierUnavailableShort: { fr: "Momentanément indisponible", ar: "غير متاح مؤقتًا" },
+  quickOrderDownTitle: { fr: "Commande rapide momentanément indisponible", ar: "الطلب السريع غير متاح مؤقتًا" },
+  quickOrderDownText: {
+    fr: "Les frais de livraison sont calculés en direct auprès de notre transporteur, et ce service est momentanément coupé. Commandez directement via WhatsApp — nous confirmons le total et la livraison par retour.",
+    ar: "تُحسب رسوم التوصيل مباشرة من شركة التوصيل، والخدمة غير متاحة مؤقتًا. اطلب مباشرة عبر واتساب — سنؤكد المجموع والتوصيل في الرد.",
+  },
+  quickOrderDownTextNoWa: {
+    fr: "Les frais de livraison sont calculés en direct auprès de notre transporteur, et ce service est momentanément coupé. Réessayez dans un instant — ou revenez un peu plus tard.",
+    ar: "تُحسب رسوم التوصيل مباشرة من شركة التوصيل، والخدمة غير متاحة مؤقتًا. أعد المحاولة بعد قليل — أو عد لاحقًا.",
+  },
+  orderViaWhatsapp: { fr: "Commander via WhatsApp", ar: "اطلب عبر واتساب" },
 
   // Cart
   cartTitle: { fr: "Votre panier", ar: "سلتك" },
