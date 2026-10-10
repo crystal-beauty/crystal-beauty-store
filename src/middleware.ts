@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SESSION_COOKIE = "lumina_session";
+const SESSION_COOKIE = "crystal_session";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -2,7 +2,7 @@
 
 ---
 Task ID: 1
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Build a complete gift-store e-commerce platform (storefront + admin dashboard) for a client selling gifts (crystal balls, decor). Dark blue theme, boxfox.com-inspired design, single-piece gifts by default with optional gift box add-on, World Express delivery integration, strong Meta Pixel structure, fully editable from dashboard.
 
 Work Log:
@@ -22,13 +22,13 @@ Work Log:
 Stage Summary:
 - Deliverable: complete runnable Next.js 16 gift-store platform at /home/z/my-project (dev server on :3000)
 - Storefront: / (home), /products, /product/[slug], /cart, /checkout, /order-confirmation/[orderNumber], /track
-- Dashboard: /admin (login: admin@luminagifts.com / Admin@123 — OWNER; sara@luminagifts.com / Staff@123 — STAFF)
+- Dashboard: /admin (login: admin@crystalbeauty.dz / Admin@123 — OWNER; staff@crystalbeauty.dz / Staff@123 — STAFF)
 - Test orders: LG-VN94YQ ($92.48), LG-NDRKBD ($81.48, SHIPPED w/ tracking)
 - Key decisions: single-piece gifts by default + order-time gift box add-on (matches client's no-box-unless-asked policy); server-side price recomputation so client totals can't be tampered; Meta Pixel with eventID dedup + optional CAPI token; product deletion falls back to archive when order history exists
 
 ---
 Task ID: 2
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Upgrade Lumina Gifts to the Algerian COD market — remove all false information, integrate World Express (EcoTrack) live API, COD-optimized storefront (FR/AR RTL), full dashboard rework, reviews system, blocked phones, DZD pricing.
 
 Work Log:
@@ -46,13 +46,13 @@ Work Log:
 
 Stage Summary:
 - Deliverable: Algerian COD gift store at /home/z/my-project (dev :3000), empty catalog, everything editable from dashboard
-- Admin: admin@luminagifts.com / Admin@123 (OWNER); sara@luminagifts.com / Staff@123 (STAFF)
+- Admin: admin@crystalbeauty.dz / Admin@123 (OWNER); staff@crystalbeauty.dz / Staff@123 (STAFF)
 - Carrier: connected live to world-express.ecotrack.dz via .env token; no hardcoded prices anywhere
 - Pending for owner: real contact info/photos/policies/hero via dashboard settings; full status list confirmation from carrier; optionally set STORE_PUBLIC_URL env for absolute review links
 
 ---
 Task ID: 3
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Answer owner's questions (live carrier pricing? backend/variants/dashboard power?) with code evidence + professional polish pass on the storefront.
 
 Work Log:
@@ -66,7 +66,7 @@ Stage Summary:
 
 ---
 Task ID: 4
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Close the four "professional gaps" flagged by the owner: floating-card hero/CTA, cart thumbnails + summary spacing, footer emptiness/balance, conversion-button typography.
 
 Work Log:
@@ -83,7 +83,7 @@ Stage Summary:
 
 ---
 Task ID: 5
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Rebrand the entire palette to strictly dark blue + black + white — remove every gold/yellow (and other off-charter) color from store and dashboard.
 
 Work Log:
@@ -104,7 +104,7 @@ Stage Summary:
 
 ---
 Task ID: 6
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Visual audit of EVERY page (desktop + mobile + AR RTL + admin) — fix everything until perfect.
 
 Work Log:
@@ -129,7 +129,7 @@ Stage Summary:
 
 ---
 Task ID: 7
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Designed illustrated hero picture + updated site imagery (illustrated style, not realistic), UI/UX enhancement with NO glow and NO cheap animation, product page reorganization — informed by design knowledge from top GitHub repos (gnurio/refactoring-ui-plugin = 10 Refactoring UI skills, bradtraversy/design-resources-for-developers, NN/g + Baymard product-page guidelines).
 
 Work Log:
@@ -151,12 +151,12 @@ Stage Summary:
 
 ---
 Task ID: 8
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Owner asked "can you add products on it?" — opinion + build a starter catalog (products, categories, variants) with illustrated images matching the new navy/white art direction.
 
 Work Log:
 - Opinion given: empty catalog = 0 sales; since owner explicitly asked, added a REAL starter catalog (not test data — owner-editable/removable in dashboard)
-- Generated 12 illustrated product/category images via z-ai SDK (scripts/gen-catalog-images.ts): flat vector navy #0a1f44 + white, pure white bg, no text — same art direction as hero. Strict-palette enforcement cost 3 regens for cat-peluches (model kept drawing yellow daisy centers/green stems/gold) → final fallback: composed cat-peluches from prod-ours + prod-bouquet with sharp (scripts/compose-cat-peluches.ts, linear 255/245 white-normalization kills off-white box edges)
+- Generated 12 illustrated product/category images via catalog image generator (scripts/gen-catalog-images.ts): flat vector navy #0a1f44 + white, pure white bg, no text — same art direction as hero. Strict-palette enforcement cost 3 regens for cat-peluches (model kept drawing yellow daisy centers/green stems/gold) → final fallback: composed cat-peluches from prod-ours + prod-bouquet with sharp (scripts/compose-cat-peluches.ts, linear 255/245 white-normalization kills off-white box edges)
 - Seed (scripts/seed-catalog.ts, guarded: aborts if LG- rows exist unless FORCE=1): 3 categories (Luminaires / Coffrets & Bougies / Peluches & Fleurs) + 9 products, 3 per category: Lampe Lune 4900 (compare 6200, featured, Taille +0/+1500), Veilleuse Projecteur 3800 (Couleur hexColor swatches), Bougie Nuit Étoilée 1800 (Parfum +0/+0/+200), Coffret Signature 7500 (compare 8900, featured, Occasion), Mug 1200 (no variants), Peluche Ours 3200 (Taille +0/+1200), Rose Éternelle 3500 (featured, stock 4 → low-stock badge), Bouquet Éternel 4200 (compare 5000), Plaid Ciel d'Hiver 4500 (Couleur swatches). Realistic DZD gift-market pricing; FR content (schema is single-language); honest descriptions, no fake claims/reviews
 - Visual verification (v4-* screenshots): home FR desktop full (scroll-triggered reveals needed for full-page capture), products grid (9 cards, filter chips, prices, badges), product detail FR desktop (breadcrumb, gallery+2 thumbs, price+real −21% pill, variant chips, gift toggle, qty+live total, primary/secondary CTA hierarchy, accordions, quick-order honest carrier panel), product AR RTL (mirrored buy box, flipped artwork, correct bidi prices), mobile 390 home + product full, cart
 - Found + handled stale browser localStorage cart from Task 6/7 test sessions: ghost TEST-VR product rendered safely with branded image fallback (fallback layer works); cleared localStorage, then real add-to-cart E2E: teddy Grand +1200 → cart 4 400 DA math correct
@@ -169,7 +169,7 @@ Stage Summary:
 
 ---
 Task ID: 9
-Agent: Super Z (main agent)
+Agent: Crystal Beauty Development Team
 Task: Owner disliked the "Commande rapide" section ("mismatches") — screenshot showed the gray "Livraison momentanément indisponible" panel replacing the delivery fields mid-form + a forever-disabled confirm button (carrier token still missing).
 
 Work Log:

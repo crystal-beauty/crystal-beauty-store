@@ -119,9 +119,8 @@ export default function DeliverySelector({
 
   function handleWilaya(v: string) {
     const wid = v ? parseInt(v, 10) : null;
-    // changing wilaya resets commune and delivery type
-    onChange({ wilayaId: wid, commune: "", deliveryType: "HOME" });
-    const f = feeFor(wid, "HOME", wilayas);
+    onChange({ wilayaId: wid, commune: "", deliveryType: value.deliveryType || "HOME" });
+    const f = feeFor(wid, value.deliveryType || "HOME", wilayas);
     onFee(f, wilayasError ? "error" : !wilayas ? "loading" : f === null && wid ? "error" : "idle");
   }
 
@@ -192,6 +191,73 @@ export default function DeliverySelector({
 
   return (
     <div className="space-y-4">
+      {/* Delivery type toggle — Domicile vs Stop Desk */}
+      <div>
+        <label className="block text-sm font-medium text-[var(--primary)] mb-2">
+          {t("deliveryType")} *
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label
+            className={cn(
+              "flex items-start gap-3 rounded-2xl border p-3.5 sm:p-4 cursor-pointer transition-all shadow-xs",
+              value.deliveryType === "HOME"
+                ? "border-[var(--primary)] bg-white ring-2 ring-[var(--primary)]/15 shadow-sm"
+                : "border-border bg-white/60 hover:bg-white hover:border-[var(--primary)]/30"
+            )}
+          >
+            <input
+              type="radio"
+              name="dtype"
+              checked={value.deliveryType === "HOME"}
+              onChange={() => handleType("HOME")}
+              className="mt-1 h-4 w-4 accent-[var(--primary)]"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Home className="h-4 w-4 text-[var(--brand)] shrink-0" />
+                <p className="text-sm font-semibold text-[var(--primary)]">{t("homeDelivery")}</p>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                {selectedWilaya ? formatMoney(selectedWilaya.homeFee) : t("homeDeliveryHint")}
+              </p>
+            </div>
+          </label>
+
+          <label
+            className={cn(
+              "flex items-start gap-3 rounded-2xl border p-3.5 sm:p-4 transition-all shadow-xs",
+              selectedCommune && !selectedCommune.has_stop_desk
+                ? "opacity-50 cursor-not-allowed border-dashed bg-muted/40"
+                : "cursor-pointer",
+              value.deliveryType === "STOP_DESK"
+                ? "border-[var(--primary)] bg-white ring-2 ring-[var(--primary)]/15 shadow-sm"
+                : "border-border bg-white/60 hover:bg-white hover:border-[var(--primary)]/30"
+            )}
+          >
+            <input
+              type="radio"
+              name="dtype"
+              disabled={Boolean(selectedCommune && !selectedCommune.has_stop_desk)}
+              checked={value.deliveryType === "STOP_DESK"}
+              onChange={() => handleType("STOP_DESK")}
+              className="mt-1 h-4 w-4 accent-[var(--primary)]"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Building className="h-4 w-4 text-[var(--brand)] shrink-0" />
+                <p className="text-sm font-semibold text-[var(--primary)]">{t("stopDesk")}</p>
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                  Économique
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">
+                {selectedWilaya ? formatMoney(selectedWilaya.stopDeskFee) : t("stopDeskHint")}
+              </p>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <div className="grid sm:grid-cols-2 gap-4">
         {/* Wilaya */}
         <div>
@@ -234,46 +300,6 @@ export default function DeliverySelector({
           </div>
         </div>
       </div>
-
-      {/* Delivery type */}
-      {value.wilayaId && (
-        <div className="grid grid-cols-2 gap-3">
-          <label
-            className={cn(
-              "flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition-all",
-              value.deliveryType === "HOME" ? "border-[var(--primary)] bg-[var(--primary)]/[0.03]" : "border-input hover:border-[var(--primary)]/40"
-            )}
-          >
-            <input type="radio" name="dtype-home" checked={value.deliveryType === "HOME"} onChange={() => handleType("HOME")} className="h-4 w-4 accent-[var(--primary)]" />
-            <Home className="h-4.5 w-4.5 text-[var(--brand)] shrink-0" />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--primary)] truncate">{t("homeDelivery")}</p>
-              {selectedWilaya && <p className="text-xs text-muted-foreground">{formatMoney(selectedWilaya.homeFee)}</p>}
-            </div>
-          </label>
-          <label
-            className={cn(
-              "flex items-center gap-3 rounded-xl border p-3.5 transition-all",
-              !selectedCommune?.has_stop_desk && value.commune ? "opacity-40 cursor-not-allowed border-input" : "cursor-pointer",
-              value.deliveryType === "STOP_DESK" ? "border-[var(--primary)] bg-[var(--primary)]/[0.03]" : "border-input hover:border-[var(--primary)]/40"
-            )}
-          >
-            <input
-              type="radio"
-              name="dtype-desk"
-              disabled={!selectedCommune?.has_stop_desk}
-              checked={value.deliveryType === "STOP_DESK"}
-              onChange={() => handleType("STOP_DESK")}
-              className="h-4 w-4 accent-[var(--primary)]"
-            />
-            <Building className="h-4.5 w-4.5 text-[var(--brand)] shrink-0" />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--primary)] truncate">{t("stopDesk")}</p>
-              {selectedWilaya && <p className="text-xs text-muted-foreground">{formatMoney(selectedWilaya.stopDeskFee)}</p>}
-            </div>
-          </label>
-        </div>
-      )}
 
       {/* Live fee status */}
       {value.wilayaId && (

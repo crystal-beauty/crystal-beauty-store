@@ -36,8 +36,12 @@ export default async function StoreFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-white" />
+            <div className="flex items-center gap-2.5 mb-4">
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt={settings.storeName} className="h-8 w-8 rounded-lg object-contain bg-white/10 p-0.5 border border-white/20" />
+              ) : (
+                <Sparkles className="h-6 w-6 text-white" />
+              )}
               <span className="font-display text-2xl font-semibold">{settings.storeName}</span>
             </div>
             {settings.footerAbout && <p className="text-sm leading-relaxed text-white/70 max-w-md">{settings.footerAbout}</p>}

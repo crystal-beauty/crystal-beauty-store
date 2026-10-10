@@ -35,7 +35,10 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${settings.storeName}`,
     },
     description: settings.seoDescription || undefined,
-    icons: { icon: settings.logoUrl || "/logo.svg" },
+    icons: {
+      icon: settings.logoUrl || "/logo.svg",
+      apple: settings.logoUrl || "/logo.svg",
+    },
     openGraph: {
       title: settings.seoTitle || settings.storeName,
       description: settings.seoDescription || undefined,

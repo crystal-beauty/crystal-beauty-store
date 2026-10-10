@@ -58,7 +58,7 @@ export default function StoreHeader() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 lg:absolute lg:left-1/2 lg:-translate-x-1/2 group">
               {settings.logoUrl ? (
-                <img src={settings.logoUrl} alt={settings.storeName} className="h-8 w-auto" />
+                <img src={settings.logoUrl} alt={settings.storeName} className="h-9 w-9 rounded-lg object-contain border border-black/10 shadow-xs" />
               ) : (
                 <Sparkles className="h-6 w-6 text-[var(--brand)]" />
               )}
@@ -83,20 +83,22 @@ export default function StoreHeader() {
             {/* Actions */}
             <div className="flex items-center gap-1">
               {/* Language switcher */}
-              <div className="flex items-center rounded-full border border-border overflow-hidden text-xs font-semibold" role="group" aria-label="Language">
+              <div className="flex items-center rounded-full border border-border bg-white/80 shadow-xs overflow-hidden text-xs font-medium" role="group" aria-label="Langue / اللغة">
                 <button
+                  type="button"
                   onClick={() => setLang("fr")}
-                  className={cn("px-2.5 py-1.5 transition-colors", lang === "fr" ? "bg-[var(--primary)] text-white" : "text-[var(--primary)] hover:bg-muted")}
+                  className={cn("px-2.5 py-1 transition-all", lang === "fr" ? "bg-[var(--primary)] text-white font-semibold" : "text-muted-foreground hover:text-[var(--primary)] hover:bg-muted/60")}
                   aria-pressed={lang === "fr"}
                 >
                   FR
                 </button>
                 <button
+                  type="button"
                   onClick={() => setLang("ar")}
-                  className={cn("px-2.5 py-1.5 transition-colors", lang === "ar" ? "bg-[var(--primary)] text-white" : "text-[var(--primary)] hover:bg-muted")}
+                  className={cn("px-2.5 py-1 transition-all font-semibold", lang === "ar" ? "bg-[var(--primary)] text-white" : "text-muted-foreground hover:text-[var(--primary)] hover:bg-muted/60")}
                   aria-pressed={lang === "ar"}
                 >
-                  ع
+                  العربية
                 </button>
               </div>
               <Link href="/track" className="lg:hidden p-2 text-[var(--primary)]" aria-label={t("trackOrder")}>
@@ -133,6 +135,25 @@ export default function StoreHeader() {
                 {link.label}
               </Link>
             ))}
+            <div className="pt-2 border-t border-border flex items-center justify-between px-3 py-2">
+              <span className="text-xs text-muted-foreground">{lang === "ar" ? "تغيير اللغة" : "Changer de langue"}</span>
+              <div className="flex items-center rounded-full border border-border overflow-hidden text-xs">
+                <button
+                  type="button"
+                  onClick={() => setLang("fr")}
+                  className={cn("px-3 py-1.5 transition-colors", lang === "fr" ? "bg-[var(--primary)] text-white font-semibold" : "text-muted-foreground")}
+                >
+                  Français
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang("ar")}
+                  className={cn("px-3 py-1.5 transition-colors", lang === "ar" ? "bg-[var(--primary)] text-white font-semibold" : "text-muted-foreground")}
+                >
+                  العربية
+                </button>
+              </div>
+            </div>
           </nav>
         )}
       </header>

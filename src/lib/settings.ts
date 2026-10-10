@@ -70,9 +70,9 @@ export interface StoreSettings {
 }
 
 export const DEFAULT_SETTINGS: StoreSettings = {
-  storeName: "Lumina Gifts",
-  tagline: "",
-  logoUrl: "",
+  storeName: "Crystal Beauty",
+  tagline: "Boutique Beauté & Soins en Algérie",
+  logoUrl: "/crystal-beauty-logo.jpg",
   primaryColor: "#0A1F44",
   accentColor: "#0A1F44",
   announcementEnabled: false,
@@ -102,10 +102,10 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   contactAddress: "",
   contactHours: "",
   facebookUrl: "",
-  instagramUrl: "",
+  instagramUrl: "https://instagram.com/crystalbeautydz",
   tiktokUrl: "",
   twitterUrl: "",
-  footerAbout: "",
+  footerAbout: "Crystal Beauty — Votre destination beauté et soins en Algérie. Livraison 58 Wilayas avec paiement à la livraison.",
   footerText: "© {year} {store}. Tous droits réservés.",
   policyDelivery: "",
   policyDeliveryAr: "",
@@ -122,8 +122,8 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   metaCapiToken: "",
   metaTestEventCode: "",
   metaAdvancedMatching: true,
-  seoTitle: "",
-  seoDescription: "",
+  seoTitle: "Crystal Beauty · Boutique Beauté & Cadeaux en Algérie",
+  seoDescription: "Découvrez la collection Crystal Beauty : soins, accessoires de beauté et cadeaux avec livraison 58 wilayas et paiement à la livraison.",
 };
 
 // Keys that must NEVER leave the server (admin API strips them from responses)

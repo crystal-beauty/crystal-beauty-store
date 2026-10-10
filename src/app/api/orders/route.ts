@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      customerName, email, phone, wilayaId, commune, address,
+      customerName, email, phone, phone2, wilayaId, commune, address,
       deliveryType, notes, giftMessage, recipientName, recipientPhone,
       items, promoCodeStr,
     } = body || {};
@@ -44,10 +44,10 @@ export async function POST(req: NextRequest) {
     if (!isValidDzMobile(String(phone || ""))) {
       return NextResponse.json({ error: "Numéro invalide — utilisez un mobile 05 / 06 / 07 (10 chiffres)." }, { status: 400 });
     }
-    if (!commune?.trim()) return NextResponse.json({ error: "Veuillez choisir votre commune." }, { status: 400 });
-    if (!address?.trim() || address.trim().length > 30) {
-      return NextResponse.json({ error: "Adresse requise (30 caractères maximum)." }, { status: 400 });
+    if (phone2?.trim() && !isValidDzMobile(String(phone2))) {
+      return NextResponse.json({ error: "Numéro de téléphone secondaire invalide (05 / 06 / 07 - 10 chiffres)." }, { status: 400 });
     }
+    if (!commune?.trim()) return NextResponse.json({ error: "Veuillez choisir votre commune." }, { status: 400 });
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Votre panier est vide." }, { status: 400 });
     }
@@ -60,12 +60,18 @@ export async function POST(req: NextRequest) {
     if (recipientPhone?.trim() && !isValidDzMobile(String(recipientPhone))) {
       return NextResponse.json({ error: "Téléphone du destinataire invalide (05 / 06 / 07)." }, { status: 400 });
     }
-
     const wilaya = parseInt(String(wilayaId), 10);
     if (!wilaya || wilaya < 1 || wilaya > 58) {
       return NextResponse.json({ error: "Veuillez choisir votre wilaya." }, { status: 400 });
     }
     const type = deliveryType === "STOP_DESK" ? "STOP_DESK" : "HOME";
+    const resolvedAddress = type === "STOP_DESK"
+      ? (address?.trim() ? address.trim().slice(0, 30) : "Bureau / Point Relais")
+      : address?.trim();
+
+    if (!resolvedAddress || (type === "HOME" && resolvedAddress.length > 30)) {
+      return NextResponse.json({ error: "Adresse requise (30 caractères maximum)." }, { status: 400 });
+    }
 
     // ---- blocked phones (polite refusal) ----
     if (await isPhoneBlocked(phone)) {
@@ -87,6 +93,7 @@ export async function POST(req: NextRequest) {
 
     let subtotal = 0;
     let giftBoxCount = 0;
+    const variantOptionsToDecrement: { optionId: string; qty: number }[] = [];
     const orderItems: {
       productId: string; productName: string; productImage: string;
       variantSelections: string; unitPrice: number; quantity: number; lineTotal: number; giftBox: boolean;
@@ -112,6 +119,12 @@ export async function POST(req: NextRequest) {
         const option = variant.options.find((o) => o.label === chosen);
         if (!option) {
           return NextResponse.json({ error: `Option « ${chosen} » invalide pour ${variant.name}.` }, { status: 400 });
+        }
+        if (option.stock !== null && option.stock < qty) {
+          return NextResponse.json({ error: `Il ne reste que ${option.stock} unités pour l'option « ${option.label} ».` }, { status: 400 });
+        }
+        if (option.stock !== null) {
+          variantOptionsToDecrement.push({ optionId: option.id, qty });
         }
         unitPrice += option.priceModifier;
         validSelections[variant.name] = chosen;
@@ -200,10 +213,11 @@ export async function POST(req: NextRequest) {
         customerName: customerName.trim(),
         email: email?.trim() || null,
         phone: normalizeDzPhone(phone),
+        phone2: phone2?.trim() ? normalizeDzPhone(phone2) : null,
         wilayaId: wilaya,
         wilayaName: wilayaName(wilaya),
         commune: commune.trim(),
-        address: address.trim(),
+        address: resolvedAddress,
         deliveryType: type,
         stopDeskName: type === "STOP_DESK" ? commune.trim() : null,
         notes: notes?.trim() || null,
@@ -228,6 +242,12 @@ export async function POST(req: NextRequest) {
       await db.product.update({
         where: { id: item.productId },
         data: { stock: { decrement: item.quantity } },
+      });
+    }
+    for (const { optionId, qty } of variantOptionsToDecrement) {
+      await db.variantOption.update({
+        where: { id: optionId },
+        data: { stock: { decrement: qty } },
       });
     }
     if (promoCodeId) {

@@ -12,34 +12,34 @@ const db = new PrismaClient();
 async function main() {
   console.log("🌱 Seeding team accounts only (catalog stays empty — no demo data)…");
 
-  const ownerEmail = "admin@luminagifts.com";
+  const ownerEmail = "admin@crystalbeauty.dz";
   const existingOwner = await db.teamMember.findUnique({ where: { email: ownerEmail } });
   if (!existingOwner) {
     await db.teamMember.create({
       data: {
         email: ownerEmail,
-        name: "Store Owner",
+        name: "Crystal Beauty Owner",
         role: "OWNER",
         passwordHash: hashPassword("Admin@123"),
       },
     });
-    console.log("✓ Owner: admin@luminagifts.com / Admin@123");
+    console.log("✓ Owner: admin@crystalbeauty.dz / Admin@123");
   } else {
     console.log("• owner exists");
   }
 
-  const staffEmail = "sara@luminagifts.com";
+  const staffEmail = "staff@crystalbeauty.dz";
   const existingStaff = await db.teamMember.findUnique({ where: { email: staffEmail } });
   if (!existingStaff) {
     await db.teamMember.create({
       data: {
         email: staffEmail,
-        name: "Sara Staff",
+        name: "Crystal Beauty Staff",
         role: "STAFF",
         passwordHash: hashPassword("Staff@123"),
       },
     });
-    console.log("✓ Staff: sara@luminagifts.com / Staff@123");
+    console.log("✓ Staff: staff@crystalbeauty.dz / Staff@123");
   } else {
     console.log("• staff exists");
   }

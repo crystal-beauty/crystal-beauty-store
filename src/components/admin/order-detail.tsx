@@ -17,6 +17,7 @@ interface OrderData {
   customerName: string;
   email: string | null;
   phone: string;
+  phone2: string | null;
   wilayaId: number | null;
   wilayaName: string;
   commune: string;
@@ -40,7 +41,7 @@ interface OrderData {
   shipmentResponse: string | null;
   reviewRequestedAt: string | null;
   createdAt: string;
-  items: { productName: string; productImage: string; variantSelections: string; quantity: number; unitPrice: number; lineTotal: number; giftBox: boolean }[];
+  items: { productName: string; productImage: string | null; variantSelections: string; quantity: number; unitPrice: number; lineTotal: number; giftBox: boolean }[];
 }
 
 export default function OrderDetail({ order, canDelete, refusedWarning }: { order: OrderData; canDelete: boolean; refusedWarning: boolean }) {
@@ -250,6 +251,14 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
                 <a href={`tel:${order.phone}`} className="font-medium hover:underline" dir="ltr">
                   {order.phone}
                 </a>
+                {order.phone2 && (
+                  <span className="ms-2 text-xs bg-muted px-2 py-0.5 rounded border border-border">
+                    Sec :{" "}
+                    <a href={`tel:${order.phone2}`} className="font-semibold hover:underline" dir="ltr">
+                      {order.phone2}
+                    </a>
+                  </span>
+                )}
               </p>
               {order.email && (
                 <p>

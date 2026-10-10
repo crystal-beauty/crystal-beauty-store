@@ -1,6 +1,6 @@
 /**
- * Lumina Gifts — starter catalog seed.
- * Adds 3 categories + 9 realistic gift products (Algerian market, DZD),
+ * Crystal Beauty — starter catalog seed.
+ * Adds 3 categories + 9 realistic products (Algerian market, DZD),
  * with variants (size / scent / color swatches), illustrated navy-white
  * images generated in the same art direction as the hero.
  *
@@ -63,12 +63,12 @@ async function main() {
   // 1. Lampe Lune (featured, promo)
   await db.product.create({
     data: {
-      name: "Lampe Lune « Lumina »",
-      slug: "lampe-lune-lumina",
+      name: "Lampe Lune « Crystal »",
+      slug: "lampe-lune-crystal",
       sku: "LG-LUM-001",
       shortDescription: "Une lune apaisante qui diffuse une lumière douce et réconfortante dans la chambre.",
       description:
-        "La lampe Lune « Lumina » recrée la douceur de la lune chez vous. Posée sur son socle élégant, elle diffuse une lumière tamisée, parfaite pour accompagner les soirées, rassurer les enfants au coucher ou créer une ambiance chaleureuse pendant les veillées.\n\nChaque lampe est vérifiée avant l'envoi : lumière homogène, socle stable et finition soignée. Elle est livrée prête à l'emploi, avec son câble d'alimentation. Un cadeau qui plaît aussi bien aux enfants qu'aux adultes — et qui se remarque dès l'allumage.",
+        "La lampe Lune « Crystal » recrée la douceur de la lune chez vous. Posée sur son socle élégant, elle diffuse une lumière tamisée, parfaite pour accompagner les soirées, rassurer les enfants au coucher ou créer une ambiance chaleureuse pendant les veillées.\n\nChaque lampe est vérifiée avant l'envoi : lumière homogène, socle stable et finition soignée. Elle est livrée prête à l'emploi, avec son câble d'alimentation. Un cadeau qui plaît aussi bien aux enfants qu'aux adultes — et qui se remarque dès l'allumage.",
       price: 4900,
       comparePrice: 6200,
       stock: 15,
@@ -76,7 +76,7 @@ async function main() {
       active: true,
       featured: true,
       weightGrams: 800,
-      media: media("prod-lampe-lune.png", "Lampe Lune Lumina sur son socle", {
+      media: media("prod-lampe-lune.png", "Lampe Lune Crystal sur son socle", {
         file: "cat-luminaires.png",
         alt: "Ambiance collection Luminaires",
       }),
@@ -173,8 +173,8 @@ async function main() {
   // 4. Coffret Signature (featured, promo)
   await db.product.create({
     data: {
-      name: "Coffret Signature « Lumina »",
-      slug: "coffret-signature-lumina",
+      name: "Coffret Signature « Crystal »",
+      slug: "coffret-signature-crystal",
       sku: "LG-COF-001",
       shortDescription: "Le cadeau complet prêt à offrir : bougie, mug et carte message dans un coffret soigné.",
       description:
@@ -186,7 +186,7 @@ async function main() {
       active: true,
       featured: true,
       weightGrams: 1500,
-      media: media("prod-coffret.png", "Coffret Signature Lumina ouvert", {
+      media: media("prod-coffret.png", "Coffret Signature Crystal ouvert", {
         file: "cat-coffrets.png",
         alt: "Coffrets et bougie — présentation",
       }),

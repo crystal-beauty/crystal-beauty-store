@@ -9,7 +9,7 @@ import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Boutique · Lumina Gifts" };
+export const metadata = { title: "Boutique · Crystal Beauty" };
 
 interface Props {
   searchParams: Promise<{ category?: string; sort?: string; q?: string }>;

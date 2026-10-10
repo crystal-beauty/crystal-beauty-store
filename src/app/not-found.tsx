@@ -13,8 +13,8 @@ export default async function NotFound() {
   return (
     <div className="min-h-screen bg-[#fafafa] flex items-center justify-center px-4">
       <div className="text-center max-w-md" dir={rtl ? "rtl" : "ltr"}>
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-[#0a1f44]/5 border border-[#0a1f44]/10 mb-6">
-          <Sparkles className="h-7 w-7 text-[#0a1f44]" />
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white shadow-sm border border-[#0a1f44]/15 mb-6 overflow-hidden">
+          <img src="/crystal-beauty-logo.jpg" alt="Crystal Beauty" className="h-12 w-12 object-contain" />
         </div>
         <p className="font-display text-7xl font-semibold text-[#0a1f44]">404</p>
         <h1 className="font-display text-2xl font-semibold text-[#0a1f44] mt-3">{t("notFoundTitle", lang)}</h1>

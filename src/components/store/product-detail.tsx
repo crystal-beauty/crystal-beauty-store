@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Loader2, Star, MessageCircle, RefreshCw } from "lucide-react";
+import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Star, MessageCircle, Loader2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/pixel";
 import { useSettings } from "@/components/store/settings-provider";
@@ -66,25 +66,14 @@ export default function ProductDetail({
   const [wantGiftBox, setWantGiftBox] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
-    for (const v of product.variants) if (v.required && v.options.length > 0) initial[v.name] = v.options[0].label;
+    for (const v of product.variants) {
+      if (v.required && v.options.length > 0) {
+        const available = v.options.find((o) => o.stock === null || o.stock > 0) || v.options[0];
+        initial[v.name] = available.label;
+      }
+    }
     return initial;
   });
-
-  // ---- quick order form ----
-  const [form, setForm] = useState({ customerName: "", phone: "", address: "", notes: "" });
-  const [delivery, setDelivery] = useState<DeliveryValue>(emptyDelivery);
-  const [fee, setFee] = useState<number | null>(null);
-  const [feeState, setFeeState] = useState<"idle" | "loading" | "error">("idle");
-  const [submitting, setSubmitting] = useState(false);
-  // bumping this remounts the quick-order form (DeliverySelector refetches on mount)
-  const [qoRetry, setQoRetry] = useState(0);
-
-  function retryQuickOrder() {
-    setDelivery(emptyDelivery);
-    setFee(null);
-    setFeeState("loading");
-    setQoRetry((n) => n + 1);
-  }
 
   // ---- pricing ----
   const unitPrice = useMemo(() => {
@@ -101,16 +90,6 @@ export default function ProductDetail({
   const soldOut = product.trackStock && product.stock <= 0;
   const giftBoxActive = giftBox.enabled && wantGiftBox;
   const lineTotal = unitPrice * quantity + (giftBoxActive ? giftBox.fee * quantity : 0);
-
-  // WhatsApp deep-link with the exact product, options and total — used by the
-  // graceful quick-order fallback when the carrier fee service is unreachable.
-  const waOrderHref = whatsappNumber
-    ? `https://wa.me/${toInternationalDz(whatsappNumber).replace("+", "")}?text=${encodeURIComponent(
-        `Bonjour / مرحبًا — je souhaite commander : ${product.name}${
-          Object.entries(selections).length ? ` (${Object.entries(selections).map(([, v]) => v).join(", ")})` : ""
-        } × ${quantity} — ${formatMoney(lineTotal)}`,
-      )}`
-    : "";
 
   // ---- Meta Pixel: ViewContent ----
   useEffect(() => {
@@ -181,11 +160,32 @@ export default function ProductDetail({
       trackPixel("GiftBoxSelected", { customData: { content_name: product.name, value: giftBox.fee, currency: "DZD" } });
   }
 
-  // ---- quick order submit (COD) ----
+  // ---- quick order form state ----
+  const [form, setForm] = useState({ customerName: "", phone: "", phone2: "", address: "", notes: "" });
+  const [delivery, setDelivery] = useState<DeliveryValue>(emptyDelivery);
+  const [fee, setFee] = useState<number | null>(null);
+  const [feeState, setFeeState] = useState<"idle" | "loading" | "error">("idle");
+  const [submitting, setSubmitting] = useState(false);
+
+  function scrollToQuickOrder() {
+    const el = document.getElementById("quick-order");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      const nameInput = document.getElementById("qo-name");
+      if (nameInput) {
+        setTimeout(() => nameInput.focus(), 400);
+      }
+    }
+  }
+
   async function handleQuickOrder(e: React.FormEvent) {
     e.preventDefault();
     if (soldOut) return;
     if (!isValidDzMobile(form.phone)) {
+      toast.error(t("phoneInvalid"));
+      return;
+    }
+    if (form.phone2.trim() && !isValidDzMobile(form.phone2)) {
       toast.error(t("phoneInvalid"));
       return;
     }
@@ -204,6 +204,8 @@ export default function ProductDetail({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          phone2: form.phone2.trim() || undefined,
+          address: delivery.deliveryType === "STOP_DESK" ? (form.address.trim() || "Bureau / Point Relais") : form.address,
           wilayaId: delivery.wilayaId,
           commune: delivery.commune,
           deliveryType: delivery.deliveryType,
@@ -325,23 +327,31 @@ export default function ProductDetail({
                   <div className="flex flex-wrap gap-2">
                     {variant.options.map((option) => {
                       const active = selections[variant.name] === option.label;
+                      const isSoldOut = option.stock !== null && option.stock <= 0;
                       return (
                         <button
                           key={option.id}
+                          disabled={isSoldOut}
                           onClick={() => setSelections((s) => ({ ...s, [variant.name]: option.label }))}
                           aria-pressed={active}
                           className={cn(
                             "relative px-4 py-2.5 rounded-xl border text-sm font-medium transition-all flex items-center gap-2",
-                            active ? "border-[var(--primary)] bg-[var(--primary)] text-white" : "border-input bg-white text-[var(--primary)] hover:border-[var(--primary)]"
+                            isSoldOut
+                              ? "border-border/60 bg-muted/40 text-muted-foreground/50 cursor-not-allowed border-dashed line-through"
+                              : active
+                              ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                              : "border-input bg-white text-[var(--primary)] hover:border-[var(--primary)]"
                           )}
                         >
                           {option.hexColor && <span className="h-4 w-4 rounded-full border border-black/10 inline-block" style={{ backgroundColor: option.hexColor }} />}
                           {option.label}
-                          {option.priceModifier !== 0 && (
+                          {isSoldOut ? (
+                            <span className="text-xs text-destructive font-semibold">({t("optionSoldOut")})</span>
+                          ) : option.priceModifier !== 0 ? (
                             <span className={cn("text-xs", active ? "text-white/80" : "text-muted-foreground")}>
                               {option.priceModifier > 0 ? `+${formatMoney(option.priceModifier)}` : `-${formatMoney(Math.abs(option.priceModifier))}`}
                             </span>
-                          )}
+                          ) : null}
                         </button>
                       );
                     })}
@@ -395,11 +405,11 @@ export default function ProductDetail({
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {/* Primary — the COD-native action */}
+              {/* Primary — anchor scroll smoothly straight to quick order form */}
               <button
-                onClick={handleBuyNow}
+                onClick={scrollToQuickOrder}
                 disabled={soldOut}
-                className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="press inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed shadow-md text-base"
               >
                 <Banknote className="h-4.5 w-4.5" />
                 {t("orderNow")}
@@ -474,64 +484,32 @@ export default function ProductDetail({
         </div>
       </div>
 
+
+
       {/* ============ QUICK ORDER (COD) ============ */}
       <section id="quick-order" className="mt-16 scroll-mt-24">
         <div className="rounded-3xl border border-border bg-white shadow-luxe p-6 sm:p-10 max-w-3xl mx-auto">
-          <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[var(--primary)]">{t("quickOrder")}</h2>
-          {feeState !== "error" && <p className="mt-2 text-sm text-muted-foreground">{t("quickOrderSubtitle")}</p>}
+          <div className="text-center sm:text-start mb-6">
+            <h2 className="font-display text-2xl sm:text-3xl font-semibold text-[var(--primary)]">
+              {t("quickOrder")}
+            </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">{t("quickOrderSubtitle")}</p>
+          </div>
 
-          {feeState === "error" ? (
-            /* Carrier fee service down → no dead form with a disabled button.
-               One clear honest path: order via WhatsApp (real number from settings). */
-            <div className="mt-8 space-y-4">
-              <div className="rounded-xl bg-muted px-4 py-3.5 text-sm flex items-center justify-between flex-wrap gap-2">
-                <span className="text-muted-foreground">{t("orderSummary")}</span>
-                <span className="font-semibold text-[var(--primary)]">
-                  {product.name} × {quantity} — {formatMoney(lineTotal)}
-                </span>
-              </div>
-              <div className="rounded-2xl border border-border bg-[var(--primary)]/[0.03] px-5 py-6 sm:px-6">
-                <div className="flex items-start gap-4">
-                  <div className="h-11 w-11 rounded-full bg-[var(--primary)]/5 border border-[var(--primary)]/10 flex items-center justify-center shrink-0">
-                    <Truck className="h-5 w-5 text-[var(--brand)]" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-[var(--primary)]">{t("quickOrderDownTitle")}</p>
-                    <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                      {waOrderHref ? t("quickOrderDownText") : t("quickOrderDownTextNoWa")}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 mt-4">
-                      {waOrderHref && (
-                        <a
-                          href={waOrderHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="press inline-flex items-center gap-2 bg-[var(--brand)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#16305c] transition-colors"
-                        >
-                          <MessageCircle className="h-4.5 w-4.5" />
-                          {t("orderViaWhatsapp")}
-                        </a>
-                      )}
-                      <button
-                        type="button"
-                        onClick={retryQuickOrder}
-                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--primary)] hover:underline"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" /> {t("retry")}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <form key={qoRetry} onSubmit={handleQuickOrder} className="mt-8 space-y-5">
+          <form onSubmit={handleQuickOrder} className="space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
-              <div>
+              <div className="sm:col-span-2">
                 <label className={labelCls} htmlFor="qo-name">
                   {t("yourName")} *
                 </label>
-                <input id="qo-name" required value={form.customerName} onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))} className={inputCls} />
+                <input
+                  id="qo-name"
+                  required
+                  value={form.customerName}
+                  onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
+                  className={inputCls}
+                  placeholder={t("yourName")}
+                />
               </div>
               <div>
                 <label className={labelCls} htmlFor="qo-phone">
@@ -550,11 +528,28 @@ export default function ProductDetail({
                   dir="ltr"
                 />
               </div>
+              <div>
+                <label className={labelCls} htmlFor="qo-phone2">
+                  {t("phone2")}
+                </label>
+                <input
+                  id="qo-phone2"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={form.phone2}
+                  onChange={(e) => setForm((f) => ({ ...f, phone2: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                  className={cn(inputCls, "tracking-wider")}
+                  placeholder="06 / 07... (optionnel)"
+                  dir="ltr"
+                />
+              </div>
             </div>
 
             <DeliverySelector
               value={delivery}
               onChange={setDelivery}
+              whatsappNumber={whatsappNumber}
               onFee={(f, s) => {
                 setFee(f);
                 setFeeState(s);
@@ -563,18 +558,21 @@ export default function ProductDetail({
 
             <div>
               <label className={labelCls} htmlFor="qo-address">
-                {t("yourAddress")} *
+                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : `${t("yourAddress")} *`}
               </label>
               <input
                 id="qo-address"
-                required
+                required={delivery.deliveryType === "HOME"}
                 maxLength={30}
                 value={form.address}
                 onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                 className={inputCls}
+                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais" : t("yourAddress")}
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                {t("addressHint")} ({form.address.length}/30)
+                {delivery.deliveryType === "STOP_DESK"
+                  ? "Votre colis sera acheminé au bureau du transporteur dans votre commune."
+                  : `${t("addressHint")} (${form.address.length}/30)`}
               </p>
             </div>
 
@@ -582,10 +580,17 @@ export default function ProductDetail({
               <label className={labelCls} htmlFor="qo-notes">
                 {t("optionalNote")}
               </label>
-              <textarea id="qo-notes" rows={2} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} className={inputCls} />
+              <textarea
+                id="qo-notes"
+                rows={2}
+                value={form.notes}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                className={inputCls}
+                placeholder="Précisions utiles pour la livraison..."
+              />
             </div>
 
-            <div className="rounded-xl bg-muted px-4 py-3.5 text-sm flex items-center justify-between flex-wrap gap-2">
+            <div className="rounded-xl bg-muted/60 border border-border px-4 py-3.5 text-sm flex items-center justify-between flex-wrap gap-2">
               <span className="text-muted-foreground">{t("orderSummary")}</span>
               <span className="font-semibold text-[var(--primary)]">
                 {product.name} × {quantity} — {formatMoney(lineTotal)}
@@ -595,7 +600,7 @@ export default function ProductDetail({
             <button
               type="submit"
               disabled={submitting || soldOut || fee === null || feeState !== "idle"}
-              className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--brand)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="press w-full inline-flex items-center justify-center gap-2 bg-[var(--primary)] text-white font-semibold py-4 rounded-full hover:bg-[#16305c] disabled:opacity-50 disabled:cursor-not-allowed shadow-md text-base"
             >
               {submitting ? (
                 <>
@@ -604,12 +609,13 @@ export default function ProductDetail({
               ) : (
                 <>
                   <Banknote className="h-4.5 w-4.5" />
-                  {fee !== null ? `${t("confirmOrderBtn")} ${formatMoney(lineTotal + fee)} ${t("onDelivery")}` : t("confirmOrder")}
+                  {fee !== null
+                    ? `${t("confirmOrderBtn")} ${formatMoney(lineTotal + fee)} ${t("onDelivery")}`
+                    : t("confirmOrder")}
                 </>
               )}
             </button>
           </form>
-          )}
         </div>
       </section>
 
@@ -646,13 +652,15 @@ export default function ProductDetail({
           <p className="font-semibold text-[var(--primary)] truncate">{formatMoney(lineTotal)}</p>
           <p className="text-[11px] text-muted-foreground truncate">{t("codBadge")}</p>
         </div>
-        <a
-          href="#quick-order"
-          className="press shrink-0 inline-flex items-center gap-2 bg-[var(--brand)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#16305c] transition-colors"
+        <button
+          type="button"
+          onClick={scrollToQuickOrder}
+          disabled={soldOut}
+          className="press shrink-0 inline-flex items-center gap-2 bg-[var(--brand)] text-white font-semibold px-6 py-3 rounded-full hover:bg-[#16305c] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <Banknote className="h-4.5 w-4.5" />
           {t("orderNow")}
-        </a>
+        </button>
         {waHref && (
           <a
             href={waHref}

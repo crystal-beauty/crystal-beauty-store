@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
  * Live communes for a wilaya — exact carrier spelling + stop-desk availability.
  */
 export async function GET(req: NextRequest) {
-  const wilayaId = parseInt(new URL(req.url).searchParams.get("wilaya_id") || "", 10);
+  const sp = new URL(req.url).searchParams;
+  const wilayaId = parseInt(sp.get("wilaya_id") || sp.get("wilayaId") || "", 10);
   if (!wilayaId || wilayaId < 1 || wilayaId > 58) {
     return NextResponse.json({ error: "INVALID_WILAYA" }, { status: 400 });
   }

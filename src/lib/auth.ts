@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 export { hashPassword } from "@/lib/auth-core";
 
-const SECRET = process.env.AUTH_SECRET || "lumina-gifts-secret-key-change-in-production";
-export const SESSION_COOKIE = "lumina_session";
+const SECRET = process.env.AUTH_SECRET || "crystal-beauty-secret-key-change-in-production";
+export const SESSION_COOKIE = "crystal_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export type SessionPayload = {

@@ -9,6 +9,7 @@
  * 6. Delete the parcel at the carrier (DELETE /api/v1/delete/order)
  * 7. Cancel the order locally, then clean up (delete order + product)
  */
+export {};
 const BASE = "http://localhost:3000";
 
 let cookie = "";
@@ -38,7 +39,7 @@ async function main() {
   console.log("— 1. Admin login");
   const login = await api("/api/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email: "admin@luminagifts.com", password: "Admin@123" }),
+    body: JSON.stringify({ email: "admin@crystalbeauty.dz", password: "Admin@123" }),
   });
   console.log("   login:", login.status, login.data?.member?.role || login.data?.role || JSON.stringify(login.data).slice(0, 120));
   if (login.status !== 200) throw new Error("login failed");

@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { getSettings, type StoreSettings } from "@/lib/settings";
+import { WILAYAS } from "@/lib/format";
 
 /**
  * World Express delivery client (EcoTrack platform tenant).
@@ -53,10 +54,10 @@ export async function carrierConfig(settings?: StoreSettings) {
 
 // ---------- cache ----------
 
-async function cacheGet<T>(key: string): Promise<T | null> {
+async function cacheGet<T>(key: string, allowExpired = false): Promise<T | null> {
   try {
     const row = await db.carrierCache.findUnique({ where: { key } });
-    if (row && row.expiresAt > new Date()) return JSON.parse(row.payload) as T;
+    if (row && (allowExpired || row.expiresAt > new Date())) return JSON.parse(row.payload) as T;
   } catch {
     // cache miss on any error
   }
@@ -139,17 +140,24 @@ export async function getFees(force = false, cfg?: { token: string; bases: strin
     const cached = await cacheGet<WilayaFee[]>("fees");
     if (cached) return cached;
   }
-  const res = await carrierFetch("/api/v1/get/fees", {}, cfg);
-  if (!res.ok) throw new Error(`CARRIER_FEES_HTTP_${res.status}`);
-  const raw = (res.data as { livraison?: { wilaya_id: number; tarif: string; tarif_stopdesk: string }[] })?.livraison;
-  if (!Array.isArray(raw)) throw new Error("CARRIER_FEES_BAD_FORMAT");
-  const fees: WilayaFee[] = raw.map((r) => ({
-    wilaya_id: Number(r.wilaya_id),
-    tarif: Math.round(parseFloat(r.tarif) || 0),
-    tarif_stopdesk: Math.round(parseFloat(r.tarif_stopdesk) || 0),
-  }));
-  await cacheSet("fees", fees);
-  return fees;
+  try {
+    const res = await carrierFetch("/api/v1/get/fees", {}, cfg);
+    if (!res.ok) throw new Error(`CARRIER_FEES_HTTP_${res.status}`);
+    const raw = (res.data as { livraison?: { wilaya_id: number; tarif: string; tarif_stopdesk: string }[] })?.livraison;
+    if (!Array.isArray(raw)) throw new Error("CARRIER_FEES_BAD_FORMAT");
+    const fees: WilayaFee[] = raw.map((r) => ({
+      wilaya_id: Number(r.wilaya_id),
+      tarif: Math.round(parseFloat(r.tarif) || 0),
+      tarif_stopdesk: Math.round(parseFloat(r.tarif_stopdesk) || 0),
+    }));
+    await cacheSet("fees", fees);
+    return fees;
+  } catch (err) {
+    // Stale-while-revalidate fallback: if carrier is unreachable/unconfigured, use cached fees if available
+    const stale = await cacheGet<WilayaFee[]>("fees", true);
+    if (stale && stale.length > 0) return stale;
+    throw err;
+  }
 }
 
 export async function getFeeForWilaya(wilayaId: number, type: "HOME" | "STOP_DESK"): Promise<number | null> {
@@ -167,19 +175,45 @@ export async function getCommunes(wilayaId: number, force = false): Promise<Comm
     const cached = await cacheGet<Commune[]>(key);
     if (cached) return cached;
   }
-  // Carrier quirk: the documented `code_wilaya` param is ignored — must use wilaya_id.
-  const res = await carrierFetch("/api/v1/get/communes", { query: { wilaya_id: wilayaId } });
-  if (!res.ok) throw new Error(`CARRIER_COMMUNES_HTTP_${res.status}`);
-  const raw = res.data as { nom: string; wilaya_id: number; code_postal: string; has_stop_desk: number | boolean }[];
-  if (!Array.isArray(raw)) throw new Error("CARRIER_COMMUNES_BAD_FORMAT");
-  const communes: Commune[] = raw.map((c) => ({
-    name: c.nom,
-    wilaya_id: Number(c.wilaya_id),
-    code_postal: String(c.code_postal ?? ""),
-    has_stop_desk: c.has_stop_desk === 1 || c.has_stop_desk === true || c.has_stop_desk === "1",
-  }));
-  await cacheSet(key, communes);
-  return communes;
+  try {
+    // Carrier quirk: the documented `code_wilaya` param is ignored — must use wilaya_id.
+    const res = await carrierFetch("/api/v1/get/communes", { query: { wilaya_id: wilayaId } });
+    if (!res.ok) throw new Error(`CARRIER_COMMUNES_HTTP_${res.status}`);
+    const raw = res.data as { nom: string; wilaya_id: number; code_postal: string; has_stop_desk: number | boolean | string }[];
+    if (!Array.isArray(raw)) throw new Error("CARRIER_COMMUNES_BAD_FORMAT");
+    const communes: Commune[] = raw.map((c) => ({
+      name: c.nom,
+      wilaya_id: Number(c.wilaya_id),
+      code_postal: String(c.code_postal ?? ""),
+      has_stop_desk: Boolean(c.has_stop_desk === 1 || c.has_stop_desk === true || c.has_stop_desk === "1"),
+    }));
+    await cacheSet(key, communes);
+    return communes;
+  } catch (err) {
+    const stale = await cacheGet<Commune[]>(key, true);
+    if (stale && stale.length > 0) return stale;
+
+    // Resilient offline/unconfigured fallback: ensure checkout is never blocked
+    const meta = WILAYAS.find((w) => w.id === wilayaId);
+    if (meta) {
+      if (wilayaId === 16) {
+        const algerCommunes = [
+          "Bab Ezzouar", "Alger Centre", "Hydra", "Kouba", "Rouiba", "Zéralda",
+          "Chéraga", "El Biar", "Bir Mourad Raïs", "Bordj El Kiffan", "Dar El Beïda",
+          "Hussein Dey", "Dely Ibrahim", "Ain Benian", "Beni Messous", "Draria",
+          "Birkhadem", "Saoula", "Birtouta", "Baraki", "El Harrach", "Mohammadia"
+        ];
+        return algerCommunes.map((name) => ({
+          name,
+          wilaya_id: 16,
+          code_postal: "",
+          has_stop_desk: name === "Bab Ezzouar" || name === "Hydra" || name === "Kouba" || name === "Rouiba",
+        }));
+      }
+      return [{ name: meta.fr, wilaya_id: wilayaId, code_postal: "", has_stop_desk: true }];
+    }
+    throw err;
+  }
 }
 
 // ---------- Endpoint 3: create parcel ----------

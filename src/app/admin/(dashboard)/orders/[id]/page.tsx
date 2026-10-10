@@ -28,6 +28,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         customerName: order.customerName,
         email: order.email,
         phone: order.phone,
+        phone2: order.phone2,
         wilayaId: order.wilayaId,
         wilayaName: order.wilayaName,
         commune: order.commune,

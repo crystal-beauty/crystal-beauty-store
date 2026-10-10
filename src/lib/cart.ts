@@ -74,7 +74,7 @@ export const useCart = create<CartState>()(
         })),
       clear: () => set({ items: [] }),
     }),
-    { name: "lumina-cart" }
+    { name: "crystal-beauty-cart" }
   )
 );
 

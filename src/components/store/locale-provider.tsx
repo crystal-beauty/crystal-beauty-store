@@ -1,21 +1,28 @@
 "use client";
 
-import { createContext, useCallback, useContext } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t as translate, type DictKey, type Lang } from "@/lib/i18n";
 
 const LocaleContext = createContext<{ lang: Lang } | null>(null);
 
-export function LocaleProvider({ lang, children }: { lang: Lang; children: React.ReactNode }) {
-  const router = useRouter();
+export function LocaleProvider({ lang: initialLang, children }: { lang: Lang; children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(initialLang);
 
-  const setLang = useCallback(
-    (next: Lang) => {
-      document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
-      router.refresh();
-    },
-    [router]
-  );
+  const setLang = useCallback((next: Lang) => {
+    document.cookie = `lang=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    setLangState(next);
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = next;
+      document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
+      if (next === "ar") {
+        document.body.classList.add("lang-ar");
+      } else {
+        document.body.classList.remove("lang-ar");
+      }
+    }
+    window.location.reload();
+  }, []);
 
   return (
     <LocaleContext.Provider value={{ lang }}>

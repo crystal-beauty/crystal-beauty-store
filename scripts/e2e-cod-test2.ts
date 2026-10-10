@@ -1,3 +1,4 @@
+export {};
 /** Supplementary E2E: stop-desk fee (400 DA at Bab Ezzouar), stop-desk rejection at a non-desk commune (Alger Centre), track-by-phone. */
 const BASE = "http://localhost:3000";
 
@@ -6,7 +7,7 @@ async function main() {
   const login = await fetch(`${BASE}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "admin@luminagifts.com", password: "Admin@123" }),
+    body: JSON.stringify({ email: "admin@crystalbeauty.dz", password: "Admin@123" }),
   });
   const cookie = (login.headers.get("set-cookie") || "").split(";")[0];
 

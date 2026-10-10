@@ -197,22 +197,27 @@ export default async function HomePage() {
               {t("viewAll", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {categories.map((cat) => (
-              <Link key={cat.id} href={`/products?category=${cat.slug}`} className="group relative overflow-hidden rounded-2xl aspect-[4/5] shadow-luxe">
+              <Link key={cat.id} href={`/products?category=${cat.slug}`} className="group relative overflow-hidden rounded-3xl aspect-[4/5] shadow-luxe hover:shadow-luxe-lg transition-all">
                 {cat.image ? (
                   <img
                     src={cat.image}
                     alt={cat.name}
                     loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-[var(--primary)]" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary)]/90 via-[var(--primary)]/20 to-transparent" />
-                <div className="absolute bottom-0 inset-x-0 p-5">
-                  <h3 className="font-display text-xl font-medium text-white">{cat.name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary)]/90 via-[var(--primary)]/30 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70 block mb-1">Collection</span>
+                  <h3 className="font-display text-2xl font-semibold text-white">{cat.name}</h3>
+                  <p className="text-xs text-white/80 mt-1.5 line-clamp-2 leading-relaxed">{cat.description}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
+                    {t("browse", lang)} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -220,10 +225,59 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ================= EDITORIAL LUXURY SHOWCASE ================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="relative overflow-hidden rounded-3xl bg-[var(--primary)] text-white shadow-luxe-lg border border-white/10">
+          <div className="grid lg:grid-cols-2 items-center">
+            <div className="p-8 sm:p-12 lg:p-16 space-y-6">
+              <span className="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20">
+                <Sparkles className="h-3.5 w-3.5 text-white" />
+                {lang === "ar" ? "تجربة فاخرة واستثنائية" : "L'Art du Cadeau & du Soin"}
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
+                {lang === "ar" ? "عناية فائقة، أناقة راقية وتوصيل موثوق" : "L'Excellence Réinventée pour Votre Beauté"}
+              </h2>
+              <p className="text-white/80 text-sm sm:text-base leading-relaxed max-w-xl">
+                {lang === "ar"
+                  ? "ننتقي لكم بعناية أفضل المنتجات التجميلية والعطور الفاخرة، مع علب هدايا أنيقة وخدمة توصيل سريعة تغطي كافة 58 ولاية جزائرية مع راحة الدفع عند الاستلام."
+                  : "Chaque produit et coffret Crystal Beauty est pensé comme un écrin d'émotion : ingrédients d'exception, flacons ciselés et packaging raffiné. Commandez en toute sérénité avec le paiement à la livraison sur 58 wilayas."}
+              </p>
+              <div className="pt-2 flex flex-wrap gap-4">
+                <Link
+                  href="/products"
+                  className="press inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-8 py-4 rounded-full shadow-md text-sm"
+                >
+                  {t("shopCollection", lang)} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                </Link>
+                {settings.whatsappNumber && (
+                  <a
+                    href={`https://wa.me/${toInternationalDz(settings.whatsappNumber).replace("+", "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-7 py-4 rounded-full transition-colors text-sm border border-white/20"
+                  >
+                    WhatsApp
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="relative h-72 sm:h-96 lg:h-full min-h-[380px] overflow-hidden">
+              <img
+                src="/uploads/prod-coffret-signature.jpg"
+                alt="Coffret Signature"
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[var(--primary)] via-transparent to-transparent rtl:lg:bg-gradient-to-l" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= PRODUCTS ================= */}
-      <section className="bg-white border-y border-border py-14">
+      <section className="bg-white/60 border-y border-border py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <div className="text-center mb-12">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] mb-2">{t("shopAll", lang)}</p>
             <h2 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">{settings.storeName}</h2>
           </div>

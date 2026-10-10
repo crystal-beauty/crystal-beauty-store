@@ -23,7 +23,7 @@ interface OrderData {
   createdAt: string;
   items: {
     productName: string;
-    productImage: string;
+    productImage: string | null;
     variantSelections: string;
     quantity: number;
     giftBox: boolean;

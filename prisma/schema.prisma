@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============ TEAM / AUTH ============
@@ -109,6 +110,7 @@ model Order {
   customerName      String
   email             String? // optional
   phone             String // 05/06/07…
+  phone2            String? // backup phone 05/06/07…
   // Algerian delivery address
   wilayaId          Int?
   wilayaName        String

@@ -71,10 +71,10 @@ export default function AdminShell({
       {/* ===== Sidebar (desktop) ===== */}
       <aside className="hidden lg:flex flex-col w-72 bg-[var(--sidebar)] text-[var(--sidebar-foreground)] fixed inset-y-0 z-40">
         <div className="flex items-center gap-2.5 px-6 h-16 border-b border-[var(--sidebar-border)]">
-          <Sparkles className="h-6 w-6 text-white" />
+          <img src="/crystal-beauty-logo.jpg" alt="Crystal Beauty" className="h-8 w-8 rounded-lg object-contain border border-white/20 bg-white/5" />
           <div>
-            <p className="font-display text-lg font-semibold leading-none">Dashboard</p>
-            <p className="text-[11px] text-white/50 mt-1">Store Management</p>
+            <p className="font-display text-lg font-semibold leading-none">Crystal Beauty</p>
+            <p className="text-[11px] text-white/50 mt-1">Tableau de bord</p>
           </div>
         </div>
 
@@ -130,8 +130,8 @@ export default function AdminShell({
       {/* ===== Mobile header ===== */}
       <div className="lg:hidden fixed top-0 inset-x-0 h-14 bg-[var(--sidebar)] text-white z-40 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-white" />
-          <span className="font-display font-semibold">Dashboard</span>
+          <img src="/crystal-beauty-logo.jpg" alt="Crystal Beauty" className="h-6 w-6 rounded-md object-contain border border-white/20" />
+          <span className="font-display font-semibold">Crystal Beauty</span>
         </div>
         <button onClick={() => setOpen(!open)} aria-label="Toggle menu" className="p-2">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

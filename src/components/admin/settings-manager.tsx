@@ -53,22 +53,22 @@ export default function SettingsManager({ initial }: { initial: Record<string, s
   const labelCls = "block text-sm font-medium text-[var(--primary)] mb-1.5";
   const hintCls = "mt-1 text-xs text-muted-foreground";
 
-  const TextField = ({ k, label, hint, placeholder, type = "text" }: { k: string; label: string; hint?: string; placeholder?: string; type?: string }) => (
+  const TextField = ({ k, label, hint, placeholder, type = "text", dir }: { k: string; label: string; hint?: string; placeholder?: string; type?: string; dir?: string }) => (
     <div>
       <label className={labelCls} htmlFor={`f-${k}`}>
         {label}
       </label>
-      <input id={`f-${k}`} type={type} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} className={inputCls} />
+      <input id={`f-${k}`} type={type} dir={dir} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} className={inputCls} />
       {hint && <p className={hintCls}>{hint}</p>}
     </div>
   );
 
-  const TextArea = ({ k, label, hint, rows = 4 }: { k: string; label: string; hint?: string; rows?: number }) => (
+  const TextArea = ({ k, label, hint, rows = 4, dir }: { k: string; label: string; hint?: string; rows?: number; dir?: string }) => (
     <div>
       <label className={labelCls} htmlFor={`f-${k}`}>
         {label}
       </label>
-      <textarea id={`f-${k}`} rows={rows} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} className={inputCls} />
+      <textarea id={`f-${k}`} rows={rows} dir={dir} value={String(form[k] ?? "")} onChange={(e) => set(k, e.target.value)} className={inputCls} />
       {hint && <p className={hintCls}>{hint}</p>}
     </div>
   );

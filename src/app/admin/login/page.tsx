@@ -42,11 +42,15 @@ function LoginForm() {
     <div dir="ltr" lang="fr" className="min-h-screen flex items-center justify-center bg-[var(--primary)] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="h-16 w-16 rounded-2xl bg-white/10 border border-white/25 flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="h-8 w-8 text-white" />
+          <div className="h-16 w-16 rounded-2xl bg-white/10 border border-white/25 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} alt={settings.storeName} className="h-12 w-12 object-contain rounded-xl" />
+            ) : (
+              <Sparkles className="h-8 w-8 text-white" />
+            )}
           </div>
           <h1 className="font-display text-3xl font-semibold text-white">{settings.storeName}</h1>
-          <p className="text-white/60 text-sm mt-1">Store Dashboard — sign in to manage your gifts</p>
+          <p className="text-white/60 text-sm mt-1">Tableau de bord — connectez-vous pour gérer votre boutique</p>
         </div>
 
         <form onSubmit={submit} className="bg-white rounded-3xl shadow-luxe-lg p-8 space-y-5">

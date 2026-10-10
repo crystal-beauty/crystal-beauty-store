@@ -21,7 +21,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
 
   // ---- form state ----
   const [form, setForm] = useState({
-    customerName: "", email: "", phone: "", address: "",
+    customerName: "", email: "", phone: "", phone2: "", address: "",
     notes: "", giftMessage: "", recipientName: "", recipientPhone: "",
   });
   const [delivery, setDelivery] = useState<DeliveryValue>(emptyDelivery);
@@ -78,6 +78,10 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
       toast.error(t("phoneInvalid"));
       return;
     }
+    if (form.phone2.trim() && !isValidDzMobile(form.phone2)) {
+      toast.error(t("phoneInvalid"));
+      return;
+    }
     if (!delivery.wilayaId || !delivery.commune) {
       toast.error(t("selectBoth"));
       return;
@@ -93,6 +97,8 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          phone2: form.phone2.trim() || undefined,
+          address: delivery.deliveryType === "STOP_DESK" ? (form.address.trim() || "Bureau / Point Relais") : form.address,
           wilayaId: delivery.wilayaId,
           commune: delivery.commune,
           deliveryType: delivery.deliveryType,
@@ -112,7 +118,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
         return;
       }
       trackPixel("AddPaymentInfo", {
-        customData: { value: total, currency: "DZD", payment_method: "COD" },
+        customData: { value: total ?? undefined, currency: "DZD", payment_method: "COD" },
       });
       clear();
       router.push(`/order-confirmation/${data.orderNumber}?event=${encodeURIComponent(data.pixelEventId)}`);
@@ -152,7 +158,7 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
               {t("contactInfo")}
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
-              <div>
+              <div className="sm:col-span-2">
                 <label className={labelCls} htmlFor="co-name">{t("yourName")} *</label>
                 <input id="co-name" required value={form.customerName} onChange={set("customerName")} className={inputCls} placeholder={t("yourName")} />
               </div>
@@ -172,9 +178,19 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
                   dir="ltr"
                 />
               </div>
-              <div className="sm:col-span-2">
-                <label className={labelCls} htmlFor="co-email">{t("emailOptional")}</label>
-                <input id="co-email" type="email" value={form.email} onChange={set("email")} className={inputCls} placeholder="email@exemple.com" />
+              <div>
+                <label className={labelCls} htmlFor="co-phone2">{t("phone2")}</label>
+                <input
+                  id="co-phone2"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={form.phone2}
+                  onChange={(e) => setForm((f) => ({ ...f, phone2: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                  className={cn(inputCls, "tracking-wider")}
+                  placeholder="06 / 07... (optionnel)"
+                  dir="ltr"
+                />
               </div>
             </div>
           </section>
@@ -195,17 +211,23 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
               }}
             />
             <div className="mt-4">
-              <label className={labelCls} htmlFor="co-address">{t("yourAddress")} *</label>
+              <label className={labelCls} htmlFor="co-address">
+                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : `${t("yourAddress")} *`}
+              </label>
               <input
                 id="co-address"
-                required
+                required={delivery.deliveryType === "HOME"}
                 maxLength={30}
                 value={form.address}
                 onChange={set("address")}
                 className={inputCls}
-                placeholder={t("yourAddress")}
+                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais" : t("yourAddress")}
               />
-              <p className="mt-1.5 text-xs text-muted-foreground">{t("addressHint")} ({form.address.length}/30)</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {delivery.deliveryType === "STOP_DESK"
+                  ? "Votre colis sera acheminé au bureau du transporteur dans votre commune."
+                  : `${t("addressHint")} (${form.address.length}/30)`}
+              </p>
             </div>
             <div className="mt-4">
               <label className={labelCls} htmlFor="co-notes">{t("optionalNote")}</label>
