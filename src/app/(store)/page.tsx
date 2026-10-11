@@ -53,81 +53,53 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* ================= HERO — full-bleed navy band ================= */}
-      <section className="relative overflow-hidden bg-[var(--primary)] animate-rise">
-        {settings.heroImage ? (
-          <>
-            <img
-              src={settings.heroImage}
-              alt={settings.storeName}
-              className="absolute inset-0 h-full w-full object-cover rtl:-scale-x-100"
+      {/* ================= HERO — Responsive Desktop & Phone View ================= */}
+      <section className="relative overflow-hidden bg-[var(--primary)]">
+        <Link
+          href={settings.heroCtaLink || "/products"}
+          className="group block relative w-full overflow-hidden focus:outline-none"
+          aria-label={heroTitle || "Crystal Beauty"}
+        >
+          {/* Accessible semantic H1 for SEO / Screen readers */}
+          <h1 className="sr-only">
+            {heroTitle} — {heroSubtitle}
+          </h1>
+
+          <picture className="block w-full">
+            {/* Phone View (< 768px): Vertical 9:16 portrait banner */}
+            <source
+              media="(max-width: 767px)"
+              srcSet="/uploads/hero-mobile.webp"
+              type="image/webp"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/95 via-[var(--primary)]/75 to-[var(--primary)]/25 rtl:bg-gradient-to-l" />
-          </>
-        ) : (
-          /* Calm composed fallback — pure design, no glows, no fake imagery */
-          <>
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[#102a58] to-[#071431]" />
-            <div className="absolute inset-0 dot-texture opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_50%,black,transparent)] rtl:[mask-image:radial-gradient(70%_70%_at_70%_50%,black,transparent)]" />
-            <span
-              aria-hidden
-              className="hidden lg:block absolute end-8 top-1/2 -translate-y-1/2 font-display text-[17rem] leading-none text-white/[0.05] select-none pointer-events-none"
-            >
-              {settings.storeName.charAt(0)}
-            </span>
-            <span
-              aria-hidden
-              className="lg:hidden absolute -end-6 -top-10 font-display text-[11rem] leading-none text-white/[0.05] select-none pointer-events-none"
-            >
-              {settings.storeName.charAt(0)}
-            </span>
-          </>
-        )}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* One calm entrance for the whole block — no per-element stagger */}
-          <div className="max-w-2xl py-16 sm:py-24 lg:py-36 animate-rise">
-            {settings.tagline && (
-              <span className="inline-flex items-center gap-2 bg-white/10 text-white/90 text-xs font-medium px-4 py-1.5 rounded-full border border-white/20 mb-6">
-                <Sparkles className="h-3.5 w-3.5 text-white/90" />
-                {settings.tagline}
-              </span>
-            )}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.1] text-balance">
-              {heroTitle}
-            </h1>
-            {heroSubtitle && (
-              <p className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-lg">
-                {heroSubtitle}
-              </p>
-            )}
-            <div className="mt-9 flex flex-wrap gap-3.5">
-              <Link
-                href={settings.heroCtaLink || "/products"}
-                className="press inline-flex items-center gap-2 bg-white text-[var(--primary)] hover:bg-[#e8ecf5] font-semibold px-8 py-4 rounded-full shadow-md"
-              >
-                {heroCta}
-                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-              </Link>
-              <Link
-                href="/track"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-8 py-4 rounded-full transition-colors border border-white/25"
-              >
-                {t("trackYourOrder", lang)}
-              </Link>
-            </div>
-            {/* Reassurance row — verifiable facts only */}
-            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/60">
-              <span className="inline-flex items-center gap-1.5">
-                <Banknote className="h-3.5 w-3.5 text-white/80" />
-                {t("codBadge", lang)}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5 text-white/80" />
-                {t("wilayasBadge", lang)}
-              </span>
-            </div>
-          </div>
-        </div>
+            <source
+              media="(max-width: 767px)"
+              srcSet={settings.heroImageMobile || "/uploads/hero-mobile.jpg"}
+              type="image/jpeg"
+            />
+
+            {/* Desktop View (>= 768px): Horizontal 16:9 landscape banner */}
+            <source
+              media="(min-width: 768px)"
+              srcSet="/uploads/hero-desktop.webp"
+              type="image/webp"
+            />
+            <source
+              media="(min-width: 768px)"
+              srcSet={settings.heroImage || "/uploads/hero-desktop.jpg"}
+              type="image/jpeg"
+            />
+
+            {/* Fallback image */}
+            <img
+              src={settings.heroImage || "/uploads/hero-desktop.jpg"}
+              alt={settings.storeName}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-auto object-cover select-none transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+            />
+          </picture>
+        </Link>
       </section>
 
       {/* ================= TRUST BAR (verifiable claims only) ================= */}
