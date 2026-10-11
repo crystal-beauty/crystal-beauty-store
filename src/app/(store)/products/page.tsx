@@ -6,6 +6,12 @@ import ProductCard, { type ProductCardData } from "@/components/store/product-ca
 import ShopFilters from "@/components/store/shop-filters";
 import { getLang } from "@/lib/locale-server";
 import { t } from "@/lib/i18n";
+import {
+  getLocalizedCategoryName,
+  getLocalizedCategoryDesc,
+  getLocalizedProductName,
+  getLocalizedProductShortDesc,
+} from "@/lib/catalog-i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +53,7 @@ export default async function ProductsPage({ searchParams }: Props) {
     const media = JSON.parse(p.media || "[]");
     return {
       id: p.id,
-      name: p.name,
+      name: getLocalizedProductName(p.slug, p.name, lang),
       slug: p.slug,
       price: p.price,
       comparePrice: p.comparePrice,
@@ -55,9 +61,16 @@ export default async function ProductsPage({ searchParams }: Props) {
       stock: p.stock,
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
-      shortDescription: p.shortDescription,
+      shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
     };
   });
+
+  const localizedActiveCatName = activeCategory
+    ? getLocalizedCategoryName(activeCategory.slug, activeCategory.name, lang)
+    : undefined;
+  const localizedActiveCatDesc = activeCategory
+    ? getLocalizedCategoryDesc(activeCategory.slug, activeCategory.description, lang)
+    : undefined;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -67,15 +80,24 @@ export default async function ProductsPage({ searchParams }: Props) {
           {activeCategory ? t("browse", lang) : t("collectionEyebrow", lang)}
         </p>
         <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)]">
-          {activeCategory ? activeCategory.name : q ? `${t("resultsFor", lang)} «${q}»` : t("findPerfectGift", lang)}
+          {localizedActiveCatName ? localizedActiveCatName : q ? `${t("resultsFor", lang)} «${q}»` : t("findPerfectGift", lang)}
         </h1>
-        {activeCategory?.description && (
-          <p className="mt-3 text-muted-foreground max-w-xl mx-auto text-sm">{activeCategory.description}</p>
+        {localizedActiveCatDesc && (
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto text-sm">{localizedActiveCatDesc}</p>
         )}
       </div>
 
       <Suspense fallback={<div className="h-14" />}>
-        <ShopFilters categories={categories.map((c) => ({ slug: c.slug, name: c.name }))} activeCategory={category} sort={sort} q={q || ""} lang={lang} />
+        <ShopFilters
+          categories={categories.map((c) => ({
+            slug: c.slug,
+            name: getLocalizedCategoryName(c.slug, c.name, lang),
+          }))}
+          activeCategory={category}
+          sort={sort}
+          q={q || ""}
+          lang={lang}
+        />
       </Suspense>
 
       {/* Grid */}

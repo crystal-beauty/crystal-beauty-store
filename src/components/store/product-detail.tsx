@@ -562,16 +562,15 @@ export default function ProductDetail({
 
             <div>
               <label className={labelCls} htmlFor="qo-address">
-                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : `${t("yourAddress")} *`}
+                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : t("yourAddress")}
               </label>
               <input
                 id="qo-address"
-                required={delivery.deliveryType === "HOME"}
                 maxLength={30}
                 value={form.address}
                 onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                 className={inputCls}
-                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais" : t("yourAddress")}
+                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais (optionnel)" : t("yourAddress")}
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
                 {delivery.deliveryType === "STOP_DESK"
@@ -590,7 +589,7 @@ export default function ProductDetail({
                 value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 className={inputCls}
-                placeholder="Précisions utiles pour la livraison..."
+                placeholder="Précisions utiles ou instructions pour la livraison..."
               />
             </div>
 

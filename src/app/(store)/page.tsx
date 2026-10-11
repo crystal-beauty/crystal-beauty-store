@@ -8,6 +8,12 @@ import { Banknote, Truck, Gift, PackageSearch, ArrowRight, Sparkles, ClipboardCh
 import ProductCard, { type ProductCardData } from "@/components/store/product-card";
 import Reveal from "@/components/store/reveal";
 import { toInternationalDz } from "@/lib/format";
+import {
+  getLocalizedCategoryName,
+  getLocalizedCategoryDesc,
+  getLocalizedProductName,
+  getLocalizedProductShortDesc,
+} from "@/lib/catalog-i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +40,7 @@ export default async function HomePage() {
     const media = parseMedia(p.media);
     return {
       id: p.id,
-      name: p.name,
+      name: getLocalizedProductName(p.slug, p.name, lang),
       slug: p.slug,
       price: p.price,
       comparePrice: p.comparePrice,
@@ -42,7 +48,7 @@ export default async function HomePage() {
       stock: p.stock,
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
-      shortDescription: p.shortDescription,
+      shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
     };
   };
 
@@ -195,9 +201,15 @@ export default async function HomePage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary)]/90 via-[var(--primary)]/30 to-transparent" />
                 <div className="absolute bottom-0 inset-x-0 p-6 sm:p-8">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70 block mb-1">Collection</span>
-                  <h3 className="font-display text-2xl font-semibold text-white">{cat.name}</h3>
-                  <p className="text-xs text-white/80 mt-1.5 line-clamp-2 leading-relaxed">{cat.description}</p>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70 block mb-1">
+                    {lang === "ar" ? "تشكيلة" : "Collection"}
+                  </span>
+                  <h3 className="font-display text-2xl font-semibold text-white">
+                    {getLocalizedCategoryName(cat.slug, cat.name, lang)}
+                  </h3>
+                  <p className="text-xs text-white/80 mt-1.5 line-clamp-2 leading-relaxed">
+                    {getLocalizedCategoryDesc(cat.slug, cat.description, lang)}
+                  </p>
                   <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
                     {t("browse", lang)} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                   </span>
@@ -215,15 +227,15 @@ export default async function HomePage() {
             <div className="p-8 sm:p-12 lg:p-16 space-y-6">
               <span className="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20">
                 <Sparkles className="h-3.5 w-3.5 text-white" />
-                {lang === "ar" ? "تجربة فاخرة واستثنائية" : "L'Art du Cadeau & du Soin"}
+                {lang === "ar" ? "تجربة فاخرة واستثنائية" : "L'Art d'Illuminer & d'Offrir"}
               </span>
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight">
-                {lang === "ar" ? "عناية فائقة، أناقة راقية وتوصيل موثوق" : "L'Excellence Réinventée pour Votre Beauté"}
+                {lang === "ar" ? "هدايا استثنائية، أناقة راقية وتوصيل موثوق" : "L'Émotion d'Offrir, la Magie en Plus"}
               </h2>
               <p className="text-white/80 text-sm sm:text-base leading-relaxed max-w-xl">
                 {lang === "ar"
-                  ? "ننتقي لكم بعناية أفضل المنتجات التجميلية والعطور الفاخرة، مع علب هدايا أنيقة وخدمة توصيل سريعة تغطي كافة 58 ولاية جزائرية مع راحة الدفع عند الاستلام."
-                  : "Chaque produit et coffret Crystal Beauty est pensé comme un écrin d'émotion : ingrédients d'exception, flacons ciselés et packaging raffiné. Commandez en toute sérénité avec le paiement à la livraison sur 58 wilayas."}
+                  ? "ننتقي لكم بعناية أجمل المصابيح الساحرة، الكرات البلورية المضيئة وساعات الديكور، مع علب هدايا ملكية فاخرة وتوصيل سريع لكافة 58 ولاية مع راحة الدفع عند الاستلام."
+                  : "Chaque création Crystal Beauty est pensée pour illuminer votre intérieur ou offrir un souvenir inoubliable : lampes féeriques, boules de cristal lumineuses et écrins raffinés. Commandez en toute sérénité avec paiement à la livraison sur 58 wilayas."}
               </p>
               <div className="pt-2 flex flex-wrap gap-4">
                 <Link
@@ -246,8 +258,8 @@ export default async function HomePage() {
             </div>
             <div className="relative h-72 sm:h-96 lg:h-full min-h-[380px] overflow-hidden">
               <img
-                src="/uploads/prod-coffret-signature.jpg"
-                alt="Coffret Signature"
+                src="/images/real-giftbox-navy.jpg"
+                alt={lang === "ar" ? "علبة هدايا كريستال بيوتي الفاخرة" : "Écrin Cadeau Signature Crystal Beauty"}
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />

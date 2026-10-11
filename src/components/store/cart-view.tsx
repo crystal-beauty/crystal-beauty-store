@@ -4,15 +4,17 @@ import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag, Gift, ArrowRight, Banknote } from "lucide-react";
 import { useCart, cartSubtotal } from "@/lib/cart";
 import { useSettings } from "@/components/store/settings-provider";
-import { useT } from "@/components/store/locale-provider";
+import { useLang, useT } from "@/components/store/locale-provider";
 import { formatMoney } from "@/lib/format";
 import { trackPixel } from "@/lib/pixel";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { getLocalizedProductName, getLocalizedVariantName, getLocalizedVariantOptionLabel } from "@/lib/catalog-i18n";
 
 export default function CartView() {
   const { items, removeItem, updateQuantity, toggleGiftBox } = useCart();
   const settings = useSettings();
+  const lang = useLang();
   const t = useT();
   const subtotal = cartSubtotal(items);
   const giftBoxCount = items.filter((i) => i.giftBox).length;
@@ -83,18 +85,20 @@ export default function CartView() {
                       href={`/product/${item.slug}`}
                       className="font-display text-lg font-medium text-[var(--primary)] hover:text-[var(--brand)] transition-colors"
                     >
-                      {item.name}
+                      {getLocalizedProductName(item.slug, item.name, lang)}
                     </Link>
                     {Object.keys(item.selections).length > 0 && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        {Object.entries(item.selections).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                        {Object.entries(item.selections)
+                          .map(([k, v]) => `${getLocalizedVariantName(k, lang)}: ${getLocalizedVariantOptionLabel(v, lang)}`)
+                          .join(" · ")}
                       </p>
                     )}
                   </div>
                   <button
                     onClick={() => removeItem(item.key)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label={`${t("remove")} ${item.name}`}
+                    aria-label={`${t("remove")} ${getLocalizedProductName(item.slug, item.name, lang)}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

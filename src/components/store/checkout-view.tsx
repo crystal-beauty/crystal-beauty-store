@@ -7,14 +7,16 @@ import { useCart, cartSubtotal } from "@/lib/cart";
 import { useSettings } from "@/components/store/settings-provider";
 import { formatMoney, isValidDzMobile, toInternationalDz } from "@/lib/format";
 import { trackPixel } from "@/lib/pixel";
-import { useT } from "@/components/store/locale-provider";
+import { useLang, useT } from "@/components/store/locale-provider";
 import DeliverySelector, { emptyDelivery, type DeliveryValue } from "@/components/store/delivery-selector";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { getLocalizedProductName, getLocalizedVariantName, getLocalizedVariantOptionLabel } from "@/lib/catalog-i18n";
 
 export default function CheckoutView({ whatsappNumber }: { whatsappNumber: string }) {
   const router = useRouter();
   const settings = useSettings();
+  const lang = useLang();
   const t = useT();
   const { items, clear } = useCart();
   const subtotal = cartSubtotal(items);
@@ -216,16 +218,15 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             />
             <div className="mt-4">
               <label className={labelCls} htmlFor="co-address">
-                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : `${t("yourAddress")} *`}
+                {delivery.deliveryType === "STOP_DESK" ? t("addressDeskHint") : t("yourAddress")}
               </label>
               <input
                 id="co-address"
-                required={delivery.deliveryType === "HOME"}
                 maxLength={30}
                 value={form.address}
                 onChange={set("address")}
                 className={inputCls}
-                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais" : t("yourAddress")}
+                placeholder={delivery.deliveryType === "STOP_DESK" ? "ex. Bureau central ou point relais (optionnel)" : t("yourAddress")}
               />
               <p className="mt-1.5 text-xs text-muted-foreground">
                 {delivery.deliveryType === "STOP_DESK"
@@ -235,7 +236,14 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
             </div>
             <div className="mt-4">
               <label className={labelCls} htmlFor="co-notes">{t("optionalNote")}</label>
-              <textarea id="co-notes" value={form.notes} onChange={set("notes")} rows={2} className={inputCls} />
+              <textarea
+                id="co-notes"
+                value={form.notes}
+                onChange={set("notes")}
+                rows={2}
+                className={inputCls}
+                placeholder="Précisions ou instructions utiles pour la livraison..."
+              />
             </div>
           </section>
 
@@ -288,10 +296,14 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[var(--primary)] truncate">{item.name}</p>
+                    <p className="text-sm font-medium text-[var(--primary)] truncate">
+                      {getLocalizedProductName(item.slug, item.name, lang)}
+                    </p>
                     {Object.keys(item.selections).length > 0 && (
                       <p className="text-[11px] text-muted-foreground truncate">
-                        {Object.entries(item.selections).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                        {Object.entries(item.selections)
+                          .map(([k, v]) => `${getLocalizedVariantName(k, lang)}: ${getLocalizedVariantOptionLabel(v, lang)}`)
+                          .join(" · ")}
                       </p>
                     )}
                     {item.giftBox && (

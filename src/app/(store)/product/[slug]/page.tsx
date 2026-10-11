@@ -7,6 +7,14 @@ import { t } from "@/lib/i18n";
 import { ChevronRight } from "lucide-react";
 import ProductDetail from "@/components/store/product-detail";
 import ProductCard, { type ProductCardData } from "@/components/store/product-card";
+import {
+  getLocalizedCategoryName,
+  getLocalizedProductName,
+  getLocalizedProductDesc,
+  getLocalizedProductShortDesc,
+  getLocalizedVariantName,
+  getLocalizedVariantOptionLabel,
+} from "@/lib/catalog-i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -16,14 +24,22 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const product = await db.product.findUnique({ where: { slug } });
+  const [product, lang] = await Promise.all([
+    db.product.findUnique({ where: { slug } }),
+    getLang(),
+  ]);
   if (!product) return { title: "404" };
+  const name = getLocalizedProductName(product.slug, product.name, lang);
+  const desc =
+    getLocalizedProductShortDesc(product.slug, product.shortDescription, lang) ||
+    getLocalizedProductDesc(product.slug, product.description, lang)?.slice(0, 150) ||
+    undefined;
   return {
-    title: product.name,
-    description: product.shortDescription || product.description?.slice(0, 150) || undefined,
+    title: name,
+    description: desc,
     openGraph: {
-      title: product.name,
-      description: product.shortDescription || undefined,
+      title: name,
+      description: desc,
     },
   };
 }
@@ -75,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
     const media = JSON.parse(p.media || "[]");
     return {
       id: p.id,
-      name: p.name,
+      name: getLocalizedProductName(p.slug, p.name, lang),
       slug: p.slug,
       price: p.price,
       comparePrice: p.comparePrice,
@@ -83,8 +99,16 @@ export default async function ProductPage({ params }: Props) {
       stock: p.stock,
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
+      shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
     };
   });
+
+  const localizedName = getLocalizedProductName(product.slug, product.name, lang);
+  const localizedDesc = getLocalizedProductDesc(product.slug, product.description, lang);
+  const localizedShortDesc = getLocalizedProductShortDesc(product.slug, product.shortDescription, lang);
+  const localizedCategoryName = product.category
+    ? getLocalizedCategoryName(product.category.slug, product.category.name, lang)
+    : undefined;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -101,34 +125,34 @@ export default async function ProductPage({ params }: Props) {
           <>
             <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
             <Link href={`/products?category=${product.category.slug}`} className="hover:text-[var(--primary)]">
-              {product.category.name}
+              {localizedCategoryName}
             </Link>
           </>
         )}
         <ChevronRight className="h-3.5 w-3.5 rtl:rotate-180" />
-        <span className="text-[var(--primary)] font-medium">{product.name}</span>
+        <span className="text-[var(--primary)] font-medium">{localizedName}</span>
       </nav>
 
       <ProductDetail
         product={{
           id: product.id,
-          name: product.name,
+          name: localizedName,
           slug: product.slug,
           sku: product.sku,
           price: product.price,
           comparePrice: product.comparePrice,
           stock: product.stock,
           trackStock: product.trackStock,
-          shortDescription: product.shortDescription,
-          description: product.description,
+          shortDescription: localizedShortDesc,
+          description: localizedDesc,
           media: JSON.parse(product.media || "[]"),
           variants: product.variants.map((v) => ({
             id: v.id,
-            name: v.name,
+            name: getLocalizedVariantName(v.name, lang),
             required: v.required,
             options: v.options.map((o) => ({
               id: o.id,
-              label: o.label,
+              label: getLocalizedVariantOptionLabel(o.label, lang),
               priceModifier: o.priceModifier,
               hexColor: o.hexColor,
               stock: o.stock,

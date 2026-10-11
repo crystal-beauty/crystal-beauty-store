@@ -12,6 +12,7 @@ import {
   checkPhoneSanity,
   checkOrderRate,
 } from "@/lib/order-guard";
+import { getLocalizedVariantName, getLocalizedVariantOptionLabel } from "@/lib/catalog-i18n";
 
 interface IncomingItem {
   productId: string;
@@ -89,11 +90,7 @@ export async function POST(req: NextRequest) {
     const type = deliveryType === "STOP_DESK" ? "STOP_DESK" : "HOME";
     const resolvedAddress = type === "STOP_DESK"
       ? (address?.trim() ? address.trim().slice(0, 30) : "Bureau / Point Relais")
-      : address?.trim();
-
-    if (!resolvedAddress || (type === "HOME" && resolvedAddress.length > 30)) {
-      return NextResponse.json({ error: "Adresse requise (30 caractères maximum)." }, { status: 400 });
-    }
+      : (address?.trim() ? address.trim().slice(0, 30) : "Livraison à domicile");
 
     // ---- blocked phones (polite refusal) ----
     if (await isPhoneBlocked(phone)) {
@@ -131,14 +128,18 @@ export async function POST(req: NextRequest) {
       let unitPrice = product.price;
       const validSelections: Record<string, string> = {};
       for (const variant of product.variants) {
-        const chosen = raw.selections?.[variant.name];
+        const localizedVName = getLocalizedVariantName(variant.name, "ar");
+        const chosen = raw.selections?.[variant.name] || raw.selections?.[localizedVName];
         if (!chosen) {
           if (variant.required) {
             return NextResponse.json({ error: `Veuillez choisir « ${variant.name} » pour « ${product.name} ».` }, { status: 400 });
           }
           continue;
         }
-        const option = variant.options.find((o) => o.label === chosen);
+        const option = variant.options.find((o) => {
+          const locOpt = getLocalizedVariantOptionLabel(o.label, "ar");
+          return o.label === chosen || locOpt === chosen;
+        });
         if (!option) {
           return NextResponse.json({ error: `Option « ${chosen} » invalide pour ${variant.name}.` }, { status: 400 });
         }
@@ -149,7 +150,7 @@ export async function POST(req: NextRequest) {
           variantOptionsToDecrement.push({ optionId: option.id, qty });
         }
         unitPrice += option.priceModifier;
-        validSelections[variant.name] = chosen;
+        validSelections[variant.name] = option.label;
       }
       const giftBox = Boolean(raw.giftBox) && settings.giftBoxEnabled;
       if (giftBox) giftBoxCount += qty;
