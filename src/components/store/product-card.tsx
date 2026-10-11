@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShoppingBag, Package } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/pixel";
@@ -24,6 +25,7 @@ export interface ProductCardData {
 }
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
+  const router = useRouter();
   const settings = useSettings();
   const addItem = useCart((s) => s.addItem);
   const lang = useLang();
@@ -35,7 +37,10 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   function quickAdd(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (product.hasVariants) return; // needs option selection → go to product page
+    if (product.hasVariants) {
+      router.push(`/product/${product.slug}`);
+      return;
+    }
     if (soldOut) return;
     addItem({
       productId: product.id,
@@ -93,6 +98,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         {/* Quick add */}
         {!soldOut && (
           <button
+            type="button"
             onClick={quickAdd}
             aria-label={product.hasVariants ? name : `${t("addToCart")} — ${name}`}
             className="absolute bottom-3 inset-x-3 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium py-2.5 rounded-xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[#16305c] max-md:opacity-100 max-md:translate-y-0"
