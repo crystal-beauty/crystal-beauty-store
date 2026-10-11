@@ -20,6 +20,8 @@ export interface StoreSettings {
   heroSubtitleAr: string;
   heroImage: string;
   heroImageMobile: string;
+  heroImageAr: string;
+  heroImageMobileAr: string;
   heroCtaText: string;
   heroCtaLink: string;
   // Currency (DZD — whole numbers)
@@ -86,6 +88,8 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   heroSubtitleAr: "",
   heroImage: "/uploads/hero-desktop.jpg",
   heroImageMobile: "/uploads/hero-mobile.jpg",
+  heroImageAr: "/uploads/hero-desktop-ar.jpg",
+  heroImageMobileAr: "/uploads/hero-mobile-ar.jpg",
   heroCtaText: "", // empty → storefront falls back to the bilingual i18n CTA
   heroCtaLink: "/products",
   currencyCode: "DZD",

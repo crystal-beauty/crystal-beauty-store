@@ -51,9 +51,20 @@ export default async function HomePage() {
   const heroSubtitle = pick(settings.heroSubtitle, settings.heroSubtitleAr, lang);
   const heroCta = settings.heroCtaText || t("shopCollection", lang);
 
+  const isAr = lang === "ar";
+  const desktopWebp = isAr ? "/uploads/hero-desktop-ar.webp" : "/uploads/hero-desktop.webp";
+  const desktopJpg = isAr
+    ? (settings.heroImageAr || "/uploads/hero-desktop-ar.jpg")
+    : (settings.heroImage || "/uploads/hero-desktop.jpg");
+
+  const mobileWebp = isAr ? "/uploads/hero-mobile-ar.webp" : "/uploads/hero-mobile.webp";
+  const mobileJpg = isAr
+    ? (settings.heroImageMobileAr || "/uploads/hero-mobile-ar.jpg")
+    : (settings.heroImageMobile || "/uploads/hero-mobile.jpg");
+
   return (
     <div>
-      {/* ================= HERO — Responsive Desktop & Phone View ================= */}
+      {/* ================= HERO — Responsive Desktop & Phone View (Bilingual FR / AR) ================= */}
       <section className="relative overflow-hidden bg-[var(--primary)]">
         <Link
           href={settings.heroCtaLink || "/products"}
@@ -69,30 +80,30 @@ export default async function HomePage() {
             {/* Phone View (< 768px): Vertical 9:16 portrait banner */}
             <source
               media="(max-width: 767px)"
-              srcSet="/uploads/hero-mobile.webp"
+              srcSet={mobileWebp}
               type="image/webp"
             />
             <source
               media="(max-width: 767px)"
-              srcSet={settings.heroImageMobile || "/uploads/hero-mobile.jpg"}
+              srcSet={mobileJpg}
               type="image/jpeg"
             />
 
             {/* Desktop View (>= 768px): Horizontal 16:9 landscape banner */}
             <source
               media="(min-width: 768px)"
-              srcSet="/uploads/hero-desktop.webp"
+              srcSet={desktopWebp}
               type="image/webp"
             />
             <source
               media="(min-width: 768px)"
-              srcSet={settings.heroImage || "/uploads/hero-desktop.jpg"}
+              srcSet={desktopJpg}
               type="image/jpeg"
             />
 
             {/* Fallback image */}
             <img
-              src={settings.heroImage || "/uploads/hero-desktop.jpg"}
+              src={desktopJpg}
               alt={settings.storeName}
               fetchPriority="high"
               decoding="async"

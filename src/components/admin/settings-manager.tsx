@@ -188,8 +188,12 @@ export default function SettingsManager({ initial }: { initial: Record<string, s
             <TextArea k="heroSubtitle" label="Sous-titre (français)" rows={3} />
             <TextArea k="heroSubtitleAr" label="العنوان الفرعي (بالعربية)" rows={3} dir="rtl" />
             <div className="grid sm:grid-cols-2 gap-4">
-              <TextField k="heroImage" label="Image du hero - Desktop (URL)" hint="Format paysage recommandé (16:9)." />
-              <TextField k="heroImageMobile" label="Image du hero - Mobile (URL)" hint="Format portrait vertical (9:16)." />
+              <TextField k="heroImage" label="Bannière Desktop - FR (URL)" hint="Format paysage recommandé (16:9)." />
+              <TextField k="heroImageMobile" label="Bannière Mobile - FR (URL)" hint="Format portrait vertical (9:16)." />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <TextField k="heroImageAr" label="Bannière Desktop - Arabe (URL)" hint="بانر سطح المكتب بالعربية (16:9)." />
+              <TextField k="heroImageMobileAr" label="Bannière Mobile - Arabe (URL)" hint="بانر الهاتف بالعربية (9:16)." />
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <TextField k="heroCtaText" label="Texte du bouton" />
