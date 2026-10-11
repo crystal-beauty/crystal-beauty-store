@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ShieldCheck, Lock, Gift, Banknote, Tag, AlertTriangle } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, Gift, Banknote, Tag, AlertTriangle, Truck } from "lucide-react";
 import { useCart, cartSubtotal } from "@/lib/cart";
 import { useSettings } from "@/components/store/settings-provider";
 import { formatMoney, isValidDzMobile, toInternationalDz } from "@/lib/format";
@@ -32,6 +32,8 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
   const [promoError, setPromoError] = useState("");
   const [promoChecking, setPromoChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [startedAt] = useState(() => Date.now());
+  const [website, setWebsite] = useState("");
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -103,6 +105,8 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
           commune: delivery.commune,
           deliveryType: delivery.deliveryType,
           promoCodeStr: promo?.code,
+          website: website.trim(),
+          startedAt,
           items: items.map((i) => ({
             productId: i.productId,
             quantity: i.quantity,
@@ -377,6 +381,18 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
               </div>
             </div>
 
+            {/* Honeypot field - invisible to humans, catches bots */}
+            <input
+              type="text"
+              name="website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              style={{ display: "none" }}
+              aria-hidden="true"
+            />
+
             <button
               type="submit"
               disabled={submitting || fee === null || feeState !== "idle"}
@@ -400,6 +416,36 @@ export default function CheckoutView({ whatsappNumber }: { whatsappNumber: strin
                 {t("feeError")}
               </p>
             )}
+
+            {/* Legal Consent & Consumer Protection Notice (Loi 18-05 & 18-07 ANPDP) */}
+            <div className="mt-4 p-4 rounded-2xl bg-[#F6F4F0] border border-[#E5DFD7] text-[11px] leading-relaxed text-[#3D3A38]">
+              <div className="flex items-center gap-1.5 mb-1.5 text-[var(--primary)] font-semibold text-xs">
+                <ShieldCheck className="h-4 w-4 text-[var(--brand)] shrink-0" />
+                <span>{t("legalNoticeTitle")}</span>
+              </div>
+              <p className="text-[10.5px] text-muted-foreground leading-normal">
+                {t("legalNoticeBinding")}{" "}
+                <a
+                  href="/legal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--brand)] font-medium underline underline-offset-2 hover:text-[var(--primary)]"
+                >
+                  {t("legalNoticeCgv")} &amp; {t("legalNoticePrivacy")}
+                </a>.
+              </p>
+              <div className="mt-2.5 pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Lock className="h-3 w-3 text-muted-foreground" />
+                  {t("legalDataProtected")}
+                </span>
+                <span className="flex items-center gap-1 font-semibold text-[var(--primary)]">
+                  <Truck className="h-3 w-3 text-[var(--brand)]" />
+                  {t("legalCodBadge")}
+                </span>
+              </div>
+            </div>
+
             <p className="mt-3 text-[11px] text-muted-foreground text-center leading-relaxed">{t("agreeCod")}</p>
           </div>
         </div>

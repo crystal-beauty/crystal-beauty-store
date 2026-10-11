@@ -220,6 +220,17 @@ export const DICT = {
   noResultsHint: { fr: "Essayez une autre collection ou un autre mot-clé.", ar: "جرّب مجموعة أخرى أو كلمة بحث مختلفة." },
   clearFilters: { fr: "Effacer les filtres", ar: "مسح عوامل التصفية" },
 
+  // Legal & Algerian consumer protection
+  legalNoticeTitle: { fr: "Protection du consommateur & Cadre légal algérien", ar: "حماية المستهلك والقوانين الجزائرية" },
+  legalNoticeCgv: { fr: "Conditions Générales de Vente", ar: "الشروط العامة للبيع" },
+  legalNoticePrivacy: { fr: "Politique de Confidentialité", ar: "سياسة الخصوصية" },
+  legalDataProtected: { fr: "Données protégées — Loi 18-07 (ANPDP)", ar: "بيانات مشفّرة وفق القانون 18-07" },
+  legalCodBadge: { fr: "Paiement à la livraison garanti", ar: "الدفع نقداً عند الاستلام" },
+  legalNoticeBinding: {
+    fr: "En confirmant votre commande, vous acceptez nos CGV et notre Politique de Confidentialité, et consentez à la transmission de vos coordonnées au transporteur (World Express) exclusivement pour la livraison. Commande avec obligation de paiement à la réception (Loi 18-05 & 18-07).",
+    ar: "بالنقر على تأكيد الطلب، فإنك توافق على الشروط العامة للبيع وسياسة الخصوصية، وتمنح موافقتك على نقل بياناتك لشركة التوصيل (وورلد إكسبرس) حصرياً لإيصال طلبيتك. الطلب يُلزم بدفع المبلغ عند الاستلام (القانون 18-05 و 18-07).",
+  },
+
   // Misc
   loading: { fr: "Chargement…", ar: "جارٍ التحميل…" },
   errorGeneric: { fr: "Une erreur est survenue. Réessayez.", ar: "حدث خطأ. أعد المحاولة." },

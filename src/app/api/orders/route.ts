@@ -4,7 +4,14 @@ import { getSettings } from "@/lib/settings";
 import { generateOrderNumber, isValidDzMobile, normalizeDzPhone, wilayaName } from "@/lib/format";
 import { getFeeForWilaya, getCommunes } from "@/lib/carrier";
 import { relayMetaEvent } from "@/lib/capi";
-import { isPhoneBlocked, rateLimit, phoneKey } from "@/lib/order-guard";
+import {
+  isPhoneBlocked,
+  checkHoneypot,
+  checkFillTime,
+  checkName,
+  checkPhoneSanity,
+  checkOrderRate,
+} from "@/lib/order-guard";
 
 interface IncomingItem {
   productId: string;
@@ -21,32 +28,47 @@ export async function POST(req: NextRequest) {
     const {
       customerName, email, phone, phone2, wilayaId, commune, address,
       deliveryType, notes, giftMessage, recipientName, recipientPhone,
-      items, promoCodeStr,
+      items, promoCodeStr, website, startedAt,
     } = body || {};
 
-    // ---- rate limiting (phone: 5/h, IP: 30/h) ----
-    if (!rateLimit(`phone:${phoneKey(String(phone || ""))}`, 5, 60 * 60 * 1000)) {
-      return NextResponse.json(
-        { error: "Trop de tentatives. Réessayez plus tard ou contactez-nous sur WhatsApp." },
-        { status: 429 }
-      );
-    }
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    if (!rateLimit(`ip:${ip}`, 30, 60 * 60 * 1000)) {
-      return NextResponse.json(
-        { error: "Trop de tentatives. Réessayez plus tard ou contactez-nous sur WhatsApp." },
-        { status: 429 }
-      );
+
+    // ---- 1. Anti-bot honeypot check ----
+    const honey = checkHoneypot(website);
+    if (!honey.ok) {
+      return NextResponse.json({ error: honey.error }, { status: 400 });
     }
 
-    // ---- validation ----
-    if (!customerName?.trim()) return NextResponse.json({ error: "Veuillez indiquer votre nom complet." }, { status: 400 });
-    if (!isValidDzMobile(String(phone || ""))) {
-      return NextResponse.json({ error: "Numéro invalide — utilisez un mobile 05 / 06 / 07 (10 chiffres)." }, { status: 400 });
+    // ---- 2. Timing check (scripted speed bot rejection) ----
+    const timing = checkFillTime(startedAt);
+    if (!timing.ok) {
+      return NextResponse.json({ error: timing.error }, { status: 429 });
     }
-    if (phone2?.trim() && !isValidDzMobile(String(phone2))) {
-      return NextResponse.json({ error: "Numéro de téléphone secondaire invalide (05 / 06 / 07 - 10 chiffres)." }, { status: 400 });
+
+    // ---- 3. Field sanity checks (name & phone) ----
+    const nameCheck = checkName(String(customerName || ""));
+    if (!nameCheck.ok) {
+      return NextResponse.json({ error: nameCheck.error }, { status: 400 });
     }
+
+    const phoneCheck = checkPhoneSanity(String(phone || ""));
+    if (!phoneCheck.ok) {
+      return NextResponse.json({ error: phoneCheck.error }, { status: 400 });
+    }
+
+    if (phone2?.trim()) {
+      const phone2Check = checkPhoneSanity(String(phone2));
+      if (!phone2Check.ok) {
+        return NextResponse.json({ error: "Numéro de téléphone secondaire : " + phone2Check.error }, { status: 400 });
+      }
+    }
+
+    // ---- 4. DB-backed velocity & rate limits ----
+    const rate = await checkOrderRate(String(phone || ""), ip);
+    if (!rate.ok) {
+      return NextResponse.json({ error: rate.error }, { status: 429 });
+    }
+
     if (!commune?.trim()) return NextResponse.json({ error: "Veuillez choisir votre commune." }, { status: 400 });
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Votre panier est vide." }, { status: 400 });
@@ -232,6 +254,7 @@ export async function POST(req: NextRequest) {
         currency: "DZD",
         promoCodeId,
         promoCodeStr: appliedCode,
+        customerIp: ip,
         items: { create: orderItems },
       },
       include: { items: true },

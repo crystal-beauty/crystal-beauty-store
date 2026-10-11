@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Phone, MessageCircle, Truck, Printer, XCircle, CheckCircle2, Loader2, AlertTriangle,
-  Gift, Banknote, MapPin, Building, ChevronDown, Star,
+  Gift, Banknote, MapPin, Building, ChevronDown, Star, PhoneCall, Copy, Check,
 } from "lucide-react";
 import { formatMoney, ORDER_STATUSES, STATUS_LABELS, STATUS_STYLES, toInternationalDz } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,7 @@ interface OrderData {
   globalStatus: string | null;
   shipmentResponse: string | null;
   reviewRequestedAt: string | null;
+  customerIp?: string | null;
   createdAt: string;
   items: { productName: string; productImage: string | null; variantSelections: string; quantity: number; unitPrice: number; lineTotal: number; giftBox: boolean }[];
 }
@@ -49,6 +50,9 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
   const [busy, setBusy] = useState<string>("");
   const [showRaw, setShowRaw] = useState(false);
   const [reviewLink, setReviewLink] = useState<string>("");
+  const [showCallScript, setShowCallScript] = useState(false);
+  const [scriptLang, setScriptLang] = useState<"fr" | "ar">("ar");
+  const [copiedScript, setCopiedScript] = useState(false);
 
   const waNumber = order.recipientPhone || order.phone;
   const waText = encodeURIComponent(`Bonjour ${order.customerName}, nous vous contactons au sujet de votre commande ${order.orderNumber}. / مرحبًا ${order.customerName}، نتصل بك بخصوص طلبك ${order.orderNumber}.`);
@@ -202,6 +206,14 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
         >
           <MessageCircle className="h-4 w-4" /> WhatsApp
         </a>
+        <button
+          type="button"
+          onClick={() => setShowCallScript((v) => !v)}
+          className={cn(btnBase, showCallScript ? "bg-[var(--primary)] text-white" : "border border-border text-[var(--primary)] hover:bg-muted")}
+        >
+          <PhoneCall className="h-4 w-4 text-[var(--brand)]" />
+          <span>{showCallScript ? "Fermer le script" : "Script d'appel & Anti-retour"}</span>
+        </button>
         {["NEW", "CONFIRMED"].includes(order.status) && (
           <button onClick={sendToCarrier} disabled={Boolean(busy)} className={cn(btnBase, "bg-[var(--brand)] text-white hover:bg-[#16305c]")}>
             {busy === "ship" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />}
@@ -227,6 +239,104 @@ export default function OrderDetail({ order, canDelete, refusedWarning }: { orde
           </button>
         )}
       </div>
+
+      {/* In-App Call Confirmation Script & Anti-Return Protocol */}
+      {showCallScript && (() => {
+        const deliveryModeLabel = order.deliveryType === "STOP_DESK"
+          ? (scriptLang === "ar" ? "استلام من مكتب التوقف (Stop Desk)" : "Bureau / Point Relais (Stop Desk)")
+          : (scriptLang === "ar" ? "توصيل لباب المنزل" : "Livraison à domicile");
+
+        const itemsSummary = order.items.map((i) => `${i.productName} (x${i.quantity})`).join(", ");
+
+        const scriptText = scriptLang === "ar"
+          ? `السلام عليكم ورحمة الله، أهلاً بك سيدة/سيد ${order.customerName}.\nمعكم خدمة الزبائن لمتجر Crystal Beauty.\nنتصل بحضرتك لتأكيد طلبيتكم رقم ${order.orderNumber} بمبلغ إجمالي ${formatMoney(order.total)}.\n\nالمنتجات: ${itemsSummary}\nالعنوان: ${order.commune}، ولاية ${order.wilayaName} (${deliveryModeLabel}).\n\nعون التوصيل من شركة World Express سيتصل بك هاتفياً قبل التسليم للدفع نقداً عند الاستلام. هل تؤكد لنا جاهزيتك لاستلام الطرد وتواجدك بالعنوان؟ شكراً جزيلاً.`
+          : `Bonjour Mme/M. ${order.customerName},\nIci le service client de la boutique Crystal Beauty.\nNous vous appelons pour confirmer votre commande N° ${order.orderNumber} d'un montant total de ${formatMoney(order.total)}.\n\nArticles : ${itemsSummary}\nDestination : ${order.commune}, Wilaya de ${order.wilayaName} (${deliveryModeLabel}).\n\nLe livreur World Express vous contactera par téléphone pour convenir de l'heure et du paiement en espèces à la livraison. Nous confirmez-vous votre disponibilité pour réceptionner le colis ? Merci beaucoup.`;
+
+        const copyScript = async () => {
+          try {
+            await navigator.clipboard.writeText(scriptText);
+            setCopiedScript(true);
+            toast.success("Script copié dans le presse-papiers !");
+            setTimeout(() => setCopiedScript(false), 2500);
+          } catch {
+            toast.error("Impossible de copier le script.");
+          }
+        };
+
+        const directWaLink = `https://wa.me/${toInternationalDz(waNumber).replace("+", "")}?text=${encodeURIComponent(scriptText)}`;
+
+        return (
+          <div className="rounded-2xl border border-[var(--brand)]/30 bg-[#FBF9F5] p-5 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-[var(--primary)] text-white flex items-center justify-center">
+                  <PhoneCall className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm text-[var(--primary)]">
+                    Protocole d'Appel &amp; Confirmation Anti-Retour
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    La confirmation téléphonique ou WhatsApp avant expédition réduit les retours de plus de 50%.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-white rounded-full p-1 border border-border text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setScriptLang("ar")}
+                    className={cn("px-3 py-1 rounded-full font-medium transition", scriptLang === "ar" ? "bg-[var(--primary)] text-white" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    العربية
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScriptLang("fr")}
+                    className={cn("px-3 py-1 rounded-full font-medium transition", scriptLang === "fr" ? "bg-[var(--primary)] text-white" : "text-muted-foreground hover:text-foreground")}
+                  >
+                    Français
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={copyScript}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-border hover:bg-muted text-[var(--primary)] transition"
+                >
+                  {copiedScript ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copiedScript ? "Copié !" : "Copier le texte"}</span>
+                </button>
+
+                <a
+                  href={directWaLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[var(--primary)] text-white hover:bg-[#16305c] transition"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  <span>Envoyer sur WhatsApp</span>
+                </a>
+              </div>
+            </div>
+
+            <div
+              className="p-4 rounded-xl bg-white border border-border text-xs sm:text-sm leading-relaxed whitespace-pre-line text-foreground/90 font-sans shadow-2xs"
+              dir={scriptLang === "ar" ? "rtl" : "ltr"}
+            >
+              {scriptText}
+            </div>
+
+            {order.customerIp && (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <span>IP enregistrée pour cette commande :</span>
+                <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">{order.customerIp}</code>
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {reviewLink && (
         <div className="rounded-xl bg-[#eef1f6] border border-[#d7deea] px-4 py-3 text-sm text-[#0a1f44] break-all">

@@ -144,6 +144,7 @@ model Order {
   reviewRequestedAt DateTime?
   statusHistory     String      @default("[]") // JSON [{status, at, by}]
   pixelEventId      String?
+  customerIp        String?     @default("")
   items             OrderItem[]
   review            Review?
   createdAt         DateTime    @default(now())

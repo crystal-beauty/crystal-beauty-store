@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticate, createSessionToken, setSessionCookie, getSession } from "@/lib/auth";
+import { loginAllowed, loginFailure, loginSuccess } from "@/lib/order-guard";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+    if (!loginAllowed(ip)) {
+      return NextResponse.json(
+        { error: "Trop de tentatives infructueuses. Veuillez patienter 15 minutes." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { email, password } = body || {};
     if (!email || !password) {
@@ -10,8 +20,14 @@ export async function POST(req: NextRequest) {
     }
     const session = await authenticate(email, password);
     if (!session) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      const blocked = loginFailure(ip);
+      const msg = blocked
+        ? "Trop de tentatives infructueuses. Accès temporairement bloqué pendant 15 minutes."
+        : "Email ou mot de passe incorrect.";
+      return NextResponse.json({ error: msg }, { status: 401 });
     }
+
+    loginSuccess(ip);
     const token = createSessionToken(session);
     await setSessionCookie(token);
     return NextResponse.json({ session });

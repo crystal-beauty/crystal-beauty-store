@@ -51,6 +51,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         globalStatus: order.globalStatus,
         shipmentResponse: order.shipmentResponse,
         reviewRequestedAt: order.reviewRequestedAt?.toISOString() || null,
+        customerIp: order.customerIp || null,
         createdAt: order.createdAt.toISOString(),
         items: order.items.map((i) => ({
           productName: i.productName,

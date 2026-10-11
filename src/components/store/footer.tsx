@@ -96,6 +96,11 @@ export default async function StoreFooter() {
                   {t("trackOrder", lang)}
                 </Link>
               </li>
+              <li>
+                <Link href="/legal" className="hover:text-white transition-colors">
+                  {lang === "ar" ? "الإطار القانوني وحماية المعطيات" : "Cadre Légal & ANPDP"}
+                </Link>
+              </li>
               {policies.map((p) => (
                 <li key={p.href}>
                   <Link href={p.href} className="hover:text-white transition-colors">

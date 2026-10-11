@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Star, MessageCircle, Loader2 } from "lucide-react";
+import { ShoppingBag, Gift, Package, Banknote, Truck, PackageSearch, Check, Minus, Plus, Star, MessageCircle, Loader2, ShieldCheck, Lock } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/pixel";
 import { useSettings } from "@/components/store/settings-provider";
@@ -166,6 +166,8 @@ export default function ProductDetail({
   const [fee, setFee] = useState<number | null>(null);
   const [feeState, setFeeState] = useState<"idle" | "loading" | "error">("idle");
   const [submitting, setSubmitting] = useState(false);
+  const [startedAt] = useState(() => Date.now());
+  const [website, setWebsite] = useState("");
 
   function scrollToQuickOrder() {
     const el = document.getElementById("quick-order");
@@ -209,6 +211,8 @@ export default function ProductDetail({
           wilayaId: delivery.wilayaId,
           commune: delivery.commune,
           deliveryType: delivery.deliveryType,
+          website: website.trim(),
+          startedAt,
           items: [
             {
               productId: product.id,
@@ -597,6 +601,18 @@ export default function ProductDetail({
               </span>
             </div>
 
+            {/* Honeypot field - invisible to humans, catches bots */}
+            <input
+              type="text"
+              name="website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              style={{ display: "none" }}
+              aria-hidden="true"
+            />
+
             <button
               type="submit"
               disabled={submitting || soldOut || fee === null || feeState !== "idle"}
@@ -615,6 +631,35 @@ export default function ProductDetail({
                 </>
               )}
             </button>
+
+            {/* Legal Consent & Consumer Protection Notice (Loi 18-05 & 18-07 ANPDP) */}
+            <div className="mt-4 p-4 rounded-2xl bg-[#F6F4F0] border border-[#E5DFD7] text-[11px] leading-relaxed text-[#3D3A38]">
+              <div className="flex items-center gap-1.5 mb-1.5 text-[var(--primary)] font-semibold text-xs">
+                <ShieldCheck className="h-4 w-4 text-[var(--brand)] shrink-0" />
+                <span>{t("legalNoticeTitle")}</span>
+              </div>
+              <p className="text-[10.5px] text-muted-foreground leading-normal">
+                {t("legalNoticeBinding")}{" "}
+                <a
+                  href="/legal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--brand)] font-medium underline underline-offset-2 hover:text-[var(--primary)]"
+                >
+                  {t("legalNoticeCgv")} &amp; {t("legalNoticePrivacy")}
+                </a>.
+              </p>
+              <div className="mt-2.5 pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Lock className="h-3 w-3 text-muted-foreground" />
+                  {t("legalDataProtected")}
+                </span>
+                <span className="flex items-center gap-1 font-semibold text-[var(--primary)]">
+                  <Truck className="h-3 w-3 text-[var(--brand)]" />
+                  {t("legalCodBadge")}
+                </span>
+              </div>
+            </div>
           </form>
         </div>
       </section>
