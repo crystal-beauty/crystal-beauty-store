@@ -58,15 +58,18 @@ export default async function HomePage() {
   const heroCta = settings.heroCtaText || t("shopCollection", lang);
 
   const isAr = lang === "ar";
-  const desktopWebp = isAr ? "/uploads/hero-desktop-ar.webp" : "/uploads/hero-desktop.webp";
-  const desktopJpg = isAr
-    ? (settings.heroImageAr || "/uploads/hero-desktop-ar.jpg")
-    : (settings.heroImage || "/uploads/hero-desktop.jpg");
+  const v = "?v=20261012";
+  const desktopWebp = (isAr ? "/uploads/hero-desktop-ar.webp" : "/uploads/hero-desktop.webp") + v;
+  const desktopJpg =
+    (isAr
+      ? (settings.heroImageAr || "/uploads/hero-desktop-ar.jpg")
+      : (settings.heroImage || "/uploads/hero-desktop.jpg")) + v;
 
-  const mobileWebp = isAr ? "/uploads/hero-mobile-ar.webp" : "/uploads/hero-mobile.webp";
-  const mobileJpg = isAr
-    ? (settings.heroImageMobileAr || "/uploads/hero-mobile-ar.jpg")
-    : (settings.heroImageMobile || "/uploads/hero-mobile.jpg");
+  const mobileWebp = (isAr ? "/uploads/hero-mobile-ar.webp" : "/uploads/hero-mobile.webp") + v;
+  const mobileJpg =
+    (isAr
+      ? (settings.heroImageMobileAr || "/uploads/hero-mobile-ar.jpg")
+      : (settings.heroImageMobile || "/uploads/hero-mobile.jpg")) + v;
 
   return (
     <div>
