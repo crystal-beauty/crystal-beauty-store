@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/?admin=1&app=crystal_beauty",
+    id: "/admin?app=crystal_beauty",
     name: "Crystal Beauty — Admin",
     short_name: "Crystal Admin",
     description: "Tableau de bord et gestion des commandes Crystal Beauty",
-    start_url: "/?admin=1",
+    start_url: "/admin",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
