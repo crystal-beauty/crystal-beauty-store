@@ -10,6 +10,7 @@ import { useLang, useT } from "@/components/store/locale-provider";
 import { formatMoney } from "@/lib/format";
 import { toast } from "sonner";
 import { getLocalizedProductName } from "@/lib/catalog-i18n";
+import ProductImage from "@/components/ui/product-image";
 
 export interface ProductCardData {
   id: string;
@@ -69,18 +70,12 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   return (
     <Link href={`/product/${product.slug}`} className="group block">
       <div className="relative overflow-hidden rounded-2xl bg-muted aspect-square shadow-luxe ring-1 ring-transparent group-hover:ring-[var(--primary)]/10 transition-[box-shadow,ring] duration-300">
-        {product.image ? (
-          <img
-            src={product.image}
-            alt={product.shortDescription ? `${name} — ${product.shortDescription}` : name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-[var(--primary)]/25">
-            <Package className="h-10 w-10" />
-          </div>
-        )}
+        <ProductImage
+          src={product.image}
+          alt={product.shortDescription ? `${name} — ${product.shortDescription}` : name}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        />
 
         {soldOut && (
           <span className="absolute top-3 end-3 bg-[var(--primary)] text-white text-xs font-semibold px-2.5 py-1 rounded-full">

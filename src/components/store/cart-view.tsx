@@ -10,6 +10,7 @@ import { trackPixel } from "@/lib/pixel";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { getLocalizedProductName, getLocalizedVariantName, getLocalizedVariantOptionLabel } from "@/lib/catalog-i18n";
+import ProductImage from "@/components/ui/product-image";
 
 export default function CartView() {
   const { items, removeItem, updateQuantity, toggleGiftBox } = useCart();
@@ -65,16 +66,11 @@ export default function CartView() {
                   <div className="absolute inset-0 flex items-center justify-center text-[var(--primary)]/25">
                     <ShoppingBag className="h-7 w-7" />
                   </div>
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="absolute inset-0 h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  )}
+                  <ProductImage
+                    src={item.image}
+                    alt={item.name}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
                 </div>
               </Link>
 

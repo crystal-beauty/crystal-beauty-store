@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import ProductImage from "@/components/ui/product-image";
 
 interface ProductRow {
   id: string;
@@ -154,10 +155,7 @@ export default function ProductsManager({ canDelete }: { canDelete: boolean }) {
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           <div className="h-11 w-11 rounded-lg overflow-hidden bg-muted shrink-0">
-                            {media[0]?.url && (
-                               
-                              <img src={media[0].url} alt="" className="h-full w-full object-cover" />
-                            )}
+                            <ProductImage src={media[0]?.url} alt="" className="h-full w-full object-cover" />
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-[var(--primary)] truncate max-w-[220px]">{p.name}</p>

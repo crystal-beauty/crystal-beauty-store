@@ -25,8 +25,8 @@ export default async function LabelPage({ params }: { params: Promise<{ id: stri
   if (!order) notFound();
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <div className="bg-white border-2 border-[var(--primary)] rounded-xl overflow-hidden">
+    <div className="max-w-2xl mx-auto py-8" style={{ colorScheme: "light" }}>
+      <div className="bg-white text-black border-2 border-[var(--primary)] rounded-xl overflow-hidden print:border-black print:text-black print:bg-white">
         {/* Header */}
         <div className="bg-[var(--primary)] text-white px-6 py-4 flex items-center justify-between">
           <div>

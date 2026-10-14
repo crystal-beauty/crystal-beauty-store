@@ -270,3 +270,25 @@
 .press:active:not(:disabled) {
   transform: scale(0.98);
 }
+
+/* Print rules: Force light mode, pure white background, and black text for waybills & labels */
+@media print {
+  *, *::before, *::after {
+    color-scheme: light !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-color: #cccccc !important;
+  }
+}
+
+/* Prevent iOS Safari input auto-zoom on focus by enforcing 16px minimum */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+

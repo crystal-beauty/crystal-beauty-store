@@ -3,12 +3,22 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Phone, MessageCircle, Truck, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
+import { Search, Phone, MessageCircle, Truck, Loader2, AlertTriangle, RefreshCw, Trash2 } from "lucide-react";
 import { formatMoney, ORDER_STATUSES } from "@/lib/format";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/format";
 import { toInternationalDz, WILAYAS } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface OrderRow {
   id: string;
@@ -40,6 +50,8 @@ export default function OrdersManager() {
   const [to, setTo] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkSending, setBulkSending] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<OrderRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -125,6 +137,28 @@ export default function OrdersManager() {
     }
   }
 
+  async function handleDeleteOrder() {
+    if (!deleteTarget) return;
+    const target = deleteTarget;
+    setDeleting(true);
+    const prevOrders = [...orders];
+    setOrders((current) => current.filter((o) => o.id !== target.id));
+    try {
+      const res = await fetch(`/api/admin/orders/${target.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Impossible de supprimer la commande");
+      }
+      toast.success(`Commande ${target.orderNumber} supprimée (stock restauré)`);
+      setDeleteTarget(null);
+    } catch (err) {
+      setOrders(prevOrders);
+      toast.error(err instanceof Error ? err.message : "Échec de la suppression");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   const inputCls =
     "bg-white border border-input rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 focus:border-[var(--primary)]";
 
@@ -199,18 +233,19 @@ export default function OrdersManager() {
                 <th className="px-4 py-3 text-start">Montant</th>
                 <th className="px-4 py-3 text-start">Statut</th>
                 <th className="px-4 py-3 text-start">Suivi</th>
+                <th className="px-4 py-3 text-end">Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : orders.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     Aucune commande pour ces filtres.
                   </td>
                 </tr>
@@ -267,6 +302,17 @@ export default function OrdersManager() {
                       <td className="px-4 py-3 text-xs text-muted-foreground" dir="ltr">
                         {o.trackingNumber || "—"}
                       </td>
+                      <td className="px-4 py-3 text-end">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(o)}
+                          className="p-1.5 text-muted-foreground hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                          title="Supprimer la commande"
+                          aria-label={`Supprimer ${o.orderNumber}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -275,6 +321,39 @@ export default function OrdersManager() {
           </table>
         </div>
       </div>
+
+      {/* Confirmation modal for safe atomic order deletion */}
+      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && !deleting && setDeleteTarget(null)}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600 flex items-center gap-2">
+              <Trash2 className="h-5 w-5" /> Supprimer la commande {deleteTarget?.orderNumber} ?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. La commande sera définitivement effacée et le stock des produits et variantes associés sera automatiquement restauré dans l'inventaire.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteOrder();
+              }}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" /> Suppression en cours…
+                </>
+              ) : (
+                "Confirmer la suppression"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

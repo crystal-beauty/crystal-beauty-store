@@ -56,6 +56,13 @@ export default async function RootLayout({
   const [settings, lang] = await Promise.all([getSettings(), getLang()]);
   return (
     <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var search=window.location.search||'';var path=window.location.pathname||'';var isAdmin=search.indexOf('admin')!==-1||path.indexOf('/admin')!==-1;if(!isAdmin){document.documentElement.classList.remove('dark');return;}var saved=localStorage.getItem('crystal_beauty_dashboard_theme');var isDark=saved==='dark'||((!saved||saved==='system')&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(isDark){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${playfair.variable} ${cairo.variable} antialiased bg-background text-foreground ${
           lang === "ar" ? "lang-ar" : ""

@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Save, Loader2, ArrowLeft, Upload, Link2, Trash2, Plus, X, GripVertical,
-  ImageIcon, ChevronUp, ChevronDown, Package,
+  ImageIcon, ChevronUp, ChevronDown, Package, RefreshCw,
 } from "lucide-react";
 import { useSettings } from "@/components/store/settings-provider";
 import { formatMoney, slugify, type MediaItem } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import ProductImage from "@/components/ui/product-image";
 
 interface VariantOptionDraft {
   label: string;
@@ -70,6 +71,8 @@ export default function ProductEditor({
   const [uploading, setUploading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const replaceRef = useRef<HTMLInputElement>(null);
+  const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   const isEdit = Boolean(productId);
 
   const set = <K extends keyof ProductEditorData>(key: K, value: ProductEditorData[K]) =>
@@ -136,25 +139,45 @@ export default function ProductEditor({
   }
 
   // ---------- media ----------
-  async function uploadFiles(files: FileList) {
+  async function uploadFiles(files: FileList, replaceIndex?: number) {
     setUploading(true);
     try {
       const uploaded: MediaItem[] = [];
       for (const file of Array.from(files)) {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        if (productId || data.slug) {
+          fd.append("productId", productId || data.slug);
+        }
+        if (replaceIndex !== undefined && data.media[replaceIndex]?.url) {
+          fd.append("previousUrl", data.media[replaceIndex].url);
+        }
+        const res = await fetch("/api/admin/products/upload", { method: "POST", body: fd });
         const resData = await res.json();
         if (!res.ok) {
           toast.error(resData.error || "Échec du téléversement");
           continue;
         }
-        uploaded.push({ type: resData.type, url: resData.url, alt: data.name });
+        uploaded.push({ type: resData.type || "image", url: resData.url, alt: data.name });
       }
-      if (uploaded.length) set("media", [...data.media, ...uploaded]);
+      if (uploaded.length) {
+        if (replaceIndex !== undefined && replaceIndex >= 0 && replaceIndex < data.media.length) {
+          const next = [...data.media];
+          next[replaceIndex] = uploaded[0];
+          set("media", next);
+          toast.success("Photo remplacée avec succès !");
+        } else {
+          set("media", [...data.media, ...uploaded]);
+          toast.success("Photo ajoutée !");
+        }
+      }
+    } catch {
+      toast.error("Erreur de téléversement réseau");
     } finally {
       setUploading(false);
+      setReplacingIndex(null);
       if (fileRef.current) fileRef.current.value = "";
+      if (replaceRef.current) replaceRef.current.value = "";
     }
   }
 
@@ -273,10 +296,21 @@ export default function ProductEditor({
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*,video/mp4,video/webm,video/quicktime"
+                accept="image/*,.heic,.heif,video/mp4,video/webm,video/quicktime"
                 multiple
                 hidden
                 onChange={(e) => e.target.files && uploadFiles(e.target.files)}
+              />
+              <input
+                ref={replaceRef}
+                type="file"
+                accept="image/*,.heic,.heif,video/mp4,video/webm,video/quicktime"
+                hidden
+                onChange={(e) => {
+                  if (e.target.files && replacingIndex !== null) {
+                    uploadFiles(e.target.files, replacingIndex);
+                  }
+                }}
               />
               <div className="flex-1 min-w-[200px] flex gap-2">
                 <div className="relative flex-1">
@@ -307,8 +341,7 @@ export default function ProductEditor({
                     {m.type === "video" ? (
                       <video src={m.url} className="h-full w-full object-cover" muted />
                     ) : (
-                       
-                      <img src={m.url} alt={m.alt || ""} className="h-full w-full object-cover" />
+                      <ProductImage src={m.url} alt={m.alt || ""} className="h-full w-full object-cover" />
                     )}
                     {i === 0 && (
                       <span className="absolute top-1.5 left-1.5 bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -319,10 +352,21 @@ export default function ProductEditor({
                       <span className="absolute top-1.5 right-8 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">VIDEO</span>
                     )}
                     <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                      <button type="button" onClick={() => moveMedia(i, -1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Move left">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReplacingIndex(i);
+                          replaceRef.current?.click();
+                        }}
+                        className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white"
+                        title="Remplacer la photo"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      </button>
+                      <button type="button" onClick={() => moveMedia(i, -1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Déplacer à gauche">
                         <ChevronUp className="h-3.5 w-3.5 -rotate-90" />
                       </button>
-                      <button type="button" onClick={() => moveMedia(i, 1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Move right">
+                      <button type="button" onClick={() => moveMedia(i, 1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Déplacer à droite">
                         <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
                       </button>
                       <button

@@ -13,6 +13,7 @@ import DeliverySelector, { emptyDelivery, type DeliveryValue } from "@/component
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import ProductImage from "@/components/ui/product-image";
 
 interface VariantData {
   id: string;
@@ -254,7 +255,7 @@ export default function ProductDetail({
             {media[activeMedia]?.type === "video" ? (
               <video key={media[activeMedia].url} src={media[activeMedia].url} controls playsInline className="h-full w-full object-cover" />
             ) : media[activeMedia] ? (
-              <img key={media[activeMedia].url} src={media[activeMedia].url} alt={media[activeMedia].alt || product.name} className="h-full w-full object-cover" />
+              <ProductImage key={media[activeMedia].url} src={media[activeMedia].url} alt={media[activeMedia].alt || product.name} className="h-full w-full object-cover" />
             ) : (
               <div className="h-full w-full flex items-center justify-center">
                 <Package className="h-16 w-16 text-muted-foreground/30" />
@@ -277,7 +278,7 @@ export default function ProductDetail({
                   {m.type === "video" ? (
                     <video src={m.url} className="h-full w-full object-cover" muted />
                   ) : (
-                    <img src={m.url} alt={m.alt || product.name} className="h-full w-full object-cover" loading="lazy" />
+                    <ProductImage src={m.url} alt={m.alt || product.name} className="h-full w-full object-cover" loading="lazy" />
                   )}
                   {m.type === "video" && (
                     <span className="absolute inset-0 flex items-center justify-center bg-black/30 text-white text-xs font-bold">▶</span>
