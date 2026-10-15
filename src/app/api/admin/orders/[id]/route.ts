@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireApiSession, canDelete } from "@/lib/auth";
 import { ORDER_STATUSES } from "@/lib/format";
-import { deleteOrderAtomic } from "@/lib/inventory";
+import { deleteOrderAtomic, updateOrderStatusAtomic } from "@/lib/inventory";
 
 // GET /api/admin/orders/[id]
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -27,22 +27,30 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
       if (!ORDER_STATUSES.includes(body.status)) {
         return NextResponse.json({ error: "Invalid status." }, { status: 400 });
       }
-      const current = await db.order.findUnique({ where: { id }, select: { status: true, statusHistory: true } });
-      if (current && current.status !== body.status) {
-        const history = JSON.parse(current.statusHistory || "[]");
-        history.push({ status: body.status, at: new Date().toISOString(), by: guard.session.email });
-        data.status = body.status;
-        data.statusHistory = JSON.stringify(history);
-      }
-      if (body.status === "SENT_TO_CARRIER") data.sentToCarrierAt = new Date();
-      if (body.status === "DELIVERED") data.deliveredAt = new Date();
+      const notes = "notes" in body ? (body.notes?.trim() || null) : undefined;
+      const order = await updateOrderStatusAtomic(id, body.status, {
+        by: guard.session.email,
+        notes,
+      });
+      return NextResponse.json({ order });
     }
-    if ("notes" in body) data.notes = body.notes?.trim() || null;
 
-    const order = await db.order.update({ where: { id }, data, include: { items: true } });
+    if ("notes" in body) {
+      const order = await db.order.update({
+        where: { id },
+        data: { notes: body.notes?.trim() || null },
+        include: { items: true },
+      });
+      return NextResponse.json({ order });
+    }
+
+    const order = await db.order.findUnique({ where: { id }, include: { items: true } });
     return NextResponse.json({ order });
-  } catch {
-    return NextResponse.json({ error: "Could not update the order." }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Could not update the order." },
+      { status: 500 }
+    );
   }
 }
 

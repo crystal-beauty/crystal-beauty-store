@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireApiSession } from "@/lib/auth";
 import { deleteParcel } from "@/lib/carrier";
+import { updateOrderStatusAtomic } from "@/lib/inventory";
 
 /**
  * POST /api/admin/orders/[id]/cancel-parcel — delete the parcel at the carrier
@@ -26,19 +27,11 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: strin
     }
   }
 
-  const history = JSON.parse(order.statusHistory || "[]");
-  history.push({ status: "CANCELLED", at: new Date().toISOString(), by: guard.session.email });
-
-  const updated = await db.order.update({
-    where: { id },
-    data: {
-      status: "CANCELLED",
-      statusHistory: JSON.stringify(history),
-      ...(order.trackingNumber
-        ? { shipmentResponse: JSON.stringify({ cancelAttempt: { ok: carrierDeleted, error: carrierError, at: new Date().toISOString() } }).slice(0, 5000) }
-        : {}),
-    },
-    include: { items: true },
+  const updated = await updateOrderStatusAtomic(id, "CANCELLED", {
+    by: guard.session.email,
+    extraData: order.trackingNumber
+      ? { shipmentResponse: JSON.stringify({ cancelAttempt: { ok: carrierDeleted, error: carrierError, at: new Date().toISOString() } }).slice(0, 5000) }
+      : {},
   });
 
   if (order.trackingNumber && !carrierDeleted) {

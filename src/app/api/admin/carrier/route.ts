@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireApiSession } from "@/lib/auth";
 import { carrierConfig, getFees, getCommunes, clearCarrierCache, getTracking, mapCarrierStatus, DEFAULT_BASE, FALLBACK_BASE } from "@/lib/carrier";
 import { ORDER_STATUSES } from "@/lib/format";
+import { updateOrderStatusAtomic } from "@/lib/inventory";
 
 /**
  * GET /api/admin/carrier — connection status + live sample fees (3 wilayas)
@@ -96,15 +97,11 @@ export async function POST(req: NextRequest) {
         if (!info) continue;
         const mapped = mapCarrierStatus(info.status, info.global_status);
         if (mapped && mapped !== o.status && ORDER_STATUSES.includes(mapped as (typeof ORDER_STATUSES)[number])) {
-          const history = JSON.parse(o.statusHistory || "[]");
-          history.push({ status: mapped, at: new Date().toISOString(), by: "carrier_sync" });
-          await db.order.update({
-            where: { id: o.id },
-            data: {
-              status: mapped,
+          await updateOrderStatusAtomic(o.id, mapped, {
+            by: "carrier_sync",
+            extraData: {
               carrierStatus: info.status,
               globalStatus: info.global_status,
-              statusHistory: JSON.stringify(history),
               deliveredAt: mapped === "DELIVERED" ? new Date() : undefined,
             },
           });

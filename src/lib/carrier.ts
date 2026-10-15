@@ -133,6 +133,25 @@ async function carrierFetch(
   throw lastError ?? new Error("CARRIER_UNREACHABLE");
 }
 
+export function getDefaultFees(): WilayaFee[] {
+  return WILAYAS.map((w) => {
+    // Algiers (16)
+    if (w.id === 16) return { wilaya_id: 16, tarif: 450, tarif_stopdesk: 300 };
+    // Central wilayas (Blida, Tipaza, Boumerdes)
+    if ([9, 35, 42].includes(w.id)) return { wilaya_id: w.id, tarif: 550, tarif_stopdesk: 350 };
+    // Major northern / coastal hubs
+    if ([31, 25, 23, 19, 15, 6, 13, 27, 34, 18, 21, 22].includes(w.id)) {
+      return { wilaya_id: w.id, tarif: 650, tarif_stopdesk: 400 };
+    }
+    // Deep South / Sahara wilayas
+    if ([1, 11, 33, 37, 47, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58].includes(w.id)) {
+      return { wilaya_id: w.id, tarif: 950, tarif_stopdesk: 600 };
+    }
+    // High plateaus & interior wilayas
+    return { wilaya_id: w.id, tarif: 750, tarif_stopdesk: 450 };
+  });
+}
+
 // ---------- Endpoint 1: fees ----------
 
 export async function getFees(force = false, cfg?: { token: string; bases: string[] }): Promise<WilayaFee[]> {
@@ -156,7 +175,8 @@ export async function getFees(force = false, cfg?: { token: string; bases: strin
     // Stale-while-revalidate fallback: if carrier is unreachable/unconfigured, use cached fees if available
     const stale = await cacheGet<WilayaFee[]>("fees", true);
     if (stale && stale.length > 0) return stale;
-    throw err;
+    // Resilient offline fallback: ensure checkout is never blocked by an external carrier outage
+    return getDefaultFees();
   }
 }
 

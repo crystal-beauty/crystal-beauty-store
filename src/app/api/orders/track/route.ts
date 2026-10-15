@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getTracking, mapCarrierStatus } from "@/lib/carrier";
 import { normalizeDzPhone, ORDER_STATUSES } from "@/lib/format";
 import { rateLimit, phoneKey } from "@/lib/order-guard";
+import { updateOrderStatusAtomic } from "@/lib/inventory";
 
 // GET /api/orders/track?orderNumber=LG-XXXX&phone=0555...
 // Customer tracks with phone + order number. If the order was sent to the
@@ -40,15 +41,11 @@ export async function GET(req: NextRequest) {
           carrierInfo = { status: info.status, global_status: info.global_status };
           const mapped = mapCarrierStatus(info.status, info.global_status);
           if (mapped && ORDER_STATUSES.includes(mapped as (typeof ORDER_STATUSES)[number]) && mapped !== order.status) {
-            const history = JSON.parse(order.statusHistory || "[]");
-            history.push({ status: mapped, at: new Date().toISOString(), by: "carrier_sync" });
-            const updated = await db.order.update({
-              where: { id: order.id },
-              data: {
-                status: mapped,
+            const updated = await updateOrderStatusAtomic(order.id, mapped, {
+              by: "carrier_sync",
+              extraData: {
                 carrierStatus: info.status,
                 globalStatus: info.global_status,
-                statusHistory: JSON.stringify(history),
                 deliveredAt: mapped === "DELIVERED" ? new Date() : order.deliveredAt,
               },
             });
