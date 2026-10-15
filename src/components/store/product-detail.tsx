@@ -44,6 +44,8 @@ interface ProductData {
   description: string | null;
   media: MediaItem[];
   variants: VariantData[];
+  categoryName?: string | null;
+  categorySlug?: string | null;
 }
 
 export default function ProductDetail({
@@ -293,6 +295,14 @@ export default function ProductDetail({
         <div className="flex flex-col gap-9">
           {/* — Identity & price — */}
           <section>
+            {product.categoryName && (
+              <a
+                href={product.categorySlug ? `/products?category=${product.categorySlug}` : "/products"}
+                className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand)] hover:underline mb-2.5 inline-block"
+              >
+                {product.categoryName}
+              </a>
+            )}
             <h1 className="font-display text-3xl sm:text-4xl font-semibold text-[var(--primary)] leading-tight">{product.name}</h1>
 
             {product.shortDescription && <p className="mt-3 text-muted-foreground leading-relaxed">{product.shortDescription}</p>}

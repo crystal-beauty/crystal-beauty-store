@@ -62,7 +62,7 @@ export default async function ProductPage({ params }: Props) {
     product.categoryId
       ? db.product.findMany({
           where: { active: true, categoryId: product.categoryId, id: { not: product.id } },
-          include: { variants: { take: 1 } },
+          include: { variants: { take: 1 }, category: true },
           take: 4,
         })
       : Promise.resolve([]),
@@ -100,6 +100,7 @@ export default async function ProductPage({ params }: Props) {
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
       shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
+      categoryName: p.category ? getLocalizedCategoryName(p.category.slug, p.category.name, lang) : null,
     };
   });
 
@@ -146,6 +147,8 @@ export default async function ProductPage({ params }: Props) {
           shortDescription: localizedShortDesc,
           description: localizedDesc,
           media: JSON.parse(product.media || "[]"),
+          categoryName: localizedCategoryName,
+          categorySlug: product.category?.slug,
           variants: product.variants.map((v) => ({
             id: v.id,
             name: getLocalizedVariantName(v.name, lang),

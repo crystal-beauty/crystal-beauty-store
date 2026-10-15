@@ -24,13 +24,13 @@ export default async function HomePage() {
     db.category.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" }, take: 4 }),
     db.product.findMany({
       where: { active: true, featured: true },
-      include: { variants: { take: 1 } },
+      include: { variants: { take: 1 }, category: true },
       orderBy: { updatedAt: "desc" },
       take: 8,
     }),
     db.product.findMany({
       where: { active: true },
-      include: { variants: { take: 1 } },
+      include: { variants: { take: 1 }, category: true },
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
@@ -49,6 +49,7 @@ export default async function HomePage() {
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
       shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
+      categoryName: p.category ? getLocalizedCategoryName(p.category.slug, p.category.name, lang) : null,
     };
   };
 

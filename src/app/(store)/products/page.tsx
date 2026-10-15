@@ -62,6 +62,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       trackStock: p.trackStock,
       hasVariants: p.variants.length > 0,
       shortDescription: getLocalizedProductShortDesc(p.slug, p.shortDescription, lang),
+      categoryName: p.category ? getLocalizedCategoryName(p.category.slug, p.category.name, lang) : null,
     };
   });
 

@@ -23,6 +23,7 @@ export interface ProductCardData {
   trackStock: boolean;
   hasVariants: boolean;
   shortDescription?: string | null;
+  categoryName?: string | null;
 }
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
@@ -105,6 +106,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       </div>
 
       <div className="pt-3.5 px-1">
+        {product.categoryName && (
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/75 mb-1 truncate">
+            {product.categoryName}
+          </p>
+        )}
         <h3 className="font-display text-base font-medium text-[var(--primary)] leading-snug group-hover:text-[#2c4a7c] transition-colors">{name}</h3>
         <div className="mt-1.5 flex items-baseline gap-2">
           {/* Old price shown ONLY if the admin set one on this product */}
