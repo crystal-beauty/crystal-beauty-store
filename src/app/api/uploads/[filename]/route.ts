@@ -41,28 +41,37 @@ export async function GET(
         headers: {
           "Content-Type": dbImage.mimeType,
           "Content-Length": dbImage.sizeBytes.toString(),
-          "Cache-Control": "public, max-age=31536000, immutable",
+          "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
         },
       });
     }
 
-    // 2. Secondary fallback: Check local data/uploads if running locally or pre-bundled
-    const localPath = path.join(process.cwd(), "data", "uploads", safeFilename);
-    if (fs.existsSync(localPath)) {
-      const stat = await fs.promises.stat(localPath);
-      if (stat.isFile()) {
-        const fileBuffer = await fs.promises.readFile(localPath);
-        const ext = path.extname(safeFilename).toLowerCase();
-        const contentType = MIME_MAP[ext] || "application/octet-stream";
+    // 2. Secondary fallback: Check local disk (data/uploads/ or public/) if running locally or pre-bundled
+    const candidateDirs = [
+      path.join(process.cwd(), "data", "uploads"),
+      path.join(process.cwd(), "public", "uploads"),
+      path.join(process.cwd(), "public", "images"),
+      path.join(process.cwd(), "public"),
+    ];
 
-        return new Response(fileBuffer, {
-          status: 200,
-          headers: {
-            "Content-Type": contentType,
-            "Content-Length": stat.size.toString(),
-            "Cache-Control": "public, max-age=31536000, immutable",
-          },
-        });
+    for (const dir of candidateDirs) {
+      const candidatePath = path.join(dir, safeFilename);
+      if (fs.existsSync(candidatePath)) {
+        const stat = await fs.promises.stat(candidatePath);
+        if (stat.isFile()) {
+          const fileBuffer = await fs.promises.readFile(candidatePath);
+          const ext = path.extname(safeFilename).toLowerCase();
+          const contentType = MIME_MAP[ext] || "application/octet-stream";
+
+          return new Response(fileBuffer, {
+            status: 200,
+            headers: {
+              "Content-Type": contentType,
+              "Content-Length": stat.size.toString(),
+              "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
+            },
+          });
+        }
       }
     }
 
