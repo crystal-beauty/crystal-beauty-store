@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from "next/navigation";
+import { db } from "@/lib/db";
 import fs from "fs";
 import path from "path";
+
+export const dynamic = "force-dynamic";
 
 const MIME_MAP: Record<string, string> = {
   ".webp": "image/webp",
@@ -25,32 +27,48 @@ export async function GET(
     return new Response("Invalid filename", { status: 400 });
   }
 
-  const filePath = path.join(process.cwd(), "data", "uploads", safeFilename);
-
-  if (!fs.existsSync(filePath)) {
-    return new Response("File not found", { status: 404 });
-  }
-
   try {
-    const stat = await fs.promises.stat(filePath);
-    if (!stat.isFile()) {
-      return new Response("Not a file", { status: 400 });
+    // 1. Primary source: Fetch persistent binary image from Supabase PostgreSQL
+    // (Works 100% reliably on Vercel Serverless & Read-Only filesystems)
+    const dbImage = await db.uploadedImage.findUnique({
+      where: { filename: safeFilename },
+      select: { data: true, mimeType: true, sizeBytes: true },
+    });
+
+    if (dbImage) {
+      return new Response(dbImage.data, {
+        status: 200,
+        headers: {
+          "Content-Type": dbImage.mimeType,
+          "Content-Length": dbImage.sizeBytes.toString(),
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
     }
 
-    const ext = path.extname(safeFilename).toLowerCase();
-    const contentType = MIME_MAP[ext] || "application/octet-stream";
-    const fileBuffer = await fs.promises.readFile(filePath);
+    // 2. Secondary fallback: Check local data/uploads if running locally or pre-bundled
+    const localPath = path.join(process.cwd(), "data", "uploads", safeFilename);
+    if (fs.existsSync(localPath)) {
+      const stat = await fs.promises.stat(localPath);
+      if (stat.isFile()) {
+        const fileBuffer = await fs.promises.readFile(localPath);
+        const ext = path.extname(safeFilename).toLowerCase();
+        const contentType = MIME_MAP[ext] || "application/octet-stream";
 
-    return new Response(fileBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Content-Length": stat.size.toString(),
-        "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
+        return new Response(fileBuffer, {
+          status: 200,
+          headers: {
+            "Content-Type": contentType,
+            "Content-Length": stat.size.toString(),
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      }
+    }
+
+    return new Response("Image not found", { status: 404 });
   } catch (error) {
-    console.error("Error serving upload:", error);
+    console.error("Error serving uploaded image:", error);
     return new Response("Error serving file", { status: 500 });
   }
 }

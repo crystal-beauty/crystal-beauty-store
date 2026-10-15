@@ -53,6 +53,6 @@ server.log
 supabase/.temp/
 db/
 *.db
-download/
-upload/
+/download/
+/upload/
 tool-results/

@@ -222,3 +222,17 @@ model PixelEvent {
   forwarded Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+// ============ PERSISTENT DATABASE-BACKED IMAGE UPLOADS ============
+
+model UploadedImage {
+  id        String   @id @default(uuid())
+  filename  String   @unique
+  data      Bytes    // raw WebP binary data
+  mimeType  String   @default("image/webp")
+  sizeBytes Int
+  createdAt DateTime @default(now())
+
+  @@index([filename])
+}
+
