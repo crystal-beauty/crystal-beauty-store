@@ -332,50 +332,73 @@ export default function ProductEditor({
             {data.media.length === 0 ? (
               <div className="rounded-xl border-2 border-dashed border-border py-10 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No media yet — upload photos or paste URLs</p>
+                <p className="text-sm text-muted-foreground">Aucune photo pour l'instant — téléversez des photos ou collez des liens</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {data.media.map((m, i) => (
-                  <div key={i} className="relative group rounded-xl overflow-hidden border border-border bg-muted aspect-square">
-                    {m.type === "video" ? (
-                      <video src={m.url} className="h-full w-full object-cover" muted />
-                    ) : (
-                      <ProductImage src={m.url} alt={m.alt || ""} className="h-full w-full object-cover" />
-                    )}
-                    {i === 0 && (
-                      <span className="absolute top-1.5 left-1.5 bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                        Main
-                      </span>
-                    )}
-                    {m.type === "video" && (
-                      <span className="absolute top-1.5 right-8 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">VIDEO</span>
-                    )}
-                    <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                  <div key={i} className="flex flex-col rounded-xl overflow-hidden border border-border bg-card shadow-xs">
+                    <div className="relative aspect-square bg-muted">
+                      {m.type === "video" ? (
+                        <video src={m.url} className="h-full w-full object-cover" muted />
+                      ) : (
+                        <ProductImage src={m.url} alt={m.alt || ""} className="h-full w-full object-cover" />
+                      )}
+                      {i === 0 && (
+                        <span className="absolute top-1.5 left-1.5 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                          Principale
+                        </span>
+                      )}
+                      {m.type === "video" && (
+                        <span className="absolute top-1.5 right-1.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">VIDEO</span>
+                      )}
+                    </div>
+
+                    {/* Action buttons — ALWAYS visible on mobile & desktop */}
+                    <div className="p-1.5 bg-muted/40 flex items-center justify-between gap-1 border-t border-border/60">
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => moveMedia(i, -1)}
+                          disabled={i === 0}
+                          className="p-1 rounded text-neutral-600 hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          title="Déplacer vers la gauche"
+                        >
+                          <ChevronUp className="h-3.5 w-3.5 -rotate-90" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveMedia(i, 1)}
+                          disabled={i === data.media.length - 1}
+                          className="p-1 rounded text-neutral-600 hover:bg-muted disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                          title="Déplacer vers la droite"
+                        >
+                          <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplacingIndex(i);
+                            replaceRef.current?.click();
+                          }}
+                          className="p-1 rounded text-neutral-600 hover:bg-muted transition-colors"
+                          title="Remplacer la photo"
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
                       <button
                         type="button"
                         onClick={() => {
-                          setReplacingIndex(i);
-                          replaceRef.current?.click();
+                          set("media", data.media.filter((_, j) => j !== i));
+                          toast.success("Photo supprimée");
                         }}
-                        className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white"
-                        title="Remplacer la photo"
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                      </button>
-                      <button type="button" onClick={() => moveMedia(i, -1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Déplacer à gauche">
-                        <ChevronUp className="h-3.5 w-3.5 -rotate-90" />
-                      </button>
-                      <button type="button" onClick={() => moveMedia(i, 1)} className="p-1.5 bg-white/90 rounded-lg text-[var(--primary)] hover:bg-white" title="Déplacer à droite">
-                        <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => set("media", data.media.filter((_, j) => j !== i))}
-                        className="p-1.5 bg-white/90 rounded-lg text-destructive hover:bg-white"
-                        title="Retirer"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors"
+                        title="Supprimer cette photo"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
+                        <span>Supprimer</span>
                       </button>
                     </div>
                   </div>
