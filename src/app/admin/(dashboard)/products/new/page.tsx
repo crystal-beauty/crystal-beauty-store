@@ -6,5 +6,5 @@ export const metadata = { title: "Nouveau produit" };
 
 export default async function NewProductPage() {
   const categories = await db.category.findMany({ where: { active: true }, select: { id: true, name: true }, orderBy: { name: "asc" } });
-  return <ProductEditor categories={categories} />;
+  return <ProductEditor key="new" categories={categories} />;
 }

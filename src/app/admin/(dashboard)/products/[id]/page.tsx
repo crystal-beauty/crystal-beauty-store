@@ -46,5 +46,5 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     })),
   };
 
-  return <ProductEditor initial={initial} categories={categories} productId={product.id} />;
+  return <ProductEditor key={product.id} initial={initial} categories={categories} productId={product.id} />;
 }

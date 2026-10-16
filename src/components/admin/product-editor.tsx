@@ -48,12 +48,26 @@ export interface ProductEditorData {
   variants: VariantDraft[];
 }
 
-const emptyProduct: ProductEditorData = {
-  name: "", slug: "", sku: "", shortDescription: "", description: "",
-  price: "", comparePrice: "", costPrice: "", weightGrams: "500", stock: "10",
-  trackStock: true, active: true, featured: false,
-  media: [], categoryId: "", variants: [],
-};
+function getEmptyProduct(): ProductEditorData {
+  return {
+    name: "",
+    slug: "",
+    sku: "",
+    shortDescription: "",
+    description: "",
+    price: "",
+    comparePrice: "",
+    costPrice: "",
+    weightGrams: "500",
+    stock: "10",
+    trackStock: true,
+    active: true,
+    featured: false,
+    media: [],
+    categoryId: "",
+    variants: [],
+  };
+}
 
 export default function ProductEditor({
   initial,
@@ -66,7 +80,7 @@ export default function ProductEditor({
 }) {
   const router = useRouter();
   const settings = useSettings();
-  const [data, setData] = useState<ProductEditorData>(initial || emptyProduct);
+  const [data, setData] = useState<ProductEditorData>(() => initial ? { ...initial } : getEmptyProduct());
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
@@ -74,6 +88,10 @@ export default function ProductEditor({
   const replaceRef = useRef<HTMLInputElement>(null);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   const isEdit = Boolean(productId);
+
+  useEffect(() => {
+    setData(initial ? { ...initial } : getEmptyProduct());
+  }, [productId, initial]);
 
   const set = <K extends keyof ProductEditorData>(key: K, value: ProductEditorData[K]) =>
     setData((d) => ({ ...d, [key]: value }));
